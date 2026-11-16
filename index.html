@@ -100,46 +100,49 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg);font-size:14px;font-weight:500}
 .chip.on{background:var(--accent);color:var(--onAccent);border-color:var(--accent);font-weight:600}
-.onb{position:fixed;inset:0;z-index:40;background:#0A0E24;color:#ECEEF8;overflow-y:auto;-webkit-overflow-scrolling:touch;background-image:radial-gradient(1.2px 1.2px at 8% 6%,#fff,transparent),radial-gradient(1px 1px at 31% 3%,#C9CEDD,transparent),radial-gradient(1.4px 1.4px at 77% 8%,#F1E3B0,transparent),radial-gradient(1px 1px at 90% 19%,#C9CEDD,transparent),radial-gradient(1px 1px at 54% 14%,#fff,transparent),radial-gradient(1.2px 1.2px at 15% 30%,#C9CEDD,transparent),radial-gradient(1px 1px at 62% 24%,#F1E3B0,transparent)}
+.onb{--o-bg:var(--o-on);--o-card:var(--o-card);--o-sel:var(--o-sel);--o-border:var(--o-border);--o-border2:var(--o-border2);--o-text:var(--o-text);--o-muted:var(--o-muted);--o-accent:var(--o-accent);--o-on:var(--o-on);--o-link:var(--o-link);--o-gold:var(--o-gold);--o-pink:#F2A9CF;position:fixed;inset:0;z-index:40;background-color:var(--o-bg);color:var(--o-text);overflow-y:auto;-webkit-overflow-scrolling:touch;background-image:radial-gradient(1.2px 1.2px at 8% 6%,#fff,transparent),radial-gradient(1px 1px at 31% 3%,#C9CEDD,transparent),radial-gradient(1.4px 1.4px at 77% 8%,var(--o-gold),transparent),radial-gradient(1px 1px at 90% 19%,#C9CEDD,transparent),radial-gradient(1px 1px at 54% 14%,#fff,transparent),radial-gradient(1.2px 1.2px at 15% 30%,#C9CEDD,transparent),radial-gradient(1px 1px at 62% 24%,var(--o-gold),transparent)}
 .onb .in{max-width:480px;margin:0 auto;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;padding:calc(env(safe-area-inset-top) + 24px) 22px calc(env(safe-area-inset-bottom) + 24px)}
-.onb .gname{color:#ECEEF8}
-.odots{display:flex;gap:6px;align-items:center}.odots i{display:block;height:6px;width:6px;border-radius:3px;background:#2A3266}.odots i.on{background:#A493FF}.odots i.cur{width:24px}
+.onb .gname{color:var(--o-text)}
+.odots{display:flex;gap:6px;align-items:center}.odots i{display:block;height:6px;width:6px;border-radius:3px;background:var(--o-border)}.odots i.on{background:var(--o-accent)}.odots i.cur{width:24px}
 .oh1{margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:36px;line-height:1.05}
-.osub{margin:6px 0 0;font-size:15px;line-height:1.5;color:#A9AFD0}
+.osub{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--o-muted)}
 .ocenter{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
-.omedal{width:112px;height:112px;border-radius:50%;background:#141A3A;border:1px solid #3A3F80;display:flex;align-items:center;justify-content:center;color:#F1E3B0;box-shadow:0 0 60px rgba(241,227,176,.18)}
-.ofield{display:flex;flex-direction:column;gap:8px;font-size:13px;font-weight:500;color:#A9AFD0;width:100%;text-align:left;margin-top:6px}
-.ofield input{height:52px;border-radius:16px;border:1px solid #2A3266;background:#141A3A;color:#ECEEF8;padding:0 16px;font-size:17px}
+.omedal{width:112px;height:112px;border-radius:50%;background:var(--o-card);border:1px solid var(--o-border);display:flex;align-items:center;justify-content:center;color:var(--o-gold);box-shadow:0 0 60px rgba(241,227,176,.18)}
+.ofield{display:flex;flex-direction:column;gap:8px;font-size:13px;font-weight:500;color:var(--o-muted);width:100%;text-align:left;margin-top:6px}
+.ofield input{height:52px;border-radius:16px;border:1px solid var(--o-border);background:var(--o-card);color:var(--o-text);padding:0 16px;font-size:17px}
 .ostack{display:flex;flex-direction:column;gap:8px;align-items:center}
-.obtn{height:54px;border-radius:27px;border:none;background:#A493FF;color:#0A0E24;font-size:16px;font-weight:600;width:100%;flex-shrink:0}
+.obtn{height:54px;border-radius:27px;border:none;background:var(--o-accent);color:var(--o-on);font-size:16px;font-weight:600;width:100%;flex-shrink:0}
 .obtn[disabled]{opacity:.45}
-.obtn-link{background:none;border:none;color:#C9BEFF;font-size:14px;padding:12px;min-height:44px}
+.obtn-link{background:none;border:none;color:var(--o-link);font-size:14px;padding:12px;min-height:44px}
 .ogrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.otile{position:relative;min-height:104px;border-radius:20px;border:1px solid #2A3266;background:#141A3A;color:#ECEEF8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 6px;font-size:12.5px;font-weight:600;text-align:center;line-height:1.2}
-.otile.on{border:2px solid var(--c);background:#1B2250}
+.otile{position:relative;min-height:104px;border-radius:20px;border:1px solid var(--o-border);background:var(--o-card);color:var(--o-text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 6px;font-size:12.5px;font-weight:600;text-align:center;line-height:1.2}
+.otile.on{border:2px solid var(--c);background:var(--o-sel)}
 .oico{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent);flex-shrink:0}
 .oico.sm{width:42px;height:42px;border-radius:14px}
-.obadge{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--c);color:#0A0E24;display:flex;align-items:center;justify-content:center}
+.obadge{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--c);color:var(--o-on);display:flex;align-items:center;justify-content:center}
 .ogrow{flex:1}
 .osec{display:flex;flex-direction:column;gap:7px}
 .osech{display:flex;align-items:center;gap:8px;color:var(--c);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.oopt{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 12px;border-radius:14px;border:1px solid #2A3266;background:#141A3A;color:#ECEEF8;text-align:left;font-size:14px;font-weight:500}
-.oopt.on{border:1.5px solid var(--c);background:#1B2250;font-weight:600}
-.obox{width:20px;height:20px;border-radius:50%;border:1.5px solid #4A5490;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#0A0E24}
+.oopt{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 12px;border-radius:14px;border:1px solid var(--o-border);background:var(--o-card);color:var(--o-text);text-align:left;font-size:14px;font-weight:500}
+.oopt.on{border:1.5px solid var(--c);background:var(--o-sel);font-weight:600}
+.obox{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--o-border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--o-on)}
 .oopt.on .obox{border-color:var(--c);background:var(--c)}
-.otag{font-size:12px;color:#A9AFD0;font-weight:500;text-align:right}
-.ostep{display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 42px;font-size:12px;color:#A9AFD0}
-.ostep b{color:#ECEEF8;min-width:84px;text-align:center;font-size:13px}
+.otag{font-size:12px;color:var(--o-muted);font-weight:500;text-align:right}
+.ostep{display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 42px;font-size:12px;color:var(--o-muted)}
+.ostep b{color:var(--o-text);min-width:84px;text-align:center;font-size:13px}
 .ostepb{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--c);background:transparent;color:var(--c);font-size:18px;font-weight:600;padding:0}
 .oadd{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:14px;border:1px dashed var(--c);background:none;color:var(--c);font-size:13px;font-weight:600;text-align:left}
-.ocard{background:#141A3A;border:1px solid #2A3266;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
-.osd{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid #4A5490;color:#A9AFD0}
-.osd.on{background:#F1E3B0;border-color:#F1E3B0;color:#0A0E24}
-.ocourt{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:#A9AFD0}
-.ocourt i{width:34px;height:34px;border-radius:11px;border:1px solid #3A4378;display:flex;align-items:flex-end;justify-content:flex-end;padding:3px;box-sizing:border-box;opacity:.5}
+.ocard{background:var(--o-card);border:1px solid var(--o-border);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.osd{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid var(--o-border2);color:var(--o-muted)}
+.osd.on{background:var(--o-gold);border-color:var(--o-gold);color:var(--o-on)}
+.ocourt{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--o-muted)}
+.ocourt i{width:34px;height:34px;border-radius:11px;border:1px solid var(--o-border);display:flex;align-items:flex-end;justify-content:flex-end;padding:3px;box-sizing:border-box;opacity:.5}
 .ocourt i b{display:block;width:11px;height:11px;border-radius:4px}
-.ocourt.on i{opacity:1;border:2px solid #F1E3B0}
+.ocourt.on i{opacity:1;border:2px solid var(--o-gold)}
 .ochip{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border-radius:12px;padding:7px 10px}
+.onb.themed{--o-bg:var(--bg);--o-card:var(--card);--o-sel:color-mix(in srgb,var(--accent) 9%,var(--card));--o-border:var(--border);--o-border2:color-mix(in srgb,var(--muted) 60%,var(--card));--o-text:var(--text);--o-muted:var(--muted);--o-accent:var(--accent);--o-on:var(--onAccent);--o-link:var(--accent);--o-gold:var(--streak);--o-pink:var(--streak);background-image:none}
+.onb.themed.sky{background-image:radial-gradient(1.2px 1.2px at 8% 6%,var(--star1),transparent),radial-gradient(1px 1px at 31% 3%,var(--star2),transparent),radial-gradient(1.4px 1.4px at 77% 8%,var(--star1),transparent)}
+.onb.themed .oh1{font-family:var(--display)}
 @keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .35s ease-out}
 </style>
@@ -667,21 +670,22 @@ function startOnboarding(step){view.onb={step:step||1,name:S.name||'',cats:[],pi
 function onbDots(n){var s='<div class="odots" aria-label="Krok '+n+' zo 4">';for(var i=1;i<=4;i++)s+='<i class="'+(i===n?'cur':'')+(i<=n?' on':'')+'"></i>';return s+'</div>'}
 function onbSelected(){var o=view.onb,out=[];o.cats.forEach(function(cid){var c=catById(cid);(o.picks[cid]||[]).forEach(function(i){var s=c.sug[i];var key=cid+':'+i;out.push({cat:c,s:s,val:o.vals[key]!=null?o.vals[key]:sugValue(s)})});(o.custom[cid]||[]).forEach(function(nm){if(nm&&nm.trim())out.push({cat:c,s:{name:nm.trim(),mode:c.def},val:0,custom:true})})});return out}
 function renderOnb(){
- var o=view.onb,h='<div class="onb" role="dialog" aria-modal="true" aria-label="Privítanie"><div class="in">';
- if(o.step>1)h+='<div class="row" style="justify-content:space-between"><button class="obtn-link" data-a="onbBack" aria-label="Späť">‹ Späť</button>'+onbDots(o.step)+'</div>';else h+=onbDots(1);
+ var o=view.onb,th=themeById(S.theme),oc=function(c){return o.first?c.dark:catColor(c)};var h='<div class="onb'+(o.first?'':' themed'+(th.sky?' sky':''))+'" role="dialog" aria-modal="true" aria-label="'+(o.first?'Privítanie':'Pridať ciele')+'"><div class="in">';
+ if(!o.first)h+='<div class="row" style="justify-content:space-between">'+(o.step>2?'<button class="obtn-link" data-a="onbBack">‹ Späť</button>':'<button class="obtn-link" data-a="onbClose">Zavrieť</button>')+'<span class="osub" style="margin:0;font-size:13px">Krok '+(o.step-1)+' z 2</span></div>';
+ else if(o.step>1)h+='<div class="row" style="justify-content:space-between"><button class="obtn-link" data-a="onbBack" aria-label="Späť">‹ Späť</button>'+onbDots(o.step)+'</div>';else h+=onbDots(1);
  if(o.step===1){
-  h+='<div class="ocenter"><div class="omedal">'+svg(MOUNT,56,1.4)+'</div><h1 class="oh1" style="font-size:42px">Ahoj!</h1><p class="osub" style="font-size:17px;max-width:300px">Poďme ti postaviť návyk, ktorý vydrží. <span style="color:#F2A9CF">Zaberie to minútu.</span></p>';
+  h+='<div class="ocenter"><div class="omedal">'+svg(MOUNT,56,1.4)+'</div><h1 class="oh1" style="font-size:42px">Ahoj!</h1><p class="osub" style="font-size:17px;max-width:300px">Poďme ti postaviť návyk, ktorý vydrží. <span style="color:var(--o-pink)">Zaberie to minútu.</span></p>';
   h+='<label class="ofield">Ako ťa máme volať?<input data-a="onbName" value="'+esc(o.name)+'" autocomplete="given-name"></label></div>';
   h+='<div class="ostack"><button class="obtn" data-a="onbNext">Poďme na to</button><button class="obtn-link" data-a="onbSkip">Preskočiť, nastavím si to sama</button></div>';
  } else if(o.step===2){
-  h+='<div><h1 class="oh1">Čo chceš zmeniť?</h1><p class="osub">Vyber 1 až 3 veci. Menej je viac, fakt.</p></div><div class="ogrid">';
-  CATS.forEach(function(c){var on=o.cats.indexOf(c.id)>=0;h+='<button class="otile'+(on?' on':'')+'" style="--c:'+c.dark+'" data-a="onbCat" data-v="'+c.id+'" aria-pressed="'+(on?'true':'false')+'">'+(on?'<span class="obadge">'+svg(CHECK,12,3.2)+'</span>':'')+'<span class="oico">'+svg(c.icon,24,1.7)+'</span><span>'+c.name+'</span></button>'});
-  h+='</div><div class="ogrow"></div><div class="ostack"><span class="osub" style="font-size:13px" role="status">'+(o.msg?esc(o.msg):'Vybrané <b style="color:#F1E3B0">'+o.cats.length+' z 3</b>')+'</span><button class="obtn" data-a="onbNext"'+(o.cats.length?'':' disabled')+'>Ďalej</button></div>';
+  h+='<div><h1 class="oh1">'+(o.first?'Čo chceš zmeniť?':'Pridať ciele')+'</h1><p class="osub">'+(o.first?'Vyber 1 až 3 veci. Menej je viac, fakt.':'Vyber oblasť, najviac 3 naraz.')+'</p></div><div class="ogrid">';
+  CATS.forEach(function(c){var on=o.cats.indexOf(c.id)>=0;h+='<button class="otile'+(on?' on':'')+'" style="--c:'+oc(c)+'" data-a="onbCat" data-v="'+c.id+'" aria-pressed="'+(on?'true':'false')+'">'+(on?'<span class="obadge">'+svg(CHECK,12,3.2)+'</span>':'')+'<span class="oico">'+svg(c.icon,24,1.7)+'</span><span>'+c.name+'</span></button>'});
+  h+='</div><div class="ogrow"></div><div class="ostack"><span class="osub" style="font-size:13px" role="status">'+(o.msg?esc(o.msg):'Vybrané <b style="color:var(--o-gold)">'+o.cats.length+' z 3</b>')+'</span><button class="obtn" data-a="onbNext"'+(o.cats.length?'':' disabled')+'>Ďalej</button></div>';
  } else if(o.step===3){
   h+='<div><h1 class="oh1" style="font-size:34px">Tvoje ciele</h1><p class="osub">Vyber si 1–2 v každej oblasti. Začneme zľahka, pridať môžeš vždy.</p></div>';
   o.cats.forEach(function(cid){
    var c=catById(cid),picks=o.picks[cid]||[];
-   h+='<div class="osec" style="--c:'+c.dark+'"><div class="osech">'+svg(c.icon,18,1.8)+'<span>'+c.name+'</span></div>';
+   h+='<div class="osec" style="--c:'+oc(c)+'"><div class="osech">'+svg(c.icon,18,1.8)+'<span>'+c.name+'</span></div>';
    c.sug.forEach(function(s,i){
     var on=picks.indexOf(i)>=0,key=cid+':'+i,val=o.vals[key]!=null?o.vals[key]:sugValue(s);
     h+='<button class="oopt'+(on?' on':'')+'" data-a="onbSug" data-v="'+key+'" aria-pressed="'+(on?'true':'false')+'"><span class="obox">'+(on?svg(CHECK,11,3.2):'')+'</span><span class="ogrow">'+esc(s.name)+'</span><span class="otag">'+esc(sugTag(s,val))+'</span></button>';
@@ -692,7 +696,7 @@ function renderOnb(){
    (o.custom[cid]||[]).forEach(function(nm,ci){h+='<label class="ofield" style="margin:0"><span class="sr">Názov vlastného cieľa</span><input data-a="onbCustom" data-v="'+cid+'" data-i="'+ci+'" value="'+esc(nm)+'" placeholder="Napíš svoj cieľ…"></label>'});
    h+='<button class="oadd" data-a="onbAddCustom" data-v="'+cid+'">'+svg('<path d="M12 5v14M5 12h14"/>',16,2)+'Vlastný cieľ v kategórii '+c.name+'</button></div>';
   });
-  h+='<div class="ogrow"></div><button class="obtn" data-a="onbNext">Ďalej</button>';
+  h+='<div class="ogrow"></div><button class="obtn" data-a="'+(o.first?'onbNext':'onbFinish')+'">'+(o.first?'Ďalej':'Pridať ciele')+'</button>';
  } else {
   var sel=onbSelected(),sd='';
   ['Po','Ut','St','Št','Pi','So','Ne'].forEach(function(d,i){sd+='<span class="osd'+(i<4?' on':'')+'">'+d+'</span>'});
@@ -710,7 +714,7 @@ function renderOnb(){
 function onbCard(icon,col,title,text,inner){return '<div class="ocard"><div class="row" style="align-items:flex-start;gap:12px"><span class="oico sm" style="--c:'+col+'">'+svg(icon,22,1.7)+'</span><div><span class="gname">'+title+'</span><span class="osub" style="font-size:13.5px;display:block;margin-top:3px">'+text+'</span></div></div>'+inner+'</div>'}
 function finishOnboarding(){
  var o=view.onb,sel=onbSelected();
- if(o.name&&o.name.trim())S.name=o.name.trim().slice(0,40);
+ if(o.first&&o.name&&o.name.trim())S.name=o.name.trim().slice(0,40);
  var fresh=!S.goals.length&&!Object.keys(S.log).length;
  sel.forEach(function(x){var g=buildGoal(x.s,x.cat.id,x.val);S.goals.push(g)});
  if(fresh)S.start=todayKey();
@@ -720,7 +724,8 @@ function onbClick(a,el){
  var o=view.onb,v=el.getAttribute('data-v');
  switch(a){
   case 'onbNext':if(o.step===2&&!o.cats.length)return true;if(o.step===2){o.cats.forEach(function(cid){if(!o.picks[cid]){o.picks[cid]=[0]}})}o.step++;o.msg='';render();var ov=document.querySelector('.onb');if(ov)ov.scrollTop=0;return true;
-  case 'onbBack':o.step=Math.max(1,o.step-1);o.msg='';render();return true;
+  case 'onbClose':view.onb=null;render();return true;
+  case 'onbBack':o.step=Math.max(o.first?1:2,o.step-1);o.msg='';render();return true;
   case 'onbSkip':S.onboarded=true;if(o.name&&o.name.trim())S.name=o.name.trim().slice(0,40);view.onb=null;commit();return true;
   case 'onbCat':var ix=o.cats.indexOf(v);if(ix>=0){o.cats.splice(ix,1);o.msg=''}else if(o.cats.length>=3){o.msg='Najviac 3. Menej je viac, fakt.'}else{o.cats.push(v);o.msg=''}render();return true;
   case 'onbSug':var p=v.split(':'),arr=o.picks[p[0]]=o.picks[p[0]]||[],si=+p[1],j=arr.indexOf(si);if(j>=0)arr.splice(j,1);else arr.push(si);render();return true;
@@ -787,7 +792,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&tod
 if(window.matchMedia)try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render)}catch(e){}
 
 refreshProgress(S);
-if(!S.onboarded)view.onb={step:1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};
+if(!S.onboarded)view.onb={first:true,step:1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};
 render();
 initSync();
 </script>
