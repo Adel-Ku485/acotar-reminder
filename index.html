@@ -31,10 +31,11 @@ h2{margin:0;font-size:15px;font-weight:600}
 .iconbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;padding:0;color:var(--accent);flex-shrink:0}
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:14px}
 .stack{display:flex;flex-direction:column;gap:12px}
+.stack>*{flex-shrink:0}
 .streak{display:flex;flex-direction:column;align-items:center;gap:4px;padding:20px 16px;border-radius:24px}
 .big{font-family:var(--display);font-weight:600;font-size:80px;line-height:.95;color:var(--streak)}
 .dots{display:flex;gap:8px;margin-top:10px}
-.dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid var(--empty);color:var(--muted)}
+.dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid color-mix(in srgb,var(--muted) 70%,var(--card));color:var(--muted)}
 .dot.done{background:var(--streak);border-color:var(--streak);color:var(--onStreak)}
 .dot.forgiven{border-color:var(--streak);border-style:dashed;color:var(--streak)}
 .dot.today{box-shadow:0 0 0 3px var(--bg),0 0 0 4.5px var(--accent)}
@@ -47,14 +48,15 @@ h2{margin:0;font-size:15px;font-weight:600}
 .grow{flex:1;min-width:0}
 .gname{font-size:15px;font-weight:600;display:block}
 .gsub{font-size:12px;color:var(--muted);display:block;margin-top:2px}
-.gtap{background:none;border:none;text-align:left;padding:0;width:100%}
+.gtap{background:none;border:none;text-align:left;padding:0;width:100%;min-height:44px}
 .check{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--accent);background:transparent;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:transform .15s}
 .check.on{background:var(--accent);color:var(--onAccent)}
 .check:active,.pill:active{transform:scale(.92)}
 .pill{height:46px;padding:0 15px;border-radius:23px;border:none;background:var(--accent);color:var(--onAccent);font-size:14px;font-weight:600;flex-shrink:0;transition:transform .15s}
 .pill.ghost{background:transparent;border:1.5px solid var(--accent);color:var(--accent);padding:0;width:46px}
 .cups{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
-.cup{width:17px;height:22px;border-radius:3px 3px 7px 7px;background:var(--cupEmpty)}
+.cup{width:17px;height:22px;border-radius:3px 3px 7px 7px;background:transparent;border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--card))}
+.cup.on{border-color:var(--accent)}
 .cup.on{background:var(--accent)}
 .extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
 .emojis{display:flex;flex-wrap:wrap;gap:6px}
@@ -124,7 +126,7 @@ var THEMES=[
   lines:{exercise:'Plávanie ako Tarquin',sweet:'Ani perly z Adriaty nevyvážia ten koláč.',water:'Celé more a ty nepiješ?'},
   done:'Deň splnený. More ti tlieska.',left:' Celé more a ty nepiješ?',nudge:'Tarquin by sa len taktne usmial.',full:'Hydratovaná ako celý Letný dvor.'},
  {id:'autumn',pack:'acotar',name:'Jesenný dvor',place:'Beronov hrad',unlockAt:7,unit:'den',icon:'leaf',font:"'Playfair Display',serif",sky:true,
-  c:{bg:'#1E110C',card:'#2A1912',border:'#4A2E1F',text:'#F6E8DA',muted:'#C9AE98',accent:'#D06A50',onAccent:'#1E110C',streak:'#E0B04E',onStreak:'#1E110C',stat1:'#E58C7C',stat2:'#E0B04E',navBg:'#170D09',navBorder:'#3A2418',empty:'#6A4634',cupEmpty:'#4A2E1F',star1:'#E0B04E',star2:'#C9593F'},
+  c:{bg:'#1E110C',card:'#2A1912',border:'#4A2E1F',text:'#F6E8DA',muted:'#C9AE98',accent:'#E0B04E',onAccent:'#1E110C',streak:'#F0A8B0',onStreak:'#1E110C',stat1:'#F0A8B0',stat2:'#E0B04E',navBg:'#170D09',navBorder:'#3A2418',empty:'#6A4634',cupEmpty:'#4A2E1F',star1:'#E0B04E',star2:'#C9593F'},
   lines:{exercise:'Výcvik bez Erisovej drzosti',sweet:'Beron by si dal. Nebuď Beron.',water:'Lístie padá, voda nie.'},
   done:'Deň splnený. Lucien by bol hrdý. Asi.',left:' Lístie padá, voda nie.',nudge:'Eris by sa zasmial. Nedopraj mu to.',full:'Plná ako jesenná hostina.'},
  {id:'winter',pack:'acotar',name:'Zimný dvor',place:'Kalliasov palác',unlockAt:12,unit:'den',icon:'snow',font:"'Cormorant Garamond',serif",
@@ -183,9 +185,10 @@ function normalize(s){
  if(s.unlocked.indexOf('spring')<0)s.unlocked.push('spring');
  if(s.unlocked.indexOf('base')<0)s.unlocked.push('base');
  if(!s.log||typeof s.log!=='object')s.log={};
+ s.goals.forEach(function(g){if(!g.since&&/^g[0-9a-z]{6,}$/.test(g.id)){var ts=parseInt(g.id.slice(1),36);if(ts>1.5e12&&ts<4e12)g.since=keyOf(new Date(ts))}});
  return s;
 }
-function goalsFor(S,k){var w=wdOf(k);return S.goals.filter(function(g){return g.days.indexOf(w)>=0})}
+function goalsFor(S,k){var w=wdOf(k);return S.goals.filter(function(g){return g.days.indexOf(w)>=0&&(!g.since||g.since<=k)})}
 function entry(S,k){return S.log[k]||{g:{}}}
 function gval(S,k,g){var e=entry(S,k).g[g.id];return e?e.v:(g.type==='count'?0:false)}
 function gdone(S,k,g){var v=gval(S,k,g);return g.type==='count'?(+v||0)>=g.target:!!v}
@@ -368,7 +371,7 @@ function renderGoal(g,k,t){
  }
  h+='</div>';
  if(open){
-  h+='<div class="extra"><label class="f">Poznámka<textarea data-a="note" data-id="'+g.id+'" placeholder="napr. joga 20 min, beh s Mimi…">'+esc(e.note||'')+'</textarea></label><div class="emojis" role="group" aria-label="Emoji">';
+  h+='<div class="extra"><label class="f">Poznámka<textarea data-a="note" data-id="'+g.id+'" placeholder="napr. joga 20 min, beh 5 km…">'+esc(e.note||'')+'</textarea></label><div class="emojis" role="group" aria-label="Emoji">';
   EMOJIS.forEach(function(em){h+='<button class="emo'+(e.e===em?' on':'')+'" data-a="emoji" data-id="'+g.id+'" data-v="'+em+'" aria-pressed="'+(e.e===em?'true':'false')+'">'+em+'</button>'});
   h+='</div></div>';
  }
@@ -494,7 +497,7 @@ document.addEventListener('click',function(ev){
   case 'saveGoal':
    var name=document.getElementById('gf-name').value.trim()||'Nový cieľ',type=document.getElementById('gf-type').value,target=Math.max(1,Math.min(999,parseInt(document.getElementById('gf-target').value,10)||1));
    var data={name:name,type:type,target:type==='count'?target:1,unit:document.getElementById('gf-unit').value.trim(),days:formDays.length?formDays.slice():[0,1,2,3,4,5,6],kind:document.getElementById('gf-kind').value};
-   if(id==='new'){data.id='g'+Date.now().toString(36);S.goals.push(data)}else{var og=goal(id);for(var kk in data)og[kk]=data[kk]}
+   if(id==='new'){data.id='g'+Date.now().toString(36);data.since=todayKey();S.goals.push(data)}else{var og=goal(id);for(var kk in data)og[kk]=data[kk]}
    view.editGoal=null;commit();break;
   case 'delGoal':if(view.confirmDel===id){S.goals=S.goals.filter(function(x){return x.id!==id});view.editGoal=null;view.confirmDel=null;commit()}else{view.confirmDel=id;render()}break;
   case 'copyBackup':var txt=JSON.stringify(S);try{navigator.clipboard.writeText(txt).then(function(){view.importMsg='Záloha je v schránke. Ulož si ju napríklad do Poznámok.';render()},function(){view.importText=txt;view.importMsg='Kopírovanie nevyšlo, záloha je v poli nižšie. Označ a skopíruj ju.';render()})}catch(x){view.importText=txt;view.importMsg='Záloha je v poli nižšie, skopíruj ju.';render()}break;
