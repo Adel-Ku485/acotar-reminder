@@ -57,6 +57,7 @@ h2{margin:0;font-size:15px;font-weight:600}
 .cups{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 .cup{width:17px;height:22px;border-radius:3px 3px 7px 7px;background:transparent;border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--card))}
 .cup.on{border-color:var(--accent)}
+.cup.wk{width:22px;height:8px;border-radius:4px}
 .cup.on{background:var(--accent)}
 .extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
 .emojis{display:flex;flex-wrap:wrap;gap:6px}
@@ -188,20 +189,27 @@ function normalize(s){
  s.goals.forEach(function(g){if(!g.since&&/^g[0-9a-z]{6,}$/.test(g.id)){var ts=parseInt(g.id.slice(1),36);if(ts>1.5e12&&ts<4e12)g.since=keyOf(new Date(ts))}});
  return s;
 }
-function goalsFor(S,k){var w=wdOf(k);return S.goals.filter(function(g){return g.days.indexOf(w)>=0&&(!g.since||g.since<=k)})}
+function isWeekly(g){return g.freq==='week'}
+function activeOn(g,k){return (!g.since||g.since<=k)&&(!g.until||k<=g.until)}
+function activeGoals(S){var t=todayKey();return S.goals.filter(function(g){return !g.until||g.until>=t})}
+function goalsFor(S,k){var w=wdOf(k);return S.goals.filter(function(g){return activeOn(g,k)&&(isWeekly(g)||g.days.indexOf(w)>=0)})}
 function entry(S,k){return S.log[k]||{g:{}}}
 function gval(S,k,g){var e=entry(S,k).g[g.id];return e?e.v:(g.type==='count'?0:false)}
 function gdone(S,k,g){var v=gval(S,k,g);return g.type==='count'?(+v||0)>=g.target:!!v}
+function weekStart(k){return addDays(k,-wdOf(k))}
+function weekCount(S,g,k,through){var ws=weekStart(k),n=0;for(var i=0;i<7;i++){var d=addDays(ws,i);if(through&&d>through)break;if(!activeOn(g,d))continue;if(gdone(S,d,g))n++}return n}
+function weekTarget(g,k){var ws=weekStart(k),from=(g.since&&g.since>ws)?g.since:ws;return Math.max(1,Math.min(g.perWeek||1,7-wdOf(from)))}
+function goalOk(S,k,g){if(!isWeekly(g))return gdone(S,k,g);var tg=weekTarget(g,k),have=weekCount(S,g,k,k);return have>=tg||have+(6-wdOf(k))>=tg}
 function status(S,k){
  var t=todayKey();
  if(k>t)return 'future';
  if(k<S.start)return 'before';
  var gs=goalsFor(S,k);
  if(!gs.length)return 'none';
- var n=0;gs.forEach(function(g){if(gdone(S,k,g))n++});
+ var n=0,raw=0;gs.forEach(function(g){if(goalOk(S,k,g))n++;if(gdone(S,k,g))raw++});
  if(n===gs.length)return 'done';
  if(entry(S,k).forgiven)return 'forgiven';
- var any=n>0;
+ var any=raw>0;
  if(!any){var e=entry(S,k).g;for(var id in e){if(e[id]&&(e[id].v||e[id].note))any=true}}
  return any?'partial':'missed';
 }
@@ -243,7 +251,7 @@ function nextCourt(S){for(var i=0;i<ACOTAR.length;i++){if(S.unlocked.indexOf(ACO
 function plural(n,one,few,many){return n===1?one:(n>=2&&n<=4?few:many)}
 function unitWord(n,u){return u==='noc'?plural(n,'noc','noci','nocí'):plural(n,'deň','dni','dní')}
 function setVal(S,k,g,v){S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[g.id]||{v:g.type==='count'?0:false,note:'',e:''};e.v=v;S.log[k].g[g.id]=e}
-if(typeof module!=='undefined')module.exports={THEMES:THEMES,defaultState:defaultState,normalize:normalize,status:status,streak:streak,totalDone:totalDone,tokens:tokens,canForgiveYesterday:canForgiveYesterday,forgiveYesterday:forgiveYesterday,refreshProgress:refreshProgress,setVal:setVal,addDays:addDays,todayKey:todayKey,setNow:function(f){NOW=f},daysToXmas:daysToXmas,unitWord:unitWord};
+if(typeof module!=='undefined')module.exports={weekCount:weekCount,goalOk:goalOk,activeGoals:activeGoals,THEMES:THEMES,defaultState:defaultState,normalize:normalize,status:status,streak:streak,totalDone:totalDone,tokens:tokens,canForgiveYesterday:canForgiveYesterday,forgiveYesterday:forgiveYesterday,refreshProgress:refreshProgress,setVal:setVal,addDays:addDays,todayKey:todayKey,setNow:function(f){NOW=f},daysToXmas:daysToXmas,unitWord:unitWord};
 </script>
 
 <script id="ui">
@@ -356,8 +364,10 @@ function renderToday(){
 }
 function renderGoal(g,k,t){
  var v=gval(S,k,g),e=entry(S,k).g[g.id]||{},open=view.open[g.id];
- var sub=e.note?esc(e.note):(t.lines[g.kind]||(g.days.length<7?g.days.map(function(d){return WDS[d]}).join(' '):''));
- var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+(e.e?e.e+' ':'')+esc(g.name)+(g.type==='count'?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+(+v||0)+' / '+g.target+'</span>':'')+'</span><span class="gsub">'+sub+'</span>';
+ var sub=e.note?esc(e.note):(t.lines[g.kind]||(!isWeekly(g)&&g.days.length<7?g.days.map(function(d){return WDS[d]}).join(' '):''));
+ var wk='';
+ if(isWeekly(g)){var wc=weekCount(S,g,k),wt=weekTarget(g,k);wk='<span class="cups" aria-hidden="true">';for(var wi=0;wi<wt;wi++)wk+='<i class="cup wk'+(wi<wc?' on':'')+'"></i>';wk+='</span>';sub=(wc>=wt?'Týždeň splnený! ':'')+wc+' / '+wt+' tento týždeň'+(e.note?' · '+esc(e.note):'')}
+ var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+(e.e?e.e+' ':'')+esc(g.name)+(g.type==='count'?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+(+v||0)+' / '+g.target+'</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
  if(g.type==='count'){
   if(g.target<=12){h+='<span class="cups" aria-hidden="true">';for(var i=0;i<g.target;i++)h+='<i class="cup'+(i<v?' on':'')+'"></i>';h+='</span>'}
   else h+='<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round(v/g.target*100))+'%"></i></span>';
@@ -379,8 +389,9 @@ function renderGoal(g,k,t){
 }
 function quip(gs,k,t){
  if(!gs.length)return '';
- var all=gs.every(function(g){return gdone(S,k,g)});
- if(all)return t.done;
+ var allDone=gs.every(function(g){return isWeekly(g)?(gdone(S,k,g)||weekCount(S,g,k)>=weekTarget(g,k)):gdone(S,k,g)});
+ if(allDone)return t.done;
+ if(status(S,k)==='done')return 'Na dnes to stačí. Týždenný cieľ dobehneš iný deň.';
  var w=gs.filter(function(g){return g.kind==='water'})[0];
  if(w&&!gdone(S,k,w)){var left=w.target-(+gval(S,k,w)||0);return 'Ešte '+left+' '+plural(left,'pohár','poháre','pohárov')+'.'+t.left}
  return t.nudge;
@@ -445,11 +456,11 @@ function renderSettings(){
  h+='<label class="f">Tvoje meno<input data-a="name" value="'+esc(S.name)+'" autocomplete="given-name"></label>';
  h+='<label class="f">Začiatok výzvy<input type="date" data-a="start" value="'+S.start+'" max="'+todayKey()+'"></label><p class="small" style="margin:-4px 0 0">Daj skorší dátum, ak chceš dodatočne zapísať dni, keď si už makala. Potom ich doplníš cez Kalendár › Upraviť deň.</p>';
  h+='<h2>Ciele</h2>';
- S.goals.forEach(function(g,gi){
+ var AG=activeGoals(S);AG.forEach(function(g,gi){
   if(view.editGoal===g.id){h+=goalForm(g)}
-  else h+='<div class="card row" style="gap:6px"><div class="grow"><span class="gname">'+esc(g.name)+'</span><span class="gsub">'+(g.type==='count'?'počet '+g.target+(g.unit?' '+esc(g.unit):''):'áno / nie')+' · '+(g.days.length===7?'každý deň':g.days.map(function(d){return WDS[d]}).join(' '))+'</span></div><button class="iconbtn" data-a="moveGoal" data-id="'+g.id+'" data-v="-1" aria-label="Posunúť hore: '+esc(g.name)+'"'+(gi===0?' disabled style="opacity:.3"':'')+'>'+svg('<path d="M6 15l6-6 6 6"/>',18,2)+'</button><button class="iconbtn" data-a="moveGoal" data-id="'+g.id+'" data-v="1" aria-label="Posunúť dole: '+esc(g.name)+'"'+(gi===S.goals.length-1?' disabled style="opacity:.3"':'')+'>'+svg('<path d="M6 9l6 6 6-6"/>',18,2)+'</button><button class="btn" data-a="editGoal" data-id="'+g.id+'">Upraviť</button></div>';
+  else h+='<div class="card row" style="gap:6px"><div class="grow"><span class="gname">'+esc(g.name)+'</span><span class="gsub">'+(isWeekly(g)?(g.perWeek||3)+'× za týždeň':(g.type==='count'?'počet '+g.target+(g.unit?' '+esc(g.unit):''):'áno / nie')+' · '+(g.days.length===7?'každý deň':g.days.map(function(d){return WDS[d]}).join(' ')))+'</span></div><button class="iconbtn" data-a="moveGoal" data-id="'+g.id+'" data-v="-1" aria-label="Posunúť hore: '+esc(g.name)+'"'+(gi===0?' disabled style="opacity:.3"':'')+'>'+svg('<path d="M6 15l6-6 6 6"/>',18,2)+'</button><button class="iconbtn" data-a="moveGoal" data-id="'+g.id+'" data-v="1" aria-label="Posunúť dole: '+esc(g.name)+'"'+(gi===AG.length-1?' disabled style="opacity:.3"':'')+'>'+svg('<path d="M6 9l6 6 6-6"/>',18,2)+'</button><button class="btn" data-a="editGoal" data-id="'+g.id+'">Upraviť</button></div>';
  });
- if(view.editGoal==='new')h+=goalForm({id:'new',name:'',type:'check',target:1,unit:'',days:[0,1,2,3,4,5,6],kind:'other'});
+ if(view.editGoal==='new')h+=goalForm({id:'new',name:'',type:'check',target:1,unit:'',days:[0,1,2,3,4,5,6],kind:'other',freq:'days',perWeek:3});
  else h+='<button class="btn solid" data-a="editGoal" data-id="new">+ Pridať cieľ</button>';
  h+='<h2 style="margin-top:8px">Ukladanie</h2><p class="small" style="margin:0">'+(view.sync==='cloud'?'Dáta sa ukladajú do tvojho účtu, takže ich uvidíš na každom zariadení, kde si prihlásená.':'Dáta sú uložené v tomto telefóne. Raz za čas si sprav zálohu a ulož ju do Poznámok.')+'</p>';
  h+='<div class="btnrow"><button class="btn" data-a="copyBackup">Skopírovať zálohu</button></div>';
@@ -461,7 +472,10 @@ function goalForm(g){
  var h='<div class="card stack" data-form="'+g.id+'"><label class="f">Názov<input id="gf-name" value="'+esc(g.name)+'" placeholder="napr. Čítanie"></label>';
  h+='<div class="grid2"><label class="f">Typ<select id="gf-type"><option value="check"'+(g.type==='check'?' selected':'')+'>Áno / nie</option><option value="count"'+(g.type==='count'?' selected':'')+'>Počet</option></select></label><label class="f">Cieľ (počet)<input id="gf-target" type="number" min="1" max="999" inputmode="numeric" value="'+g.target+'"></label></div>';
  h+='<div class="grid2"><label class="f">Jednotka<input id="gf-unit" value="'+esc(g.unit)+'" placeholder="pohárov, strán…"></label><label class="f">Hlášky ako pre<select id="gf-kind">'+KINDS.map(function(k){return '<option value="'+k[0]+'"'+(g.kind===k[0]?' selected':'')+'>'+k[1]+'</option>'}).join('')+'</select></label></div>';
- h+='<div class="f" style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500"><span>Dni</span><div class="days7" role="group" aria-label="Dni">'+WDS.map(function(w,i){return '<button type="button" data-a="gfDay" data-v="'+i+'" class="'+(g.days.indexOf(i)>=0?'on':'')+'" aria-pressed="'+(g.days.indexOf(i)>=0?'true':'false')+'">'+w+'</button>'}).join('')+'</div></div>';
+ var wkly=isWeekly(g);
+ h+='<label class="f">Ako často<select id="gf-freq" data-a="gfFreq"><option value="days"'+(wkly?'':' selected')+'>V konkrétne dni</option><option value="week"'+(wkly?' selected':'')+'>X-krát za týždeň, kedy sa mi hodí</option></select></label>';
+ h+='<label class="f" id="gf-week-wrap" style="display:'+(wkly?'flex':'none')+'">Koľkokrát za týždeň<input id="gf-per" type="number" min="1" max="7" inputmode="numeric" value="'+(g.perWeek||3)+'"></label>';
+ h+='<div id="gf-days-wrap" class="f" style="display:'+(wkly?'none':'flex')+';flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500"><span>Dni</span><div class="days7" role="group" aria-label="Dni">'+WDS.map(function(w,i){return '<button type="button" data-a="gfDay" data-v="'+i+'" class="'+(g.days.indexOf(i)>=0?'on':'')+'" aria-pressed="'+(g.days.indexOf(i)>=0?'true':'false')+'">'+w+'</button>'}).join('')+'</div></div>';
  h+='<div class="btnrow"><button class="btn solid" data-a="saveGoal" data-id="'+g.id+'">Uložiť</button><button class="btn" data-a="cancelGoal">Zrušiť</button>'+(g.id!=='new'?'<button class="btn danger" data-a="delGoal" data-id="'+g.id+'">'+(view.confirmDel===g.id?'Naozaj zmazať?':'Zmazať')+'</button>':'')+'</div></div>';
  return h;
 }
@@ -491,15 +505,28 @@ document.addEventListener('click',function(ev){
   case 'settings':view.sheet=true;view.importMsg='';render();break;
   case 'closeSheet':view.sheet=false;view.editGoal=null;render();break;
   case 'editGoal':view.editGoal=id;view.confirmDel=null;var gg=id==='new'?null:goal(id);formDays=gg?gg.days.slice():[0,1,2,3,4,5,6];render();break;
-  case 'moveGoal':var mi=-1;S.goals.forEach(function(x,i){if(x.id===id)mi=i});var mj=mi+(+v);if(mi>=0&&mj>=0&&mj<S.goals.length){var tmp=S.goals[mi];S.goals[mi]=S.goals[mj];S.goals[mj]=tmp;commit()}break;
+  case 'moveGoal':var A=activeGoals(S),ai=-1;A.forEach(function(x,i){if(x.id===id)ai=i});var aj=ai+(+v);if(ai>=0&&aj>=0&&aj<A.length){var mi=S.goals.indexOf(A[ai]),mj=S.goals.indexOf(A[aj]);var tmp=S.goals[mi];S.goals[mi]=S.goals[mj];S.goals[mj]=tmp;commit()}break;
   case 'cancelGoal':view.editGoal=null;render();break;
   case 'gfDay':var i=+v,ix=formDays.indexOf(i);if(ix>=0)formDays.splice(ix,1);else formDays.push(i);formDays.sort();el.classList.toggle('on');el.setAttribute('aria-pressed',el.classList.contains('on'));break;
   case 'saveGoal':
    var name=document.getElementById('gf-name').value.trim()||'Nový cieľ',type=document.getElementById('gf-type').value,target=Math.max(1,Math.min(999,parseInt(document.getElementById('gf-target').value,10)||1));
-   var data={name:name,type:type,target:type==='count'?target:1,unit:document.getElementById('gf-unit').value.trim(),days:formDays.length?formDays.slice():[0,1,2,3,4,5,6],kind:document.getElementById('gf-kind').value};
-   if(id==='new'){data.id='g'+Date.now().toString(36);data.since=todayKey();S.goals.push(data)}else{var og=goal(id);for(var kk in data)og[kk]=data[kk]}
+   var freq=document.getElementById('gf-freq').value,per=Math.max(1,Math.min(7,parseInt(document.getElementById('gf-per').value,10)||3));
+   if(freq==='week')type='check';
+   var data={name:name,type:type,target:type==='count'?target:1,unit:document.getElementById('gf-unit').value.trim(),days:formDays.length?formDays.slice():[0,1,2,3,4,5,6],kind:document.getElementById('gf-kind').value,freq:freq,perWeek:per};
+   var T0=todayKey();
+   if(id==='new'){data.id='g'+Date.now().toString(36);data.since=T0;S.goals.push(data)}
+   else{var og=goal(id);
+    var ruleChanged=og.type!==data.type||og.target!==data.target||(og.freq||'days')!==data.freq||(isWeekly(data)&&(og.perWeek||3)!==data.perWeek)||(!isWeekly(data)&&og.days.join()!==data.days.join());
+    if(ruleChanged&&og.since!==T0){
+     /* nové pravidlo platí od dnes, minulé dni ostávajú podľa starého */
+     var ng={};for(var kk in og)ng[kk]=og[kk];for(var kk2 in data)ng[kk2]=data[kk2];
+     ng.id='g'+Date.now().toString(36);ng.since=T0;delete ng.until;og.until=addDays(T0,-1);
+     if(S.log[T0]&&S.log[T0].g&&S.log[T0].g[og.id]){S.log[T0].g[ng.id]=S.log[T0].g[og.id];delete S.log[T0].g[og.id]}
+     S.goals.splice(S.goals.indexOf(og)+1,0,ng);
+    } else {for(var kk3 in data)og[kk3]=data[kk3]}
+   }
    view.editGoal=null;commit();break;
-  case 'delGoal':if(view.confirmDel===id){S.goals=S.goals.filter(function(x){return x.id!==id});view.editGoal=null;view.confirmDel=null;commit()}else{view.confirmDel=id;render()}break;
+  case 'delGoal':if(view.confirmDel===id){var dg=goal(id),T1=todayKey();if(dg.since===T1)S.goals=S.goals.filter(function(x){return x.id!==id});else dg.until=addDays(T1,-1);view.editGoal=null;view.confirmDel=null;commit()}else{view.confirmDel=id;render()}break;
   case 'copyBackup':var txt=JSON.stringify(S);try{navigator.clipboard.writeText(txt).then(function(){view.importMsg='Záloha je v schránke. Ulož si ju napríklad do Poznámok.';render()},function(){view.importText=txt;view.importMsg='Kopírovanie nevyšlo, záloha je v poli nižšie. Označ a skopíruj ju.';render()})}catch(x){view.importText=txt;view.importMsg='Záloha je v poli nižšie, skopíruj ju.';render()}break;
   case 'doImport':try{var obj=JSON.parse(view.importText);if(!obj||!obj.goals||!obj.log)throw 0;S=normalize(obj);view.importText='';view.importMsg='Obnovené.';commit()}catch(x){view.importMsg='Toto nevyzerá ako záloha z appky.';render()}break;
  }
@@ -511,7 +538,7 @@ document.addEventListener('input',function(ev){
  else if(a==='name'){S.name=el.value.slice(0,40);S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(function(){queueWrite();var h=document.querySelector('h1');},900)}
  else if(a==='importText'){view.importText=el.value}
 });
-document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
+document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
 document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&(view.sheet||view.toast)){view.sheet=false;view.toast=null;render()}});
 // nový deň pri návrate do appky
 var lastDay=todayKey();
