@@ -66,6 +66,10 @@ h2{margin:0;font-size:15px;font-weight:600}
 .cups{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 .cup{width:17px;height:22px;border-radius:3px 3px 7px 7px;background:transparent;border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--card))}
 .cup.on{border-color:var(--accent)}
+.glasses{gap:6px;margin-top:10px}
+.glass{fill:none;stroke:color-mix(in srgb,var(--water) 55%,var(--card));stroke-width:1.6;stroke-linejoin:round}
+.glass.on{stroke:var(--water)}
+.glass .lvl{fill:var(--water);stroke:none}
 .cup.wk{width:22px;height:8px;border-radius:4px}
 .cup.on{background:var(--accent)}
 .extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
@@ -444,6 +448,7 @@ function applyTheme(){
  for(var k in c)r.setProperty('--'+k,c[k]);
  if(!c.star1){r.setProperty('--star1','transparent');r.setProperty('--star2','transparent')}
  r.setProperty('--display',t.font);
+ r.setProperty('--water',(t.sky||c===t.dark)?'#7CC4FF':'#2F7BC0');
  document.body.classList.toggle('sky',!!t.sky);
  var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',c.bg);
 }
@@ -627,10 +632,10 @@ function renderGoal(g,k,t){
  if(num&&g.min)sub+=(sub?' · ':'')+'minimum '+g.min+(g.unit?' '+esc(g.unit):'');
  var wk='';
  if(isWeekly(g)){var wc=weekCount(S,g,k),wt=weekTarget(g,k);wk='<span class="cups" aria-hidden="true">';for(var wi=0;wi<wt;wi++)wk+='<i class="cup wk'+(wi<wc?' on':'')+'"></i>';wk+='</span>';var wline=(wc>=wt?'Týždeň splnený! ':'')+wc+' / '+wt+' tento týždeň';if(m==='choice'&&v&&e.c)sub=wline+' · Dnes: '+esc(e.c);else if(!v&&wc<wt&&!e.note)sub=wline+'</span><span class="gsub">'+pickLine(g,k);else sub=wline+(e.note?' · '+esc(e.note):'')}
- var full=num&&g.min&&(+v||0)>=g.target;
- var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+(+v||0)+' / '+g.target+(g.unit?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
+ var full=num&&g.min&&(+v||0)>=g.target,cupsRow='';
+ var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+(+v||0)+' / '+g.target+(g.unit&&g.kind!=='water'?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
  if(num){
-  if(g.target<=12&&stepOf(g)===1){h+='<span class="cups" aria-hidden="true">';for(var i=0;i<g.target;i++)h+='<i class="cup'+(i<v?' on':'')+'"></i>';h+='</span>'}
+  if(g.target<=12&&stepOf(g)===1){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" aria-hidden="true">';for(var i=0;i<g.target;i++)cupsRow+=isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24"><path d="M2.5 2.5h15l-1.7 18.3a1.6 1.6 0 0 1-1.6 1.4H5.8a1.6 1.6 0 0 1-1.6-1.4z"/>'+(i<v?'<path class="lvl" d="M3.6 8.5h12.8l-1.2 12.2a1 1 0 0 1-1 .9H5.8a1 1 0 0 1-1-.9z"/>':'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>';cupsRow+='</div>'}
   else h+='<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round((+v||0)/g.target*100))+'%"></i></span>';
  }
  h+='</button>';
@@ -641,7 +646,7 @@ function renderGoal(g,k,t){
  } else {
   h+='<button class="check'+(v?' on':'')+'" data-a="check" data-id="'+g.id+'" aria-pressed="'+(v?'true':'false')+'" aria-label="'+(m==='quit'?'Vydržala som: ':'Splnené: ')+esc(g.name)+'">'+(v?svg(CHECK,20,2.5):'')+'</button>';
  }
- h+='</div>';
+ h+='</div>'+cupsRow;
  var showChoice=m==='choice'&&g.options&&g.options.length&&(open||(v&&!e.c));
  if(showChoice){
   h+='<div class="extra"><span class="small">Čo si dnes robila?</span><div class="chips" role="group" aria-label="Čo si robila">';
