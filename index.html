@@ -154,6 +154,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .ocourt i{width:34px;height:34px;border-radius:11px;border:1px solid var(--o-border);display:flex;align-items:flex-end;justify-content:flex-end;padding:3px;box-sizing:border-box;opacity:.5}
 .ocourt i b{display:block;width:11px;height:11px;border-radius:4px}
 .ocourt.on i{opacity:1;border:2px solid var(--o-gold)}
+.ochipb{min-height:40px;padding:0 12px;border-radius:20px;border:1px solid var(--o-border);background:var(--o-card);color:var(--o-text);font-size:13px;font-weight:500}
+.ochipb.on{background:var(--c);border-color:var(--c);color:var(--o-on);font-weight:600}
 .ochip{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border-radius:12px;padding:7px 10px}
 .onb.themed{--o-bg:var(--bg);--o-card:var(--card);--o-sel:color-mix(in srgb,var(--accent) 9%,var(--card));--o-border:var(--border);--o-border2:color-mix(in srgb,var(--muted) 60%,var(--card));--o-text:var(--text);--o-muted:var(--muted);--o-accent:var(--accent);--o-on:var(--onAccent);--o-link:var(--accent);--o-gold:var(--streak);--o-pink:var(--streak);background-image:none}
 .onb.themed.sky{background-image:radial-gradient(1.2px 1.2px at 8% 6%,var(--star1),transparent),radial-gradient(1px 1px at 31% 3%,var(--star2),transparent),radial-gradient(1.4px 1.4px at 77% 8%,var(--star1),transparent)}
@@ -273,11 +275,13 @@ function buildGoal(s,catId,val){
   target:num?(wk?(s.target||1):(val||s.target||1)):1,step:s.step||0,unit:m==='duration'?'min':(s.unit||''),
   days:[0,1,2,3,4,5,6],freq:wk?'week':'days',perWeek:wk?(val||s.perWeek||3):(s.perWeek||3),kind:s.kind||'other',
   options:s.options||null,time:s.time||'',minNote:s.minNote||'',min:0,since:todayKey()};
+ if(s.kind==='water'){g.vessel=s.vessel||'glass250';g.unit=vesselWord(vesselOf(g),5)}
  if(!g.step)delete g.step;
  return g;
 }
 function sugValue(s){return s.freq==='week'?(s.perWeek||3):(isNum(s.mode)?s.target:0)}
 function sugTag(s,val){
+ if(s.kind==='water'){var ves=VESSELS[s.vessel]||VESSELS.glass250;return val+' '+vesselWord(ves,val)+' · '+fmtL(val*ves.ml)}
  if(s.freq==='week')return val+'× týždenne';
  if(s.mode==='count')return val+' '+s.unit+' denne';
  if(s.mode==='duration')return val+' min denne';
@@ -285,6 +289,16 @@ function sugTag(s,val){
  return 'denne';
 }
 
+/* ===== Nádoby na pitie ===== */
+var VESSELS={
+ glass250:{name:'Pohár 250 ml',ml:250,w:['pohár','poháre','pohárov'],btn:'pohár',shape:'<path d="M2.5 2.5h15l-1.7 18.3a1.6 1.6 0 0 1-1.6 1.4H5.8a1.6 1.6 0 0 1-1.6-1.4z"/>',lvl:'<path class="lvl" d="M3.6 8.5h12.8l-1.2 12.2a1 1 0 0 1-1 .9H5.8a1 1 0 0 1-1-.9z"/>'},
+ glass200:{name:'Pohárik 200 ml',ml:200,w:['pohárik','poháriky','pohárikov'],btn:'pohárik',shape:'<path d="M3.5 8.5h13l-1.4 12.3a1.6 1.6 0 0 1-1.6 1.4H6.5a1.6 1.6 0 0 1-1.6-1.4z"/>',lvl:'<path class="lvl" d="M4.4 13h11.2l-.9 7.7a1 1 0 0 1-1 .9H6.3a1 1 0 0 1-1-.9z"/>'},
+ mug330:{name:'Hrnček 330 ml',ml:330,w:['hrnček','hrnčeky','hrnčekov'],btn:'hrnček',shape:'<rect x="2" y="6" width="12.5" height="15.5" rx="2.2"/><path d="M14.5 10h1.6a2.6 2.6 0 0 1 0 5.2h-1.6"/>',lvl:'<rect class="lvl" x="3.2" y="11" width="10.1" height="9.3" rx="1.2"/>'},
+ bottle500:{name:'Fľaša 500 ml',ml:500,w:['fľaša','fľaše','fliaš'],btn:'fľaša',shape:'<path d="M8 2.5h4v3.2c0 .6.3 1.1.8 1.5l.9.7c.8.6 1.3 1.6 1.3 2.6v10.3a1.7 1.7 0 0 1-1.7 1.7H6.7A1.7 1.7 0 0 1 5 20.8V10.5c0-1 .5-2 1.3-2.6l.9-.7c.5-.4.8-.9.8-1.5z"/>',lvl:'<path class="lvl" d="M6.1 12.5h7.8v8.1a.8.8 0 0 1-.8.8H6.9a.8.8 0 0 1-.8-.8z"/>'}
+};
+function vesselOf(g){return VESSELS[g.vessel]||VESSELS.glass250}
+function fmtL(ml){var l=Math.round(ml/10)/100;return String(l).replace('.',',')+' l'}
+function vesselWord(ves,n){return plural(n,ves.w[0],ves.w[1],ves.w[2])}
 function themeById(id){for(var i=0;i<THEMES.length;i++)if(THEMES[i].id===id)return THEMES[i];return THEMES[0];}
 
 /* ===== Dátumy ===== */
@@ -383,7 +397,7 @@ function nextCourt(S){for(var i=0;i<ACOTAR.length;i++){if(S.unlocked.indexOf(ACO
 function plural(n,one,few,many){return n===1?one:(n>=2&&n<=4?few:many)}
 function unitWord(n,u){return u==='noc'?plural(n,'noc','noci','nocí'):plural(n,'deň','dni','dní')}
 function setVal(S,k,g,v){S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[g.id]||{v:g.type==='count'?0:false,note:'',e:''};e.v=v;S.log[k].g[g.id]=e}
-if(typeof module!=='undefined')module.exports={buildGoal:buildGoal,CATS:CATS,weekCount:weekCount,goalOk:goalOk,activeGoals:activeGoals,THEMES:THEMES,defaultState:defaultState,normalize:normalize,status:status,streak:streak,totalDone:totalDone,tokens:tokens,canForgiveYesterday:canForgiveYesterday,forgiveYesterday:forgiveYesterday,refreshProgress:refreshProgress,setVal:setVal,addDays:addDays,todayKey:todayKey,setNow:function(f){NOW=f},daysToXmas:daysToXmas,unitWord:unitWord};
+if(typeof module!=='undefined')module.exports={VESSELS:VESSELS,sugTag:sugTag,buildGoal:buildGoal,CATS:CATS,weekCount:weekCount,goalOk:goalOk,activeGoals:activeGoals,THEMES:THEMES,defaultState:defaultState,normalize:normalize,status:status,streak:streak,totalDone:totalDone,tokens:tokens,canForgiveYesterday:canForgiveYesterday,forgiveYesterday:forgiveYesterday,refreshProgress:refreshProgress,setVal:setVal,addDays:addDays,todayKey:todayKey,setNow:function(f){NOW=f},daysToXmas:daysToXmas,unitWord:unitWord};
 </script>
 
 <script id="ui">
@@ -635,12 +649,12 @@ function renderGoal(g,k,t){
  var full=num&&g.min&&(+v||0)>=g.target,cupsRow='';
  var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+(+v||0)+' / '+g.target+(g.unit&&g.kind!=='water'?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
  if(num){
-  if(g.target<=12&&stepOf(g)===1){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" aria-hidden="true">';for(var i=0;i<g.target;i++)cupsRow+=isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24"><path d="M2.5 2.5h15l-1.7 18.3a1.6 1.6 0 0 1-1.6 1.4H5.8a1.6 1.6 0 0 1-1.6-1.4z"/>'+(i<v?'<path class="lvl" d="M3.6 8.5h12.8l-1.2 12.2a1 1 0 0 1-1 .9H5.8a1 1 0 0 1-1-.9z"/>':'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>';cupsRow+='</div>'}
+  if(g.target<=12&&stepOf(g)===1){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" aria-hidden="true">';for(var i=0;i<g.target;i++)cupsRow+=isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24">'+vesselOf(g).shape+(i<v?vesselOf(g).lvl:'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>';cupsRow+='</div>';if(isW){var vs=vesselOf(g);cupsRow+='<div class="small" style="margin-top:6px">'+fmtL((+v||0)*vs.ml)+' z '+fmtL(g.target*vs.ml)+' · 1 '+vs.w[0]+' = '+vs.ml+' ml'+(g.vessel==='glass200'?' · fľaša 0,5 l ≈ 2,5 pohárika':(vs.ml===250?' · fľaša 0,5 l = 2 poháre':''))+'</div>'}}
   else h+='<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round((+v||0)/g.target*100))+'%"></i></span>';
  }
  h+='</button>';
  if(num){
-  var st=stepOf(g),lbl=g.kind==='water'?'pohár':(m==='duration'?st+' min':(st===1?'1':st));
+  var st=stepOf(g),lbl=g.kind==='water'?vesselOf(g).btn:(m==='duration'?st+' min':(st===1?'1':st));
   if(v>0)h+='<button class="pill ghost" data-a="dec" data-id="'+g.id+'" aria-label="Uber: '+esc(g.name)+'">−</button>';
   h+='<button class="pill" data-a="inc" data-id="'+g.id+'" aria-label="Pridaj: '+esc(g.name)+'">+ '+lbl+'</button>';
  } else {
@@ -667,6 +681,7 @@ function goalForm(g){
  h+='<label class="f">Kategória<select id="gf-cat"><option value="">Bez kategórie</option>'+CATS.map(function(c){return '<option value="'+c.id+'"'+(g.cat===c.id?' selected':'')+'>'+c.name+'</option>'}).join('')+'</select></label>';
  h+='<label class="f">Ako to budeš zapisovať<select id="gf-mode" data-a="gfMode">'+MODES.map(function(x){return '<option value="'+x[0]+'"'+(m===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select><span id="gf-hint" class="small" style="font-weight:400"></span></label>';
  h+='<div class="grid2" data-modes="count duration"><label class="f">Cieľ<input id="gf-target" type="number" min="1" max="100000" inputmode="numeric" value="'+(g.target||1)+'"></label><label class="f" data-modes="count">Jednotka<input id="gf-unit" value="'+esc(m==='duration'?'':g.unit||'')+'" placeholder="strán, €…"></label></div>';
+ h+='<label class="f" id="gf-ves-wrap">Z čoho najčastejšie piješ<select id="gf-ves" data-a="gfVes" data-prev="'+(g.vessel||'glass250')+'">'+Object.keys(VESSELS).map(function(vk){return '<option value="'+vk+'"'+((g.vessel||'glass250')===vk?' selected':'')+'>'+VESSELS[vk].name+'</option>'}).join('')+'</select><span id="gf-lit" class="small" style="font-weight:400"></span></label>';
  h+='<label class="f" data-modes="count duration">Minimum na zlý deň (nepovinné)<input id="gf-min" type="number" min="0" inputmode="numeric" value="'+(g.min||'')+'" placeholder="napr. 5"></label>';
  h+='<label class="f" data-modes="time">Do koľkej<input id="gf-time" type="time" value="'+esc(g.time||'22:00')+'"></label>';
  h+='<label class="f" data-modes="choice">Možnosti (oddeľ čiarkou)<input id="gf-opts" value="'+esc((g.options||[]).join(', '))+'" placeholder="beh, joga, posilňovňa"></label>';
@@ -678,7 +693,7 @@ function goalForm(g){
  return h;
 }
 function goalDesc(g){var m=modeOf(g),d=m==='count'?g.target+(g.unit?' '+esc(g.unit):''):m==='duration'?g.target+' min':m==='time'?'do '+esc(g.time||''):m==='choice'?'áno + čo':m==='quit'?'zbaviť sa':'áno / nie';var c=catById(g.cat);return (c?c.name+' · ':'')+d+' · '+(isWeekly(g)?(g.perWeek||3)+'× za týždeň':(g.days.length===7?'každý deň':g.days.map(function(x){return WDS[x]}).join(' ')))}
-function syncForm(){var sel=document.getElementById('gf-mode');if(!sel)return;var m=sel.value;var hint=document.getElementById('gf-hint');MODES.forEach(function(x){if(x[0]===m&&hint)hint.textContent=x[2]});document.querySelectorAll('[data-modes]').forEach(function(el){el.style.display=el.getAttribute('data-modes').split(' ').indexOf(m)>=0?'':'none'})}
+function syncForm(){var sel=document.getElementById('gf-mode');if(!sel)return;var m=sel.value;var hint=document.getElementById('gf-hint');MODES.forEach(function(x){if(x[0]===m&&hint)hint.textContent=x[2]});document.querySelectorAll('[data-modes]').forEach(function(el){el.style.display=el.getAttribute('data-modes').split(' ').indexOf(m)>=0?'':'none'});var nm=(document.getElementById('gf-name')||{}).value||'',vw=document.getElementById('gf-ves-wrap');if(vw){var isW=m==='count'&&/vod|pitn|piti/i.test(nm);vw.style.display=isW?'':'none';var uw=document.getElementById('gf-unit');if(uw)uw.parentNode.style.display=isW?'none':(m==='count'?'':'none');if(isW){var ves=VESSELS[document.getElementById('gf-ves').value],n=parseInt(document.getElementById('gf-target').value,10)||0;document.getElementById('gf-lit').textContent=n+' '+vesselWord(ves,n)+' = '+fmtL(n*ves.ml)+'. Odporúča sa asi 1,6 l z pitia denne.'}}}
 function saveGoalFromForm(id){
  var $=function(x){return document.getElementById(x)};
  var m=$('gf-mode').value,num=isNum(m);
@@ -688,7 +703,8 @@ function saveGoalFromForm(id){
  var freq=$('gf-freq').value,per=Math.max(1,Math.min(7,parseInt($('gf-per').value,10)||3));
  var opts=$('gf-opts').value.split(',').map(function(x){return x.trim()}).filter(Boolean);
  var data={name:name,cat:$('gf-cat').value,mode:m,type:num?'count':'check',target:target,min:min,unit:m==='duration'?'min':(m==='count'?$('gf-unit').value.trim():''),
-  time:m==='time'?$('gf-time').value:'',options:m==='choice'?(opts.length?opts:['iné']):null,days:formDays.length?formDays.slice():[0,1,2,3,4,5,6],kind:autoKind($('gf-cat').value,name,id==='new'?'':(goal(id)||{}).kind),freq:freq,perWeek:per};
+  vessel:(m==='count'&&/vod|pitn|piti/i.test(name))?$('gf-ves').value:undefined,time:m==='time'?$('gf-time').value:'',options:m==='choice'?(opts.length?opts:['iné']):null,days:formDays.length?formDays.slice():[0,1,2,3,4,5,6],kind:autoKind($('gf-cat').value,name,id==='new'?'':(goal(id)||{}).kind),freq:freq,perWeek:per};
+ if(data.vessel){data.unit=vesselWord(VESSELS[data.vessel],5)}else delete data.vessel;
  var T0=todayKey();
  if(id==='new'){data.id='g'+Date.now().toString(36);data.since=T0;S.goals.push(data);return}
  var og=goal(id);
@@ -706,7 +722,7 @@ function saveGoalFromForm(id){
 var MOUNT='<path d="M3 19l6-9 3.5 4.5L15 11l6 8z"/><path d="M9 4.5l.6 1.4 1.4.6-1.4.6L9 8.5l-.6-1.4-1.4-.6 1.4-.6zM15.5 3.5l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5zM19 6.5l.4.9.9.4-.9.4-.4.9-.4-.9-.9-.4.9-.4z"/>';
 function startOnboarding(step){view.onb={step:step||1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};view.sheet=false;render()}
 function onbDots(n){var s='<div class="odots" aria-label="Krok '+n+' zo 4">';for(var i=1;i<=4;i++)s+='<i class="'+(i===n?'cur':'')+(i<=n?' on':'')+'"></i>';return s+'</div>'}
-function onbSelected(){var o=view.onb,out=[];o.cats.forEach(function(cid){var c=catById(cid);(o.picks[cid]||[]).forEach(function(i){var s=c.sug[i];var key=cid+':'+i;out.push({cat:c,s:s,val:o.vals[key]!=null?o.vals[key]:sugValue(s)})});(o.custom[cid]||[]).forEach(function(nm){if(nm&&nm.trim())out.push({cat:c,s:{name:nm.trim(),mode:c.def},val:0,custom:true})})});return out}
+function onbSelected(){var o=view.onb,out=[];o.cats.forEach(function(cid){var c=catById(cid);(o.picks[cid]||[]).forEach(function(i){var s=c.sug[i];var key=cid+':'+i;if(s.kind==='water'){var s3={};for(var sk in s)s3[sk]=s[sk];s3.vessel=o.vessel&&o.vessel[key]||'glass250';s=s3}out.push({cat:c,s:s,val:o.vals[key]!=null?o.vals[key]:sugValue(s)})});(o.custom[cid]||[]).forEach(function(nm){if(nm&&nm.trim())out.push({cat:c,s:{name:nm.trim(),mode:c.def},val:0,custom:true})})});return out}
 function renderOnb(){
  var o=view.onb,th=themeById(S.theme),oc=function(c){return o.first?c.dark:catColor(c)};var h='<div class="onb'+(o.first?'':' themed'+(th.sky?' sky':''))+'" role="dialog" aria-modal="true" aria-label="'+(o.first?'Privítanie':'Pridať ciele')+'"><div class="in">';
  if(!o.first)h+='<div class="row" style="justify-content:space-between">'+(o.step>2?'<button class="obtn-link" data-a="onbBack">‹ Späť</button>':'<button class="obtn-link" data-a="onbClose">Zavrieť</button>')+'<span class="osub" style="margin:0;font-size:13px">Krok '+(o.step-1)+' z 2</span></div>';
@@ -725,11 +741,12 @@ function renderOnb(){
    var c=catById(cid),picks=o.picks[cid]||[];
    h+='<div class="osec" style="--c:'+oc(c)+'"><div class="osech">'+svg(c.icon,18,1.8)+'<span>'+c.name+'</span></div>';
    c.sug.forEach(function(s,i){
-    var on=picks.indexOf(i)>=0,key=cid+':'+i,val=o.vals[key]!=null?o.vals[key]:sugValue(s);
+    var on=picks.indexOf(i)>=0,key=cid+':'+i,val=o.vals[key]!=null?o.vals[key]:sugValue(s);if(s.kind==='water'){var s2={};for(var sk in s)s2[sk]=s[sk];s2.vessel=o.vessel&&o.vessel[key]||'glass250';s=s2}
     h+='<button class="oopt'+(on?' on':'')+'" data-a="onbSug" data-v="'+key+'" aria-pressed="'+(on?'true':'false')+'"><span class="obox">'+(on?svg(CHECK,11,3.2):'')+'</span><span class="ogrow">'+esc(s.name)+'</span><span class="otag">'+esc(sugTag(s,val))+'</span></button>';
     if(on&&(s.freq==='week'||isNum(s.mode))){
      h+='<div class="ostep"><span>'+(s.minNote?esc(s.minNote):'Uprav si číslo')+'</span><span class="row" style="gap:8px"><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="-1" aria-label="Menej">−</button><b>'+esc(sugTag(s,val).replace(' denne',''))+'</b><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="1" aria-label="Viac">+</button></span></div>';
     }
+    if(on&&s.kind==='water'){var cv=o.vessel&&o.vessel[key]||'glass250';h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start"><span style="width:100%">Z čoho najčastejšie piješ?</span>'+Object.keys(VESSELS).map(function(vk){return '<button class="ochipb'+(cv===vk?' on':'')+'" data-a="onbVessel" data-v="'+key+'" data-ves="'+vk+'" aria-pressed="'+(cv===vk?'true':'false')+'">'+VESSELS[vk].name+'</button>'}).join('')+'<span style="width:100%">Odporúča sa asi 1,6 l z pitia denne, pri cvičení a v teple viac.</span></div>'}
    });
    (o.custom[cid]||[]).forEach(function(nm,ci){h+='<label class="ofield" style="margin:0"><span class="sr">Názov vlastného cieľa</span><input data-a="onbCustom" data-v="'+cid+'" data-i="'+ci+'" value="'+esc(nm)+'" placeholder="Napíš svoj cieľ…"></label>'});
    h+='<button class="oadd" data-a="onbAddCustom" data-v="'+cid+'">'+svg('<path d="M12 5v14M5 12h14"/>',16,2)+'Vlastný cieľ v kategórii '+c.name+'</button></div>';
@@ -771,6 +788,7 @@ function onbClick(a,el){
   case 'onbVal':var q=v.split(':'),s=catById(q[0]).sug[+q[1]],cur=o.vals[v]!=null?o.vals[v]:sugValue(s),d=+el.getAttribute('data-d');
    if(s.freq==='week')cur=Math.max(1,Math.min(7,cur+d));else{var st=s.step||(s.mode==='duration'?(s.target<5?1:5):1);cur=Math.max(st,cur+d*st)}
    o.vals[v]=cur;render();return true;
+  case 'onbVessel':o.vessel=o.vessel||{};var oldV=VESSELS[o.vessel[v]||'glass250'],newV=VESSELS[el.getAttribute('data-ves')],qq=v.split(':'),cs=catById(qq[0]).sug[+qq[1]],cv2=o.vals[v]!=null?o.vals[v]:sugValue(cs);o.vals[v]=Math.max(1,Math.round(cv2*oldV.ml/newV.ml));o.vessel[v]=el.getAttribute('data-ves');render();return true;
   case 'onbAddCustom':(o.custom[v]=o.custom[v]||[]).push('');render();var ins=document.querySelectorAll('[data-a=onbCustom][data-v="'+v+'"]');if(ins.length)ins[ins.length-1].focus();return true;
   case 'onbFinish':finishOnboarding();return true;
  }
@@ -883,11 +901,12 @@ document.addEventListener('input',function(ev){
  var el=ev.target,a=el.getAttribute&&el.getAttribute('data-a');
  if(a==='note'){var id=el.getAttribute('data-id'),g=goal(id),k=view.dayKey;S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};e.note=el.value;S.log[k].g[id]=e;S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(queueWrite,900)}
  else if(a==='name'){S.name=el.value.slice(0,40);S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(function(){queueWrite();var h=document.querySelector('h1');},900)}
+ else if(el.id==='gf-name'||el.id==='gf-target'){syncForm()}
  else if(a==='importText'){view.importText=el.value}
  else if(a==='onbName'&&view.onb){view.onb.name=el.value}
  else if(a==='onbCustom'&&view.onb){view.onb.custom[el.getAttribute('data-v')][+el.getAttribute('data-i')]=el.value}
 });
-document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='gfMode'){syncForm();return}if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
+document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='gfVes'){var tEl=document.getElementById('gf-target'),pv=VESSELS[ev.target.getAttribute('data-prev')||'glass250'],nv=VESSELS[ev.target.value];tEl.value=Math.max(1,Math.round((parseInt(tEl.value,10)||1)*pv.ml/nv.ml));ev.target.setAttribute('data-prev',ev.target.value);syncForm();return}if(a==='gfMode'){syncForm();return}if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
 document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&(view.sheet||view.toast||view.endAsk)){view.sheet=false;view.toast=null;view.endAsk=null;render()}});
 // nový deň pri návrate do appky
 var lastDay=todayKey();
