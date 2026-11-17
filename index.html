@@ -141,6 +141,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .osech{display:flex;align-items:center;gap:8px;color:var(--c);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 .oopt{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 12px;border-radius:14px;border:1px solid var(--o-border);background:var(--o-card);color:var(--o-text);text-align:left;font-size:14px;font-weight:500}
 .oopt.on{border:none;background:transparent;font-weight:600}
+.ofield input[type=time],.f input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;text-align:left}
+.ofield input[type=time]::-webkit-date-and-time-value{text-align:left}
 .osub.over{color:var(--o-pink);font-style:italic}
 .ogroup{display:flex;flex-direction:column;gap:8px;border-radius:16px}
 .ogroup.on{border:1.5px solid var(--c);background:var(--o-sel);padding-bottom:10px}
@@ -233,68 +235,83 @@ var THEMES=[
 ];
 var ACOTAR=THEMES.filter(function(t){return t.pack==='acotar'});
 /* ===== Kategórie a návrhy cieľov ===== */
+var EX_OPTS=['chôdza','turistika','beh','fitko','pilates','joga','domáce cvičenie','bicykel','plávanie','tanec','iné'];
+var EX_OLD=['chôdza','beh','joga','posilňovňa','pilates','domáci tréning','turistika','bicykel','tanec','plávanie','lyžovanie','iné'];
+var ALT_MIN=[{l:'Minúty',mode:'duration'},{l:'Odškrtnúť',mode:'check'}];
 var CATS=[
  {id:'move',name:'Pohyb',light:'#A8336A',dark:'#F2A9CF',def:'duration',icon:'<path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/>',sug:[
-  {name:'Cvičenie',mode:'choice',freq:'week',perWeek:3,options:['chôdza','beh','joga','posilňovňa','pilates','domáci tréning','turistika','bicykel','tanec','plávanie','lyžovanie','iné'],minNote:'aj 5 min sa ráta',kind:'exercise'},
+  {name:'Cvičenie',mode:'choice',freq:'week',perWeek:3,options:EX_OPTS.slice(),minNote:'aj 5 min sa ráta',kind:'exercise'},
   {name:'Kroky',mode:'count',target:6000,step:1000,unit:'krokov',input:true},
-  {name:'Prechádzka',mode:'duration',target:20,kind:'exercise'},
-  {name:'Posilňovanie',mode:'check',freq:'week',perWeek:2,kind:'exercise'},
-  {name:'Strečing',mode:'duration',target:10,kind:'exercise'}]},
+  {name:'Prechádzka',mode:'duration',target:20,kind:'exercise',alt:ALT_MIN},
+  {name:'Strečing',mode:'duration',target:10,kind:'exercise',alt:ALT_MIN}]},
  {id:'food',name:'Strava a pitný režim',light:'#2E7443',dark:'#9FE3A8',def:'check',icon:'<path d="M12 8c-1.5-1.5-5-1.5-6 1.5-1 3 .5 8 3 10 1 .8 2 .5 3 0 1 .5 2 .8 3 0 2.5-2 4-7 3-10-1-3-4.5-3-6-1.5z"/><path d="M12 8c0-2 1-3.5 3-4.5"/>',sug:[
   {name:'Pitný režim',mode:'count',target:6,unit:'pohárov',kind:'water'},
   {name:'Bez sladkého',mode:'quit',kind:'sweet'},
-  {name:'Zelenina ku každému jedlu',mode:'check'},
+  {name:'Zelenina alebo ovocie',mode:'count',target:3,unitW:['porcia','porcie','porcií'],q:'Koľko porcií denne?'},
+  {name:'Bielkoviny',mode:'count',target:80,step:10,unit:'g',input:true,q:'Koľko gramov denne?'},
+  {name:'Dodržať kalórie',mode:'check'},
   {name:'Posledné jedlo',mode:'time',time:'19:00'}]},
  {id:'sleep',name:'Spánok',light:'#5643B8',dark:'#A493FF',def:'time',icon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/><path d="M15 3.5h4l-4 4h4"/>',sug:[
   {name:'Do postele',mode:'time',time:'23:00'},
   {name:'Bez mobilu 30 min pred spaním',mode:'quit'},
   {name:'Vstávať',mode:'time',time:'07:00'}]},
  {id:'mind',name:'Hlava a pokoj',light:'#1E6893',dark:'#8FD3FF',def:'duration',icon:'<path d="M12 20c-4 0-7-2-8-5 3 0 5 1 8 5zM12 20c4 0 7-2 8-5-3 0-5 1-8 5zM12 20c-2-3-2.5-7 0-11 2.5 4 2 8 0 11z"/>',sug:[
-  {name:'Meditácia alebo dýchanie',mode:'duration',target:3},
-  {name:'3 veci, za ktoré som vďačná',mode:'check'},
+  {name:'Meditácia alebo dýchanie',mode:'duration',target:3,alt:ALT_MIN},
+  {name:'Vďačnosť',mode:'count',target:3,unitW:['vec','veci','vecí'],q:'Za koľko vecí denne?'},
   {name:'Pár viet do denníka',mode:'check'},
-  {name:'Prechádzka bez mobilu',mode:'duration',target:10}]},
+  {name:'Čas pre seba bez mobilu',mode:'choice',options:['prechádzka','čítanie','kúpeľ','hudba','tvorenie','nič (a to je ok)','iné'],alt:[{l:'Odškrtnúť a vybrať čo',mode:'choice'},{l:'Minúty',mode:'duration',target:15}]}]},
  {id:'phone',name:'Menej mobilu',light:'#1C7266',dark:'#7FE0D0',def:'quit',icon:'<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M4 4l16 16"/>',sug:[
-  {name:'Sociálne siete najviac 2 h',mode:'check'},
-  {name:'Bez mobilu prvú hodinu ráno',mode:'quit'},
-  {name:'Mobil mimo stola pri jedle',mode:'check'}]},
+  {name:'Sociálne siete s limitom',mode:'check',limit:{q:'Najviac koľko hodín denne?',val:2,step:0.5,min:0.5,max:8},nameTpl:'Sociálne siete najviac {v} h'},
+  {name:'Ráno bez mobilu',mode:'check',altQ:'Ako dlho po zobudení?',alt:[{l:'30 min',name:'Ráno bez mobilu 30 min'},{l:'1 hodinu',name:'Ráno bez mobilu 1 h'}]},
+  {name:'Pri jedle bez mobilu',mode:'check'}]},
  {id:'money',name:'Peniaze',light:'#7E5B10',dark:'#F1E3B0',def:'check',icon:'<circle cx="12" cy="12" r="8"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6.5v1.5M12 16v1.5"/>',sug:[
-  {name:'Žiadny zbytočný nákup',mode:'quit'},
-  {name:'Odložiť si peniaze',mode:'count',target:2,unit:'€'},
+  {name:'Žiadny zbytočný nákup',mode:'quit',allowPick:true},
+  {name:'Odložiť si peniaze',mode:'count',target:10,step:5,unit:'€',input:true,sumWeek:true,q:'Koľko € týždenne?'},
   {name:'Zapísať si výdavky',mode:'check'}]},
  {id:'learn',name:'Učenie',light:'#4250A6',dark:'#B8C4FF',def:'duration',icon:'<path d="M3 5.5C5.5 4.5 8.5 4.5 12 6.5c3.5-2 6.5-2 9-1V19c-2.5-1-5.5-1-9 1-3.5-2-6.5-2-9-1z"/><path d="M12 6.5V20"/>',sug:[
   {name:'Čítanie',mode:'count',target:10,unit:'strán'},
-  {name:'Jazyk',mode:'duration',target:10},
-  {name:'Kurz alebo nová zručnosť',mode:'duration',target:20,freq:'week',perWeek:3}]},
+  {name:'Kniha',mode:'book',target:10,step:5},
+  {name:'Cudzí jazyk',mode:'duration',target:10,alt:ALT_MIN},
+  {name:'Kurz alebo nová zručnosť',mode:'check',freq:'week',perWeek:3}]},
  {id:'love',name:'Vzťahy',light:'#A62B4A',dark:'#FF8FA8',def:'check',icon:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',sug:[
   {name:'Napísať alebo zavolať blízkemu',mode:'check'},
   {name:'Čas s rodinou alebo priateľmi',mode:'check',freq:'week',perWeek:1},
-  {name:'Jeden kompliment',mode:'check'}]},
+  {name:'Povedať niekomu niečo milé',mode:'check'}]},
  {id:'care',name:'Starostlivosť o seba',light:'#83389F',dark:'#E7B6FF',def:'check',icon:'<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',sug:[
-  {name:'Pleťová rutina',mode:'check'},
+  {name:'Pleťová rutina',mode:'check',alt:[{l:'1× denne',mode:'check'},{l:'Ráno aj večer',mode:'count',target:2,unit:'',fixed:true,tag:'ráno aj večer',minNote:'ráno a večer'}]},
   {name:'Vitamíny',mode:'check'},
-  {name:'Čas len pre seba',mode:'duration',target:15}]}
+  {name:'Pochvala pre seba',mode:'check'},
+  {name:'Rande so sebou',mode:'check',freq:'week',perWeek:1}]}
 ];
-var MODES=[['check','Odškrtnúť (áno / nie)','Ťukneš, keď to splníš. Napríklad vitamíny.'],['count','Počítať množstvo','Pridávaš po kúskoch, napríklad poháre vody alebo strany.'],['duration','Merať čas v minútach','Pridávaš minúty, napríklad meditácia 10 min.'],['time','Stihnúť do určitého času','Odškrtneš, ak to stihneš včas, napríklad do postele do 23:00.'],['choice','Odškrtnúť a vybrať, čo som robila','Odškrtneš a vyberieš, napríklad dnes joga, zajtra beh.'],['quit','Zbaviť sa zlozvyku','Odškrtneš, keď dnes vydržíš, napríklad bez sladkého.']];
+var MODES=[['check','Odškrtnúť (áno / nie)','Ťukneš, keď to splníš. Napríklad vitamíny.'],['count','Počítať množstvo','Pridávaš po kúskoch, napríklad poháre vody alebo strany.'],['duration','Merať čas v minútach','Pridávaš minúty, napríklad meditácia 10 min.'],['time','Stihnúť do určitého času','Odškrtneš, ak to stihneš včas, napríklad do postele do 23:00.'],['choice','Odškrtnúť a vybrať, čo som robila','Odškrtneš a vyberieš, napríklad dnes joga, zajtra beh.'],['quit','Zbaviť sa zlozvyku','Odškrtneš, keď dnes vydržíš, napríklad bez sladkého.'],['book','Čítať knihu (strany)','Zadáš knihu a počet strán. Zapisuješ stranu, kde si skončila, appka dopočíta zvyšok.']];
 function autoKind(cat,name,old){var n=(name||'').toLowerCase();if(/vod|pitn/.test(n))return 'water';if(/sladk|cukr/.test(n))return 'sweet';if(cat==='move')return 'exercise';return (old&&old!=='water'&&old!=='sweet'&&old!=='exercise')?old:'other'}
 function catById(id){for(var i=0;i<CATS.length;i++)if(CATS[i].id===id)return CATS[i];return null}
 function modeOf(g){return g.mode||(g.type==='count'?'count':'check')}
 function isNum(m){return m==='count'||m==='duration'}
 function stepOf(g){return g.step||(modeOf(g)==='duration'?(g.target<5?1:5):1)}
 function buildGoal(s,catId,val){
- var m=s.mode,num=isNum(m),wk=s.freq==='week';
+ var m=s.mode,num=isNum(m)||m==='book',wk=s.freq==='week';
  var g={id:'g'+Date.now().toString(36)+Math.floor(Math.random()*1000),name:s.name,cat:catId||'',mode:m,type:num?'count':'check',
   target:num?(wk?(s.target||1):(val||s.target||1)):1,step:s.step||0,unit:m==='duration'?'min':(s.unit||''),
   days:[0,1,2,3,4,5,6],freq:wk?'week':'days',perWeek:wk?(val||s.perWeek||3):(s.perWeek||3),kind:s.kind||'other',
   options:s.options||null,time:s.time||'',minNote:s.minNote||'',min:0,since:todayKey()};
  if(s.input)g.input=true;
  if(s.allow)g.allow=s.allow;
+ if(s.sumWeek)g.sumWeek=true;
+ if(s.unitW&&num)g.unit=plural(g.target,s.unitW[0],s.unitW[1],s.unitW[2]);
+ if(m==='book'){g.unit='strán';g.book=(s.book||'').trim()||'Kniha';g.pages=+s.pages||0;g.bookId='b'+Date.now().toString(36);g.bookSince=todayKey()}
  if(s.kind==='water'){g.vessel=s.vessel||'glass250';g.unit=vesselWord(vesselOf(g),5)}
  if(!g.step)delete g.step;
  return g;
 }
-function sugValue(s){return s.freq==='week'?(s.perWeek||3):(isNum(s.mode)?s.target:0)}
+function sugValue(s){return s.freq==='week'?(s.perWeek||3):((isNum(s.mode)||s.mode==='book')?s.target:0)}
+function fmtH(v){return String(v).replace('.',',')}
 function sugTag(s,val){
+ if(s.tag)return s.tag;
+ if(s.mode==='book')return val+' strán denne';
+ if(s.limit)return 'najviac '+fmtH(s.limVal!=null?s.limVal:s.limit.val)+' h';
+ if(s.sumWeek)return val+' '+s.unit+' týždenne';
+ if(s.unitW&&s.mode==='count')return val+' '+plural(val,s.unitW[0],s.unitW[1],s.unitW[2])+' denne';
  if(s.kind==='water'){var ves=VESSELS[s.vessel]||VESSELS.glass250;return val+' '+vesselWord(ves,val)+' · '+fmtL(val*ves.ml)}
  if(s.freq==='week')return val+'× týždenne';
  if(s.mode==='count')return val+' '+s.unit+' denne';
@@ -346,6 +363,7 @@ function normalize(s){
  if(s.unlocked.indexOf('base')<0)s.unlocked.push('base');
  if(!s.log||typeof s.log!=='object')s.log={};
  if(s.onboarded===false&&(s.goals.length||Object.keys(s.log).length))s.onboarded=true;
+ s.goals.forEach(function(g){if(g.options&&g.options.indexOf('posilňovňa')>=0){var nw=EX_OPTS.slice(0,-1);g.options.forEach(function(x){if(EX_OLD.indexOf(x)<0&&nw.indexOf(x)<0&&x!=='iné')nw.push(x)});nw.push('iné');g.options=nw}});
  s.goals.forEach(function(g){if(!g.since&&/^g[0-9a-z]{6,}$/.test(g.id)){var ts=parseInt(g.id.slice(1),36);if(ts>1.5e12&&ts<4e12)g.since=keyOf(new Date(ts))}});
  return s;
 }
@@ -360,7 +378,10 @@ function weekStart(k){return addDays(k,-wdOf(k))}
 function weekCount(S,g,k,through){var ws=weekStart(k),n=0;for(var i=0;i<7;i++){var d=addDays(ws,i);if(through&&d>through)break;if(!activeOn(g,d))continue;if(gdone(S,d,g))n++}return n}
 function weekTarget(g,k){var ws=weekStart(k),from=(g.since&&g.since>ws)?g.since:ws;return Math.max(1,Math.min(g.perWeek||1,7-wdOf(from)))}
 function quitMisses(S,g,k){var ws=weekStart(k),n=0,t=todayKey();for(var i=0;i<7;i++){var d=addDays(ws,i);if(d>k)break;if(d>=t)break;if(!activeOn(g,d)||d<S.start||g.days.indexOf(wdOf(d))<0)continue;if(!gdone(S,d,g))n++}return n}
-function goalOk(S,k,g){if(!isWeekly(g)){if(gdone(S,k,g))return true;if(g.allow&&modeOf(g)==='quit'&&k<todayKey())return quitMisses(S,g,k)<=g.allow;return false}var tg=weekTarget(g,k),have=weekCount(S,g,k,k);return have>=tg||have+(6-wdOf(k))>=tg}
+function weekSum(S,g,k,through){var ws=weekStart(k),n=0;for(var i=0;i<7;i++){var d=addDays(ws,i);if(through&&d>through)break;if(!activeOn(g,d))continue;n+=(+gval(S,d,g)||0)}return n}
+function bookPage(S,g,before){var mx=g.startPage||0;for(var d in S.log){if(before&&d>=before)continue;var e=S.log[d].g&&S.log[d].g[g.id];if(e&&e.b===g.bookId&&(+e.p||0)>mx)mx=+e.p}return mx}
+function bookRead(S,g){var n=0;for(var d in S.log){var e=S.log[d].g&&S.log[d].g[g.id];if(e&&e.b===g.bookId)n+=Math.max(0,(+e.v||0)-(+e.v0||0))}return n}
+function goalOk(S,k,g){if(g.sumWeek&&g.type==='count'){return weekSum(S,g,k,k)>=g.target||wdOf(k)<6}if(!isWeekly(g)){if(gdone(S,k,g))return true;if(g.allow&&modeOf(g)==='quit'&&k<todayKey())return quitMisses(S,g,k)<=g.allow;return false}var tg=weekTarget(g,k),have=weekCount(S,g,k,k);return have>=tg||have+(6-wdOf(k))>=tg}
 function status(S,k){
  var t=todayKey();
  if(k>t)return 'future';
@@ -412,7 +433,7 @@ function nextCourt(S){for(var i=0;i<ACOTAR.length;i++){if(S.unlocked.indexOf(ACO
 function plural(n,one,few,many){return n===1?one:(n>=2&&n<=4?few:many)}
 function unitWord(n,u){return u==='noc'?plural(n,'noc','noci','nocí'):plural(n,'deň','dni','dní')}
 function setVal(S,k,g,v){S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[g.id]||{v:g.type==='count'?0:false,note:'',e:''};e.v=v;S.log[k].g[g.id]=e}
-if(typeof module!=='undefined')module.exports={quitMisses:quitMisses,VESSELS:VESSELS,sugTag:sugTag,buildGoal:buildGoal,CATS:CATS,weekCount:weekCount,goalOk:goalOk,activeGoals:activeGoals,THEMES:THEMES,defaultState:defaultState,normalize:normalize,status:status,streak:streak,totalDone:totalDone,tokens:tokens,canForgiveYesterday:canForgiveYesterday,forgiveYesterday:forgiveYesterday,refreshProgress:refreshProgress,setVal:setVal,addDays:addDays,todayKey:todayKey,setNow:function(f){NOW=f},daysToXmas:daysToXmas,unitWord:unitWord};
+if(typeof module!=='undefined')module.exports={weekSum:weekSum,bookPage:bookPage,bookRead:bookRead,EX_OPTS:EX_OPTS,quitMisses:quitMisses,VESSELS:VESSELS,sugTag:sugTag,buildGoal:buildGoal,CATS:CATS,weekCount:weekCount,goalOk:goalOk,activeGoals:activeGoals,THEMES:THEMES,defaultState:defaultState,normalize:normalize,status:status,streak:streak,totalDone:totalDone,tokens:tokens,canForgiveYesterday:canForgiveYesterday,forgiveYesterday:forgiveYesterday,refreshProgress:refreshProgress,setVal:setVal,addDays:addDays,todayKey:todayKey,setNow:function(f){NOW=f},daysToXmas:daysToXmas,unitWord:unitWord};
 </script>
 
 <script id="ui">
@@ -656,23 +677,39 @@ function isDarkTheme(){var t=themeById(S.theme);return !!(t.sky||(t.dark&&window
 function catColor(c){return c?(isDarkTheme()?c.dark:c.light):'var(--accent)'}
 function catIcon(g){var c=catById(g.cat);if(!c)return '';return '<span class="cicon" style="color:'+catColor(c)+'">'+svg(c.icon,17,2)+'</span>'}
 function catBadge(g,size){var c=catById(g.cat);if(!c)return '';var col=catColor(c);return '<span class="cbadge" style="width:'+(size||36)+'px;height:'+(size||36)+'px;color:'+col+';background:color-mix(in srgb,'+col+' 16%,transparent)">'+svg(c.icon,(size||36)*0.55,1.8)+'</span>'}
+function fmtDay(k){var p=k.split('-');return (+p[2])+'. '+(+p[1])+'.'}
+function noteBlock(g,e){var h='<div class="extra"><label class="f">Poznámka<textarea data-a="note" data-id="'+g.id+'" placeholder="napr. ako to dnes išlo…">'+esc(e.note||'')+'</textarea></label><div class="emojis" role="group" aria-label="Emoji">';EMOJIS.forEach(function(em){h+='<button class="emo'+(e.e===em?' on':'')+'" data-a="emoji" data-id="'+g.id+'" data-v="'+em+'" aria-pressed="'+(e.e===em?'true':'false')+'">'+em+'</button>'});return h+'</div></div>'}
+function renderBook(g,k){
+ var e=entry(S,k).g[g.id]||{},v=e.b===g.bookId?Math.max(0,(+e.v||0)-(+e.v0||0)):0,pg=bookPage(S,g),P=g.pages||0,fin=P&&pg>=P,open=view.open[g.id];
+ var sub='Strana '+pg+(P?' z '+P:'');
+ if(fin)sub+=' · dočítané!';else if(P){var rem=P-pg,rd=bookRead(S,g),days=Math.max(1,Math.round((new Date(todayKey())-new Date(g.bookSince||g.since||todayKey()))/864e5)+1),pace=rd>0?rd/days:g.target;sub+=' · zostáva '+rem+' · dočítaš asi '+fmtDay(addDays(todayKey(),Math.ceil(rem/Math.max(1,pace))))}
+ if(e.note)sub+=' · '+esc(e.note);
+ var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.book||g.name)+' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+v+' / '+g.target+' strán</span></span><span class="gsub">'+sub+'</span>'+(P?'<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round(pg/P*100))+'%"></i></span>':'')+'</button>';
+ h+='<label class="numwrap"><span class="sr">Na ktorej strane si skončila: '+esc(g.book||'')+'</span><input class="numin" type="number" inputmode="numeric" min="0" data-a="bookSet" data-id="'+g.id+'" value="'+(e.b===g.bookId&&e.p?e.p:'')+'" placeholder="str."></label></div>';
+ if(!fin&&!v)h+='<div class="small" style="margin-top:6px">Napíš stranu, na ktorej si skončila.</div>';
+ if(fin)h+='<div class="extra"><span class="small" style="font-weight:600;color:var(--accent)">Dočítané! Čo čítaš ďalej?</span><label class="f">Názov knihy<input id="bn-t-'+g.id+'" placeholder="napr. Dvor hmly a zúrivosti"></label><label class="f">Počet strán<input id="bn-p-'+g.id+'" type="number" inputmode="numeric" min="1" placeholder="napr. 626"></label><div class="btnrow"><button class="btn solid" data-a="bookNext" data-id="'+g.id+'">Začať novú knihu</button></div></div>';
+ if(open){var rl=(S.read||[]);if(rl.length)h+='<div class="extra"><span class="small">Prečítané: '+rl.map(function(r){return esc(r.t)}).join(', ')+'</span></div>';h+=noteBlock(g,e)}
+ return h+'</div>';
+}
 function renderGoal(g,k,t){
- var m=modeOf(g),v=gval(S,k,g),e=entry(S,k).g[g.id]||{},open=view.open[g.id],num=isNum(m);
+ var m=modeOf(g);if(m==='book')return renderBook(g,k);
+ var v=gval(S,k,g),e=entry(S,k).g[g.id]||{},open=view.open[g.id],num=isNum(m),disp=g.sumWeek?weekSum(S,g,k):(+v||0);
  var sub='';
  if(e.note)sub=esc(e.note);
  else if(m==='choice'&&v&&e.c)sub='Dnes: '+esc(e.c);
  else if(m==='time')sub='do '+esc(g.time||'');
  else if(m==='quit')sub=(v?'Dnes si vydržala. Hrdinka.':'Ťukni, keď dnes vydržíš.')+(g.allow?' · výnimky tento týždeň: '+Math.min(g.allow,quitMisses(S,g,k))+' z '+g.allow:'');
+ else if(g.sumWeek)sub='tento týždeň'+(v?' · dnes '+v+' '+esc(g.unit||''):'');
  else if(g.minNote)sub=esc(g.minNote);
  else sub=pickLine(g,k)||(!isWeekly(g)&&g.days.length<7?g.days.map(function(d){return WDS[d]}).join(' '):'');
  if(num&&g.min)sub+=(sub?' · ':'')+'minimum '+g.min+(g.unit?' '+esc(g.unit):'');
  var wk='';
  if(isWeekly(g)){var wc=weekCount(S,g,k),wt=weekTarget(g,k);wk='<span class="cups" aria-hidden="true">';for(var wi=0;wi<wt;wi++)wk+='<i class="cup wk'+(wi<wc?' on':'')+'"></i>';wk+='</span>';var wline=(wc>=wt?'Týždeň splnený! ':'')+wc+' / '+wt+' tento týždeň';if(m==='choice'&&v&&e.c)sub=wline+' · Dnes: '+esc(e.c);else if(!v&&wc<wt&&!e.note)sub=wline+'</span><span class="gsub">'+pickLine(g,k);else sub=wline+(e.note?' · '+esc(e.note):'')}
  var full=num&&g.min&&(+v||0)>=g.target,cupsRow='';
- var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+(+v||0)+' / '+g.target+(g.unit&&g.kind!=='water'?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
+ var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+disp+' / '+g.target+(g.unit&&g.kind!=='water'?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
  if(num){
-  if(g.target<=12&&stepOf(g)===1){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" aria-hidden="true">';for(var i=0;i<g.target;i++)cupsRow+=isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24">'+vesselOf(g).shape+(i<v?vesselOf(g).lvl:'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>';cupsRow+='</div>';if(isW){var vs=vesselOf(g);cupsRow+='<div class="small" style="margin-top:6px">'+fmtL((+v||0)*vs.ml)+' z '+fmtL(g.target*vs.ml)+' · 1 '+vs.w[0]+' = '+vs.ml+' ml'+'</div>'}}
-  else h+='<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round((+v||0)/g.target*100))+'%"></i></span>';
+  if(g.target<=12&&stepOf(g)===1&&!g.sumWeek){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" aria-hidden="true">';for(var i=0;i<g.target;i++)cupsRow+=isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24">'+vesselOf(g).shape+(i<v?vesselOf(g).lvl:'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>';cupsRow+='</div>';if(isW){var vs=vesselOf(g);cupsRow+='<div class="small" style="margin-top:6px">'+fmtL((+v||0)*vs.ml)+' z '+fmtL(g.target*vs.ml)+' · 1 '+vs.w[0]+' = '+vs.ml+' ml'+'</div>'}}
+  else h+='<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round(disp/g.target*100))+'%"></i></span>';
  }
  h+='</button>';
  if(num&&(g.input||/krok/i.test(g.unit||''))){
@@ -704,12 +741,13 @@ function goalForm(g){
  var h='<div class="stack" data-form="'+g.id+'"><label class="f">Názov<input id="gf-name" value="'+esc(g.name)+'" placeholder="napr. Gitara"></label>';
  h+='<label class="f">Kategória<select id="gf-cat"><option value="">Bez kategórie</option>'+CATS.map(function(c){return '<option value="'+c.id+'"'+(g.cat===c.id?' selected':'')+'>'+c.name+'</option>'}).join('')+'</select></label>';
  h+='<label class="f">Ako to budeš zapisovať<select id="gf-mode" data-a="gfMode">'+MODES.map(function(x){return '<option value="'+x[0]+'"'+(m===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select><span id="gf-hint" class="small" style="font-weight:400"></span></label>';
- h+='<div class="grid2" data-modes="count duration"><label class="f">Cieľ<input id="gf-target" type="number" min="1" max="100000" inputmode="numeric" value="'+(g.target||1)+'"></label><label class="f" data-modes="count">Jednotka<input id="gf-unit" value="'+esc(m==='duration'?'':g.unit||'')+'" placeholder="strán, €…"></label></div>';
+ h+='<label class="f" data-modes="book">Názov knihy<input id="gf-book" value="'+esc(g.book||'')+'" placeholder="napr. Dvor ruží a tŕnia"></label><label class="f" data-modes="book">Počet strán<input id="gf-pages" type="number" min="1" inputmode="numeric" value="'+(g.pages||'')+'" placeholder="napr. 419"></label>';
+ h+='<div class="grid2" data-modes="count duration book"><label class="f">Cieľ<input id="gf-target" type="number" min="1" max="100000" inputmode="numeric" value="'+(g.target||1)+'"></label><label class="f" data-modes="count">Jednotka<input id="gf-unit" value="'+esc(m==='duration'?'':g.unit||'')+'" placeholder="strán, €…"></label></div>';
  h+='<label class="f" id="gf-ves-wrap">Z čoho najčastejšie piješ<select id="gf-ves" data-a="gfVes" data-prev="'+(g.vessel||'glass250')+'">'+Object.keys(VESSELS).map(function(vk){return '<option value="'+vk+'"'+((g.vessel||'glass250')===vk?' selected':'')+'>'+VESSELS[vk].name+'</option>'}).join('')+'</select><span id="gf-lit" class="small" style="font-weight:400"></span></label>';
  h+='<label class="f" data-modes="count duration">Minimum na zlý deň (nepovinné)<input id="gf-min" type="number" min="0" inputmode="numeric" value="'+(g.min||'')+'" placeholder="napr. 5"></label>';
  h+='<label class="f" data-modes="time">Do koľkej<input id="gf-time" type="time" value="'+esc(g.time||'22:00')+'"></label>';
  h+='<label class="f" data-modes="quit">Povolená výnimka (nepokazí sériu)<select id="gf-allow">'+[[0,'Žiadna'],[1,'1× týždenne'],[2,'2× týždenne']].map(function(x){return '<option value="'+x[0]+'"'+((g.allow||0)===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select></label>';
- h+='<label class="f" data-modes="choice">Možnosti (oddeľ čiarkou)<input id="gf-opts" value="'+esc((g.options||[]).join(', '))+'" placeholder="'+(OPT_PH[g.cat]||'beh, joga, posilňovňa')+'"></label>';
+ h+='<label class="f" data-modes="choice">Možnosti (oddeľ čiarkou)<input id="gf-opts" value="'+esc((g.options||[]).join(', '))+'" placeholder="'+(OPT_PH[g.cat]||'beh, joga, fitko')+'"></label>';
  h+='<label class="f">Ako často<select id="gf-freq" data-a="gfFreq"><option value="days"'+(wkly?'':' selected')+'>V konkrétne dni</option><option value="week"'+(wkly?' selected':'')+'>X-krát za týždeň, kedy sa mi hodí</option></select></label>';
  h+='<label class="f" id="gf-week-wrap" style="display:'+(wkly?'flex':'none')+'">Koľkokrát za týždeň<input id="gf-per" type="number" min="1" max="7" inputmode="numeric" value="'+(g.perWeek||3)+'"></label>';
  h+='<div id="gf-days-wrap" class="f" style="display:'+(wkly?'none':'flex')+';flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500"><span>Dni</span><div class="days7" role="group" aria-label="Dni">'+WDS.map(function(w,i){return '<button type="button" data-a="gfDay" data-v="'+i+'" class="'+(g.days.indexOf(i)>=0?'on':'')+'" aria-pressed="'+(g.days.indexOf(i)>=0?'true':'false')+'">'+w+'</button>'}).join('')+'</div></div>';
@@ -717,11 +755,11 @@ function goalForm(g){
  h+='<div class="btnrow"><button class="btn solid" data-a="saveGoal" data-id="'+g.id+'">Uložiť</button><button class="btn" data-a="cancelGoal">Zrušiť</button>'+'</div>'+(g.id!=='new'?'<div class="stack" style="gap:8px;border-top:1px solid var(--border);padding-top:14px;margin-top:4px"><button class="btn" data-a="endAsk" data-id="'+g.id+'">Ukončiť cieľ</button><button class="btn danger" data-a="delGoal" data-id="'+g.id+'">'+(view.confirmDel===g.id?'Naozaj zmazať aj s celou históriou?':'Zmazať')+'</button>'+(view.confirmDel===g.id?'<span class="small" role="status">Ak chceš históriu zachovať, daj radšej Ukončiť cieľ. Zmazať je na omyly.</span>':'')+'</div>':'')+'</div>';
  return h;
 }
-function goalDesc(g){var m=modeOf(g),d=m==='count'?g.target+(g.unit?' '+esc(g.unit):''):m==='duration'?g.target+' min':m==='time'?'do '+esc(g.time||''):m==='choice'?'áno + čo':m==='quit'?'zbaviť sa':'áno / nie';var c=catById(g.cat);return (c?c.name+' · ':'')+d+' · '+(isWeekly(g)?(g.perWeek||3)+'× za týždeň':(g.days.length===7?'každý deň':g.days.map(function(x){return WDS[x]}).join(' ')))}
+function goalDesc(g){var m=modeOf(g),d=m==='book'?'kniha · '+g.target+' strán denne':g.sumWeek?g.target+' '+esc(g.unit||'')+' za týždeň':m==='count'?g.target+(g.unit?' '+esc(g.unit):''):m==='duration'?g.target+' min':m==='time'?'do '+esc(g.time||''):m==='choice'?'áno + čo':m==='quit'?'zbaviť sa':'áno / nie';var c=catById(g.cat);return (c?c.name+' · ':'')+d+' · '+(isWeekly(g)?(g.perWeek||3)+'× za týždeň':(g.days.length===7?'každý deň':g.days.map(function(x){return WDS[x]}).join(' ')))}
 function syncForm(){var sel=document.getElementById('gf-mode');if(!sel)return;var m=sel.value;var hint=document.getElementById('gf-hint');MODES.forEach(function(x){if(x[0]===m&&hint)hint.textContent=x[2]});document.querySelectorAll('[data-modes]').forEach(function(el){el.style.display=el.getAttribute('data-modes').split(' ').indexOf(m)>=0?'':'none'});var nm=(document.getElementById('gf-name')||{}).value||'',vw=document.getElementById('gf-ves-wrap');if(vw){var isW=m==='count'&&/vod|pitn|piti/i.test(nm);vw.style.display=isW?'':'none';var uw=document.getElementById('gf-unit');if(uw)uw.parentNode.style.display=isW?'none':(m==='count'?'':'none');if(isW){var ves=VESSELS[document.getElementById('gf-ves').value],n=parseInt(document.getElementById('gf-target').value,10)||0;document.getElementById('gf-lit').textContent=n+' '+vesselWord(ves,n)+' = '+fmtL(n*ves.ml)+'. Odporúča sa asi 1,6 l z pitia denne.'}}}
 function saveGoalFromForm(id){
  var $=function(x){return document.getElementById(x)};
- var m=$('gf-mode').value,num=isNum(m);
+ var m=$('gf-mode').value,num=isNum(m)||m==='book';
  var name=$('gf-name').value.trim()||'Nový cieľ';
  var target=num?Math.max(1,Math.min(100000,parseInt($('gf-target').value,10)||1)):1;
  var min=num?Math.max(0,Math.min(target,parseInt($('gf-min').value,10)||0)):0;
@@ -730,6 +768,7 @@ function saveGoalFromForm(id){
  var data={name:name,cat:$('gf-cat').value,mode:m,type:num?'count':'check',target:target,min:min,unit:m==='duration'?'min':(m==='count'?$('gf-unit').value.trim():''),
   vessel:(m==='count'&&/vod|pitn|piti/i.test(name))?$('gf-ves').value:undefined,allow:m==='quit'?(parseInt($('gf-allow').value,10)||0):0,time:m==='time'?$('gf-time').value:'',options:m==='choice'?(opts.length?opts:['iné']):null,days:formDays.length?formDays.slice():[0,1,2,3,4,5,6],kind:autoKind($('gf-cat').value,name,id==='new'?'':(goal(id)||{}).kind),freq:freq,perWeek:per};
  if(data.vessel){data.unit=vesselWord(VESSELS[data.vessel],5)}else delete data.vessel;
+ if(m==='book'){data.unit='strán';data.book=$('gf-book').value.trim()||'Kniha';data.pages=parseInt($('gf-pages').value,10)||0;var ogb=id!=='new'&&goal(id);if(ogb&&ogb.bookId&&ogb.book===data.book){data.bookId=ogb.bookId}else{data.bookId='b'+Date.now().toString(36);data.bookSince=todayKey()}}
  var T0=todayKey();
  if(id==='new'){data.id='g'+Date.now().toString(36);data.since=T0;S.goals.push(data);return}
  var og=goal(id);
@@ -747,7 +786,8 @@ function saveGoalFromForm(id){
 var MOUNT='<path d="M3 19l6-9 3.5 4.5L15 11l6 8z"/><path d="M9 4.5l.6 1.4 1.4.6-1.4.6L9 8.5l-.6-1.4-1.4-.6 1.4-.6zM15.5 3.5l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5zM19 6.5l.4.9.9.4-.9.4-.4.9-.4-.9-.9-.4.9-.4z"/>';
 function startOnboarding(step){view.onb={step:step||1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};view.sheet=false;render()}
 function onbDots(n){var s='<div class="odots" aria-label="Krok '+n+' zo 4">';for(var i=1;i<=4;i++)s+='<i class="'+(i===n?'cur':'')+(i<=n?' on':'')+'"></i>';return s+'</div>'}
-function onbSelected(){var o=view.onb,out=[];o.cats.forEach(function(cid){var c=catById(cid);(o.picks[cid]||[]).forEach(function(i){var s=c.sug[i];var key=cid+':'+i;if(s.kind==='water'){var s3={};for(var sk in s)s3[sk]=s[sk];s3.vessel=o.vessel&&o.vessel[key]||'glass250';s=s3}out.push({cat:c,s:s,val:o.vals[key]!=null?o.vals[key]:sugValue(s)})});(o.custom[cid]||[]).forEach(function(cu){if(cu&&cu.name&&cu.name.trim()){var wk=cu.freq==='week',isN=cu.mode==='count'||cu.mode==='duration';out.push({cat:c,s:{name:cu.name.trim(),mode:cu.mode,target:isN?cu.val:1,unit:cu.mode==='count'?cu.unit:'',time:cu.mode==='time'?cu.time:'',options:cu.mode==='choice'?((cu.opts||'').split(',').map(function(x){return x.trim()}).filter(Boolean).concat([]).length?(cu.opts||'').split(',').map(function(x){return x.trim()}).filter(Boolean):['iné']):null,freq:(wk&&cu.mode!=='quit')?'week':'days',perWeek:cu.per,allow:cu.mode==='quit'?(cu.allow||0):0,kind:autoKind(cid,cu.name,'')},val:wk?cu.per:(isN?cu.val:0),custom:true})}})});return out}
+function effSug(cid,i){var o=view.onb,s=catById(cid).sug[i],key=cid+':'+i,e={};for(var k in s)e[k]=s[k];if(s.alt){var a=s.alt[(o.alt||{})[key]||0];for(var k2 in a)if(k2!=='l')e[k2]=a[k2]}if(o.times&&o.times[key])e.time=o.times[key];if(s.limit){var lv=(o.lim||{})[key]!=null?o.lim[key]:s.limit.val;e.limVal=lv;e.name=s.nameTpl.replace('{v}',fmtH(lv))}if(s.allowPick)e.allow=(o.allow||{})[key]||0;if(e.mode==='book'){var b=(o.book||{})[key]||{};e.book=b.title||'';e.pages=+b.pages||0}if(s.kind==='water')e.vessel=o.vessel&&o.vessel[key]||'glass250';return e}
+function onbSelected(){var o=view.onb,out=[];o.cats.forEach(function(cid){var c=catById(cid);(o.picks[cid]||[]).forEach(function(i){var s=effSug(cid,i);var key=cid+':'+i;out.push({cat:c,s:s,val:o.vals[key]!=null?o.vals[key]:sugValue(s)})});(o.custom[cid]||[]).forEach(function(cu){if(cu&&cu.name&&cu.name.trim()){var wk=cu.freq==='week',isB=cu.mode==='book',isN=cu.mode==='count'||cu.mode==='duration'||isB;out.push({cat:c,s:{name:isB?'Kniha':cu.name.trim(),book:isB?cu.name.trim():'',pages:isB?(+cu.bpages||0):0,mode:cu.mode,target:isN?cu.val:1,unit:cu.mode==='count'?cu.unit:'',time:cu.mode==='time'?cu.time:'',options:cu.mode==='choice'?((cu.opts||'').split(',').map(function(x){return x.trim()}).filter(Boolean).concat([]).length?(cu.opts||'').split(',').map(function(x){return x.trim()}).filter(Boolean):['iné']):null,freq:(wk&&cu.mode!=='quit'&&!isB)?'week':'days',perWeek:cu.per,allow:cu.mode==='quit'?(cu.allow||0):0,kind:autoKind(cid,cu.name,'')},val:wk?cu.per:(isN?cu.val:0),custom:true})}})});return out}
 function renderOnb(){
  var o=view.onb,th=themeById(S.theme),oc=function(c){return o.first?c.dark:catColor(c)};var h='<div class="onb'+(o.first?'':' themed'+(th.sky?' sky':''))+'" role="dialog" aria-modal="true" aria-label="'+(o.first?'Privítanie':'Pridať ciele')+'"><div class="in">';
  if(!o.first)h+='<div class="row" style="justify-content:space-between">'+(o.step>2?'<button class="obtn-link" data-a="onbBack">‹ Späť</button>':'<button class="obtn-link" data-a="onbClose">Zavrieť</button>')+'<span class="osub" style="margin:0;font-size:13px">Krok '+(o.step-1)+' z 2</span></div>';
@@ -765,12 +805,17 @@ function renderOnb(){
   o.cats.forEach(function(cid){
    var c=catById(cid),picks=o.picks[cid]||[];
    h+='<div class="osec" style="--c:'+oc(c)+'"><div class="osech">'+svg(c.icon,18,1.8)+'<span>'+c.name+'</span></div>';
-   c.sug.forEach(function(s,i){
-    var on=picks.indexOf(i)>=0,key=cid+':'+i,val=o.vals[key]!=null?o.vals[key]:sugValue(s);if(s.kind==='water'){var s2={};for(var sk in s)s2[sk]=s[sk];s2.vessel=o.vessel&&o.vessel[key]||'glass250';s=s2}
+   c.sug.forEach(function(s0,i){
+    var on=picks.indexOf(i)>=0,key=cid+':'+i,s=effSug(cid,i),val=o.vals[key]!=null?o.vals[key]:sugValue(s);
     h+='<div class="ogroup'+(on?' on':'')+'"><button class="oopt'+(on?' on':'')+'" data-a="onbSug" data-v="'+key+'" aria-pressed="'+(on?'true':'false')+'"><span class="obox">'+(on?svg(CHECK,11,3.2):'')+'</span><span class="ogrow">'+esc(s.name)+'</span>'+(on?'':'<span class="otag">'+esc(sugTag(s,val))+'</span>')+'</button>';
-    if(on&&(s.freq==='week'||isNum(s.mode))){
-     h+='<div class="ostep q"><span>'+esc(sugQuestion(s))+'</span><span class="row ctr" style="gap:8px"><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="-1" aria-label="Menej">−</button><b>'+esc(sugTag(s,val).replace(' denne',''))+'</b><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="1" aria-label="Viac">+</button></span></div>';
+    if(on&&s0.alt){var ai=(o.alt||{})[key]||0;h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start"><span style="width:100%">'+esc(s0.altQ||'Ako to chceš zapisovať?')+'</span>'+s0.alt.map(function(a,j){return '<button class="ochipb'+(ai===j?' on':'')+'" data-a="onbAlt" data-v="'+key+'" data-n="'+j+'" aria-pressed="'+(ai===j?'true':'false')+'">'+esc(a.l)+'</button>'}).join('')+'</div>'}
+    if(on&&s.mode==='book')h+='<div class="ostep" style="flex-direction:column;align-items:stretch;gap:8px"><label class="ofield" style="margin:0">Názov knihy<input data-a="onbBook" data-f="title" data-v="'+key+'" value="'+esc(s.book)+'" placeholder="napr. Dvor ruží a tŕnia"></label><label class="ofield" style="margin:0">Počet strán<input type="number" inputmode="numeric" min="1" data-a="onbBook" data-f="pages" data-v="'+key+'" value="'+(s.pages||'')+'" placeholder="napr. 419"></label></div>';
+    if(on&&(s.freq==='week'||((isNum(s.mode)||s.mode==='book')&&!s.fixed))){
+     h+='<div class="ostep q"><span>'+esc(sugQuestion(s))+'</span><span class="row ctr" style="gap:8px"><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="-1" aria-label="Menej">−</button><b>'+esc(sugTag(s,val).replace(' denne','').replace(' týždenne',''))+'</b><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="1" aria-label="Viac">+</button></span></div>';
     }
+    if(on&&s.limit)h+='<div class="ostep q"><span>'+esc(s.limit.q)+'</span><span class="row ctr" style="gap:8px"><button class="ostepb" data-a="onbLim" data-v="'+key+'" data-d="-1" aria-label="Menej">−</button><b>'+fmtH(s.limVal)+' h</b><button class="ostepb" data-a="onbLim" data-v="'+key+'" data-d="1" aria-label="Viac">+</button></span><span>V iPhone to uvidíš v Čase pred obrazovkou.</span></div>';
+    if(on&&s.mode==='time')h+='<div class="ostep" style="flex-direction:column;align-items:stretch"><label class="ofield" style="margin:0">Do koľkej?<input type="time" data-a="onbTime" data-v="'+key+'" value="'+esc(s.time||'')+'"></label></div>';
+    if(on&&s0.allowPick)h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start"><span style="width:100%">Povolená výnimka (nepokazí sériu)</span>'+[[0,'Žiadna'],[1,'1× týždenne'],[2,'2× týždenne']].map(function(x){return '<button class="ochipb'+((s.allow||0)===x[0]?' on':'')+'" data-a="onbAllow" data-v="'+key+'" data-n="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
     if(on&&s.kind==='water'){var cv=o.vessel&&o.vessel[key]||'glass250';h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start"><span style="width:100%">Z čoho najčastejšie piješ?</span>'+Object.keys(VESSELS).map(function(vk){return '<button class="ochipb'+(cv===vk?' on':'')+'" data-a="onbVessel" data-v="'+key+'" data-ves="'+vk+'" aria-pressed="'+(cv===vk?'true':'false')+'">'+VESSELS[vk].name+'</button>'}).join('')+'<span style="width:100%">Odporúča sa asi 1,6 l z pitia denne, pri cvičení a v teple viac.</span></div>'}
     if(on&&s.minNote)h+='<div class="ostep"><span>'+esc(s.minNote)+'</span></div>';
     h+='</div>';
@@ -805,23 +850,26 @@ var OVER={
  base:['{n} ciele? Ambiciózne. Menej je niekedy viac.','{n} cieľov naraz? Odvážne. Rozhodnutie je na tebe.','{n} cieľov? To je celý nový život. Si si istá?']
 };
 function overLine(n,first){var set=OVER[first?'night':S.theme]||OVER.base,i=n>=8?2:n>=6?1:0;return set[i].replace('{n}',n)}
-function sugQuestion(s){if(s.freq==='week')return 'Koľkokrát týždenne?';if(s.kind==='water')return 'Koľko denne?';if(s.mode==='duration')return 'Koľko minút denne?';if(s.mode==='count')return 'Koľko '+(s.unit||'')+' denne?';return ''}
+function sugQuestion(s){if(s.q)return s.q;if(s.mode==='book')return 'Koľko strán denne?';if(s.freq==='week')return 'Koľkokrát týždenne?';if(s.kind==='water')return 'Koľko denne?';if(s.mode==='duration')return 'Koľko minút denne?';if(s.mode==='count')return 'Koľko '+(s.unit||'')+' denne?';return ''}
 var OPT_PH={move:'beh, joga, bicykel',food:'raňajky, obed, večera',sleep:'čítanie, sprcha, čaj',mind:'meditácia, denník, dýchanie',phone:'kniha, prechádzka, hra',money:'jedlo, oblečenie, drogéria',learn:'angličtina, gitara, kurz',love:'mama, kamarátka, partner',care:'maska, kúpeľ, manikúra'};
 var QUIT_PH={move:'celodenné sedenie, výťah',food:'sladkosti, chipsy',sleep:'ponocovanie, kofeín večer',mind:'prehnané starosti, sebakritika',phone:'scrollovanie v posteli',money:'nákupy pod vplyvom nálady',learn:'odkladanie, prokrastinácia',love:'ohováranie, sarkazmus na blízkych',care:'škrabanie pleti, hryzenie nechtov'};
-var CMODES=[['check','Odškrtnúť','Ťukneš, keď to splníš.'],['count','Počítať','Pridávaš po kúskoch, napríklad strany alebo km.'],['duration','Minúty','Pridávaš minúty.'],['time','Do času','Odškrtneš, ak to stihneš včas.'],['choice','Áno + čo','Odškrtneš a vyberieš, čo si robila.'],['quit','Zbaviť sa','Každý deň, keď vydržíš, si to odškrtneš.']];
+var CAT_MODES={move:['check','count','duration','choice','quit'],food:['check','count','time','choice','quit'],sleep:['check','duration','time','quit'],mind:['check','count','duration','choice'],phone:['check','count','duration','time','quit'],money:['check','count','quit'],learn:['check','count','duration','choice','book'],love:['check','count','choice'],care:['check','duration','choice','quit']};
+var UNIT_PH={move:'km, krokov, drepov…',food:'porcií, pohárov, g…',sleep:'hodín, minút…',mind:'minút, strán…',phone:'hodín, minút, odomknutí…',money:'€, výdavkov…',learn:'strán, slovíčok, lekcií…',love:'správ, telefonátov…',care:'minút, krokov rutiny…'};
+var CMODES=[['check','Odškrtnúť','Ťukneš, keď to splníš.'],['count','Počítať','Pridávaš po kúskoch, napríklad strany alebo km.'],['duration','Minúty','Pridávaš minúty.'],['time','Do času','Odškrtneš, ak to stihneš včas.'],['choice','Áno + čo','Odškrtneš a vyberieš, čo si robila.'],['quit','Zbaviť sa','Každý deň, keď vydržíš, si to odškrtneš.'],['book','Kniha','Zadáš knihu a počet strán, zapisuješ stranu, kde si skončila.']];
 function newCustom(c){var m=c.def||'check';return {allow:0,name:'',mode:m,val:m==='duration'?10:(m==='count'?5:1),unit:'',time:'22:00',opts:'',freq:'days',per:3}}
 function customCard(cid,ci,cu){
- var at='data-v="'+cid+'" data-i="'+ci+'"',num=cu.mode==='count'||cu.mode==='duration';
+ var at='data-v="'+cid+'" data-i="'+ci+'"',bk=cu.mode==='book',num=cu.mode==='count'||cu.mode==='duration'||bk,CM=CMODES.filter(function(x){return !CAT_MODES[cid]||CAT_MODES[cid].indexOf(x[0])>=0});
  var h='<div class="ogroup on custom"><div class="row" style="gap:6px;padding:4px 4px 0 12px"><span class="osub" style="margin:0;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c)">Vlastný cieľ</span><span class="ogrow"></span><button class="ostepb" style="border:none" data-a="onbCustDel" '+at+' aria-label="Odstrániť vlastný cieľ">'+svg('<path d="M6 6l12 12M18 6L6 18"/>',16,2)+'</button></div>';
  var qt=cu.mode==='quit';
- h+='<label class="ofield" style="margin:0;padding:0 12px">'+(qt?'Čoho sa chceš zbaviť?':'<span class="sr">Názov</span>')+'<input data-a="onbCustom" data-f="name" '+at+' value="'+esc(cu.name)+'" placeholder="'+(qt?'napr. '+(QUIT_PH[cid]||'zlozvyk'):'Napíš svoj cieľ…')+'"></label>';
- h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start;padding:0 12px"><span style="width:100%">Ako to budeš zapisovať?</span>'+CMODES.map(function(x){return '<button class="ochipb'+(cu.mode===x[0]?' on':'')+'" data-a="onbCustMode" '+at+' data-m="'+x[0]+'" aria-pressed="'+(cu.mode===x[0]?'true':'false')+'">'+x[1]+'</button>'}).join('')+'<span style="width:100%;font-size:12px">'+(CMODES.filter(function(x){return x[0]===cu.mode})[0]||['','',''])[2]+'</span></div>';
+ h+='<label class="ofield" style="margin:0;padding:0 12px">'+(qt?'Čoho sa chceš zbaviť?':bk?'Názov knihy':'<span class="sr">Názov</span>')+'<input data-a="onbCustom" data-f="name" '+at+' value="'+esc(cu.name)+'" placeholder="'+(qt?'napr. '+(QUIT_PH[cid]||'zlozvyk'):bk?'napr. Dvor ruží a tŕnia':'Napíš svoj cieľ…')+'"></label>';
+ h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start;padding:0 12px"><span style="width:100%">Ako to budeš zapisovať?</span>'+CM.map(function(x){return '<button class="ochipb'+(cu.mode===x[0]?' on':'')+'" data-a="onbCustMode" '+at+' data-m="'+x[0]+'" aria-pressed="'+(cu.mode===x[0]?'true':'false')+'">'+x[1]+'</button>'}).join('')+'<span style="width:100%;font-size:12px">'+(CMODES.filter(function(x){return x[0]===cu.mode})[0]||['','',''])[2]+'</span></div>';
  if(qt)h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start;padding:0 12px"><span style="width:100%">Povolená výnimka (nepokazí sériu)</span>'+[[0,'Žiadna'],[1,'1× týždenne'],[2,'2× týždenne']].map(function(x){return '<button class="ochipb'+((cu.allow||0)===x[0]?' on':'')+'" data-a="onbCustAllow" '+at+' data-n="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
- if(num)h+='<div class="ostep q" style="padding:0 12px"><span>'+(cu.mode==='duration'?'Koľko minút?':'Koľko?')+'</span><span class="row ctr" style="gap:8px"><button class="ostepb" data-a="onbCustVal" '+at+' data-d="-1" aria-label="Menej">−</button><b>'+cu.val+(cu.mode==='duration'?' min':'')+'</b><button class="ostepb" data-a="onbCustVal" '+at+' data-d="1" aria-label="Viac">+</button></span></div>';
- if(cu.mode==='count')h+='<label class="ofield" style="margin:0;padding:0 12px">Jednotka (nepovinné)<input data-a="onbCustom" data-f="unit" '+at+' value="'+esc(cu.unit)+'" placeholder="strán, km…"></label>';
- if(cu.mode==='time')h+='<label class="ofield" style="margin:0;padding:0 12px">Do koľkej<input type="time" data-a="onbCustom" data-f="time" '+at+' value="'+esc(cu.time)+'"></label>';
+ if(num)h+='<div class="ostep q" style="padding:0 12px"><span>'+(cu.mode==='duration'?'Koľko minút?':bk?'Koľko strán denne?':'Koľko?')+'</span><span class="row ctr" style="gap:8px"><button class="ostepb" data-a="onbCustVal" '+at+' data-d="-1" aria-label="Menej">−</button><b>'+cu.val+(cu.mode==='duration'?' min':'')+'</b><button class="ostepb" data-a="onbCustVal" '+at+' data-d="1" aria-label="Viac">+</button></span></div>';
+ if(cu.mode==='count')h+='<label class="ofield" style="margin:0;padding:0 12px">Jednotka (nepovinné)<input data-a="onbCustom" data-f="unit" '+at+' value="'+esc(cu.unit)+'" placeholder="'+(UNIT_PH[cid]||'strán, km…')+'"></label>';
+ if(bk)h+='<label class="ofield" style="margin:0;padding:0 12px">Počet strán<input type="number" inputmode="numeric" min="1" data-a="onbCustom" data-f="bpages" '+at+' value="'+esc(cu.bpages||'')+'" placeholder="napr. 419"></label>';
+ if(cu.mode==='time')h+='<label class="ofield" style="margin:0;padding:0 12px">Do koľkej?<input type="time" data-a="onbCustom" data-f="time" '+at+' value="'+esc(cu.time)+'"></label>';
  if(cu.mode==='choice')h+='<label class="ofield" style="margin:0;padding:0 12px">Možnosti (oddeľ čiarkou)<input data-a="onbCustom" data-f="opts" '+at+' value="'+esc(cu.opts)+'" placeholder="napr. '+(OPT_PH[cid]||'gitara, klavír')+'"></label>';
- if(qt){return h+'<div style="height:12px"></div></div>'}
+ if(qt||bk){return h+'<div style="height:12px"></div></div>'}
  h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start;padding:0 12px 12px"><span style="width:100%">Ako často?</span><button class="ochipb'+(cu.freq==='days'?' on':'')+'" data-a="onbCustFreq" '+at+' data-f="days">Denne</button><button class="ochipb'+(cu.freq==='week'?' on':'')+'" data-a="onbCustFreq" '+at+' data-f="week">X× týždenne</button>';
  if(cu.freq==='week')h+='<span class="row ctr" style="gap:8px;width:100%;justify-content:space-between"><button class="ostepb" data-a="onbCustPer" '+at+' data-d="-1" aria-label="Menej">−</button><b>'+cu.per+'×</b><button class="ostepb" data-a="onbCustPer" '+at+' data-d="1" aria-label="Viac">+</button></span>';
  return h+'</div></div>';
@@ -846,14 +894,17 @@ function onbClick(a,el){
   case 'onbSkip':S.onboarded=true;if(o.name&&o.name.trim())S.name=o.name.trim().slice(0,40);view.onb=null;commit();return true;
   case 'onbCat':var ix=o.cats.indexOf(v);if(ix>=0)o.cats.splice(ix,1);else o.cats.push(v);o.msg='';render();return true;
   case 'onbSug':var p=v.split(':'),arr=o.picks[p[0]]=o.picks[p[0]]||[],si=+p[1],j=arr.indexOf(si);if(j>=0)arr.splice(j,1);else arr.push(si);onbRenderKeep();return true;
-  case 'onbVal':var q=v.split(':'),s=catById(q[0]).sug[+q[1]],cur=o.vals[v]!=null?o.vals[v]:sugValue(s),d=+el.getAttribute('data-d');
+  case 'onbVal':var q=v.split(':'),s=effSug(q[0],+q[1]),cur=o.vals[v]!=null?o.vals[v]:sugValue(s),d=+el.getAttribute('data-d');
    if(s.freq==='week')cur=Math.max(1,Math.min(7,cur+d));else{var st=s.step||(s.mode==='duration'?(s.target<5?1:5):1);cur=Math.max(st,cur+d*st)}
    o.vals[v]=cur;onbRenderKeep();return true;
+  case 'onbAlt':o.alt=o.alt||{};o.alt[v]=+el.getAttribute('data-n');delete o.vals[v];onbRenderKeep();return true;
+  case 'onbLim':var ql=v.split(':'),sl=catById(ql[0]).sug[+ql[1]].limit;o.lim=o.lim||{};var lc=o.lim[v]!=null?o.lim[v]:sl.val;o.lim[v]=Math.max(sl.min,Math.min(sl.max,lc+(+el.getAttribute('data-d'))*sl.step));onbRenderKeep();return true;
+  case 'onbAllow':o.allow=o.allow||{};o.allow[v]=+el.getAttribute('data-n');onbRenderKeep();return true;
   case 'onbVessel':o.vessel=o.vessel||{};var oldV=VESSELS[o.vessel[v]||'glass250'],newV=VESSELS[el.getAttribute('data-ves')],qq=v.split(':'),cs=catById(qq[0]).sug[+qq[1]],cv2=o.vals[v]!=null?o.vals[v]:sugValue(cs);o.vals[v]=Math.max(1,Math.round(cv2*oldV.ml/newV.ml));o.vessel[v]=el.getAttribute('data-ves');onbRenderKeep();return true;
   case 'onbAddCustom':(o.custom[v]=o.custom[v]||[]).push(newCustom(catById(v)));onbRenderKeep();var ins=document.querySelectorAll('[data-a=onbCustom][data-f=name][data-v="'+v+'"]');if(ins.length)ins[ins.length-1].focus();return true;
   case 'onbCustDel':o.custom[v].splice(+el.getAttribute('data-i'),1);onbRenderKeep();return true;
-  case 'onbCustMode':var cu=o.custom[v][+el.getAttribute('data-i')];cu.mode=el.getAttribute('data-m');if(cu.mode==='duration'&&cu.val<5)cu.val=10;onbRenderKeep();return true;
-  case 'onbCustVal':var cu2=o.custom[v][+el.getAttribute('data-i')],st2=cu2.mode==='duration'?5:1;cu2.val=Math.max(st2,cu2.val+(+el.getAttribute('data-d'))*st2);onbRenderKeep();return true;
+  case 'onbCustMode':var cu=o.custom[v][+el.getAttribute('data-i')];cu.mode=el.getAttribute('data-m');if((cu.mode==='duration'||cu.mode==='book')&&cu.val<5)cu.val=10;onbRenderKeep();return true;
+  case 'onbCustVal':var cu2=o.custom[v][+el.getAttribute('data-i')],st2=(cu2.mode==='duration'||cu2.mode==='book')?5:1;cu2.val=Math.max(st2,cu2.val+(+el.getAttribute('data-d'))*st2);onbRenderKeep();return true;
   case 'onbCustAllow':o.custom[v][+el.getAttribute('data-i')].allow=+el.getAttribute('data-n');onbRenderKeep();return true;
   case 'onbCustFreq':o.custom[v][+el.getAttribute('data-i')].freq=el.getAttribute('data-f');onbRenderKeep();return true;
   case 'onbCustPer':var cu3=o.custom[v][+el.getAttribute('data-i')];cu3.per=Math.max(1,Math.min(7,cu3.per+(+el.getAttribute('data-d'))));onbRenderKeep();return true;
@@ -932,6 +983,7 @@ document.addEventListener('click',function(ev){
  if(a==='note'||a==='name'||a==='importText'||a==='start')return;
  switch(a){
   case 'tab':view.tab=v;if(v==='today')view.dayKey=todayKey();render();window.scrollTo(0,0);break;
+  case 'bookNext':var bgn=goal(id),bt=(document.getElementById('bn-t-'+id)||{}).value||'',bp=parseInt((document.getElementById('bn-p-'+id)||{}).value,10)||0;if(!bt.trim()){var bi=document.getElementById('bn-t-'+id);if(bi)bi.focus();break}bgn.book=bt.trim();bgn.pages=bp;bgn.bookId='b'+Date.now().toString(36);bgn.bookSince=todayKey();delete bgn.finished;commit();break;
   case 'check':var g=goal(id);setVal(S,k,g,!gval(S,k,g));commit();break;
   case 'inc':g=goal(id);setVal(S,k,g,Math.min(g.target*3,(+gval(S,k,g)||0)+1));commit();break;
   case 'dec':g=goal(id);setVal(S,k,g,Math.max(0,(+gval(S,k,g)||0)-1));commit();break;
@@ -973,9 +1025,12 @@ document.addEventListener('input',function(ev){
  else if(el.id==='gf-name'||el.id==='gf-target'){syncForm()}
  else if(a==='importText'){view.importText=el.value}
  else if(a==='onbName'&&view.onb){view.onb.name=el.value}
+ else if(a==='onbTime'&&view.onb){view.onb.times=view.onb.times||{};view.onb.times[el.getAttribute('data-v')]=el.value}
+ else if(a==='onbBook'&&view.onb){var ob=view.onb.book=view.onb.book||{},bk=el.getAttribute('data-v');ob[bk]=ob[bk]||{};ob[bk][el.getAttribute('data-f')]=el.value}
  else if(a==='onbCustom'&&view.onb){view.onb.custom[el.getAttribute('data-v')][+el.getAttribute('data-i')][el.getAttribute('data-f')]=el.value;var bt=document.querySelector('.onb .obtn'),n=onbSelected().length;if(bt){bt.disabled=!n;if(!view.onb.first)bt.textContent=n?'Pridať '+(n===1?'cieľ':n+' '+plural(n,'cieľ','ciele','cieľov')):'Vyber aspoň jeden cieľ'}var ov=document.querySelector('.onb .over');if(ov){ov.style.display=n>=4?'':'none';ov.textContent=n>=4?overLine(n,view.onb.first):''}}
 });
-document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='numSet'){var ng=goal(ev.target.getAttribute('data-id'));if(ng){setVal(S,view.dayKey,ng,Math.max(0,Math.min(1000000,parseInt(ev.target.value,10)||0)));commit()}return}if(a==='gfVes'){var tEl=document.getElementById('gf-target'),pv=VESSELS[ev.target.getAttribute('data-prev')||'glass250'],nv=VESSELS[ev.target.value];tEl.value=Math.max(1,Math.round((parseInt(tEl.value,10)||1)*pv.ml/nv.ml));ev.target.setAttribute('data-prev',ev.target.value);syncForm();return}if(a==='gfMode'){syncForm();return}if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
+function bookSet(g,k,page){var prev=bookPage(S,g,k);S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[g.id]||{v:0,note:'',e:''};if(e.b!==g.bookId){e.v0=e.b?(+e.v||0):0}e.b=g.bookId;e.p=page;e.v=(e.v0||0)+Math.max(0,page-prev);S.log[k].g[g.id]=e;var fin=false;S.read=S.read||[];if(g.pages&&page>=g.pages&&!g.finished){g.finished=k;S.read.push({t:g.book,p:g.pages,d:k});fin=true}else if(g.finished&&g.pages&&page<g.pages){var f=g.finished;S.read=S.read.filter(function(r){return !(r.t===g.book&&r.d===f)});delete g.finished}commit();if(fin){launchConfetti('happy');showBanner('Kniha dočítaná!','„'+g.book+'“ je za tebou.')}}
+document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='bookSet'){var bg=goal(ev.target.getAttribute('data-id'));if(bg)bookSet(bg,view.dayKey,Math.max(0,Math.min(100000,parseInt(ev.target.value,10)||0)));return}if(a==='numSet'){var ng=goal(ev.target.getAttribute('data-id'));if(ng){setVal(S,view.dayKey,ng,Math.max(0,Math.min(1000000,parseInt(ev.target.value,10)||0)));commit()}return}if(a==='gfVes'){var tEl=document.getElementById('gf-target'),pv=VESSELS[ev.target.getAttribute('data-prev')||'glass250'],nv=VESSELS[ev.target.value];tEl.value=Math.max(1,Math.round((parseInt(tEl.value,10)||1)*pv.ml/nv.ml));ev.target.setAttribute('data-prev',ev.target.value);syncForm();return}if(a==='gfMode'){syncForm();return}if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
 document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&(view.sheet||view.toast||view.endAsk)){view.sheet=false;view.toast=null;view.endAsk=null;render()}});
 // nový deň pri návrate do appky
 var lastDay=todayKey();
