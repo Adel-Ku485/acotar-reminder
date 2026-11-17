@@ -488,7 +488,9 @@ function render(){
  var a=document.getElementById('app');
  a.innerHTML=view.tab==='today'?renderToday():view.tab==='cal'?renderCal():renderCourts();
  renderTabs();
+ var _si=document.querySelector('.sheet .in'),_sk=view.editGoal?'edit:'+view.editGoal:(view.sheet||''),_st=_si&&render._k===_sk?_si.scrollTop:0;
  renderOverlay();
+ var _ni=document.querySelector('.sheet .in');if(_ni&&_st)_ni.scrollTop=_st;render._k=_ni?_sk:'';
  syncForm();
 }
 function renderTabs(){
