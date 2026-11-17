@@ -38,6 +38,7 @@ h2{margin:0;font-size:15px;font-weight:600}
 .dots{display:flex;gap:8px;margin-top:10px}
 .dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid color-mix(in srgb,var(--muted) 70%,var(--card));color:var(--muted)}
 .dot.done{background:var(--streak);border-color:var(--streak);color:var(--onStreak)}
+.dot.partial{border-color:var(--streak);color:var(--text);background:linear-gradient(to top,color-mix(in srgb,var(--streak) 45%,transparent) 50%,transparent 50%)}
 .dot.forgiven{border-color:var(--streak);border-style:dashed;color:var(--streak)}
 .dot.today{box-shadow:0 0 0 3px var(--bg),0 0 0 4.5px var(--accent)}
 .small{font-size:12px;color:var(--muted)}
@@ -77,7 +78,7 @@ nav.tabs button.on{color:var(--accent);font-weight:600}
 .cday small{font-size:12px;line-height:1}
 .cday.done{background:var(--streak);border-color:var(--streak);color:var(--onStreak)}
 .cday.forgiven{border:1.5px dashed var(--streak)}
-.cday.partial{border-color:var(--accent)}
+.cday.partial{border-color:var(--streak);background:linear-gradient(to top,color-mix(in srgb,var(--streak) 40%,var(--card)) 50%,var(--card) 50%)}
 .cday.future,.cday.before{opacity:.45}
 .cday.sel{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
 .court{display:flex;gap:12px;align-items:center}
@@ -460,7 +461,7 @@ function renderToday(){
  if(isToday&&canForgiveYesterday(S))h+='<div class="banner"><span>Včera to nevyšlo. Použiť odpustenie a zachrániť sériu?</span><button class="pill" data-a="forgive">Odpustiť</button></div>';
  // streak card
  h+='<div class="card streak"><span class="label">Séria</span><div class="big pop">'+st+'</div><span style="font-size:15px">'+unitWord(st,t.unit)+' v rade</span><div class="dots">';
- for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);h+='<div class="dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':'')+(i===0?' today':'')+'" title="'+fmtDay(dk)+'">'+WDS[wdOf(dk)]+'</div>'}
+ for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);h+='<div class="dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':ds==='partial'?'partial':'')+(i===0?' today':'')+'" title="'+fmtDay(dk)+'">'+WDS[wdOf(dk)]+'</div>'}
  var tk=tokens(S);
  h+='</div><span class="small" style="margin-top:8px">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe</span>';
  var nc=nextCourt(S);
@@ -502,18 +503,29 @@ function renderCal(){
   for(var gid in en.g){if(en.g[gid].e){em=en.g[gid].e;break}}
   h+='<button class="cday '+st+(view.calSel===k?' sel':'')+'" data-a="calSel" data-v="'+k+'" aria-label="'+d+'. '+MONTHS[m]+': '+({done:'splnené',forgiven:'odpustené',partial:'čiastočne',missed:'nesplnené',none:'bez cieľov',future:'',before:''}[st])+'"><span>'+d+'</span>'+(em?'<small>'+em+'</small>':'')+'</button>';
  }
- h+='</div><div class="row small" style="margin-top:12px;gap:14px;flex-wrap:wrap"><span><span class="dot done" style="display:inline-flex;width:12px;height:12px;vertical-align:middle"></span> splnené</span><span><span class="dot forgiven" style="display:inline-flex;width:12px;height:12px;vertical-align:middle"></span> odpustené</span></div></div>';
+ h+='</div><div class="row small" style="margin-top:12px;gap:14px;flex-wrap:wrap"><span><span class="dot done" style="display:inline-flex;width:12px;height:12px;vertical-align:middle"></span> splnené</span><span><span class="dot partial" style="display:inline-flex;width:12px;height:12px;vertical-align:middle"></span> čiastočne</span><span><span class="dot forgiven" style="display:inline-flex;width:12px;height:12px;vertical-align:middle"></span> odpustené</span></div></div>';
  if(view.calSel){
   var k2=view.calSel,gs=goalsFor(S,k2),e2=entry(S,k2);
   h+='<div class="card stack" style="margin-top:12px"><div class="row" style="justify-content:space-between"><h2>'+WD[wdOf(k2)]+' '+fmtDay(k2)+'</h2>'+(k2<=todayKey()&&k2>=S.start?'<button class="btn" data-a="editDay" data-v="'+k2+'">Upraviť deň</button>':'')+'</div>';
   if(!gs.length)h+='<span class="small">Žiadne ciele v tento deň.</span>';
   gs.forEach(function(g){var ge=e2.g[g.id]||{};h+='<div class="row"><span style="width:22px;color:var(--accent)">'+(gdone(S,k2,g)?svg(CHECK,18,2.5):'·')+'</span><div class="grow"><span class="gname" style="font-size:14px">'+(ge.e?ge.e+' ':'')+esc(g.name)+(g.type==='count'?' <span class="small">'+(+gval(S,k2,g)||0)+' / '+g.target+'</span>':'')+'</span>'+(ge.c||ge.note?'<span class="gsub">'+(ge.c?'Dnes: '+esc(ge.c)+(ge.note?' · ':''):'')+esc(ge.note||'')+'</span>':'')+'</div></div>'});
   if(e2.forgiven)h+='<span class="small">Tento deň bol odpustený.</span>';
+  else if(k2<todayKey()&&k2>=S.start&&gs.length){var mt=missingText(k2);if(mt)h+='<p class="quip" style="font-size:16px;margin:4px 0 0;text-align:left">'+esc(mt)+'</p>'}
   h+='</div>';
  }
  return h;
 }
 
+function missingText(k){
+ var st=status(S,k);if(st==='done'||st==='forgiven'||st==='none')return '';
+ var gs=goalsFor(S,k),miss=gs.filter(function(g){return !goalOk(S,k,g)});
+ var names=miss.map(function(g){return isNum(modeOf(g))?g.name+' ('+(+gval(S,k,g)||0)+' z '+g.target+')':g.name});
+ var r=Math.floor(dateOf(k).getTime()/86400000);
+ if(st==='missed'){var E=['Tento deň ostal celý prázdny. Aj hrdinky majú voľno.','Ticho. Žiadny záznam. Podozrivé.','Deň na gauči? Dvor to nezabudne.'];return E[r%E.length]}
+ if(names.length===1){var O=['Skoro dokonalé. Len {x} sa niekde zatúlalo.','Všetko super, až na {x}. Nabudúce to dáš.','{x} si v ten deň dalo voľno. Ty si makala.'];return O[r%O.length].replace('{x}',names[0])}
+ var list=names.slice(0,-1).join(', ')+' a '+names[names.length-1];
+ var M=['Pár vecí ti ušlo: {x}. Zajtra ich chytíš.','Dobrý pokus. Chýbalo: {x}.','Niečo si dala, niečo nie. Ušlo: {x}.'];return M[r%M.length].replace('{x}',list);
+}
 function swatch(t){var c=t.c;return '<div class="sw" aria-hidden="true"><i style="background:'+c.bg+'"></i><i style="background:'+c.accent+'"></i><i style="background:'+c.streak+'"></i></div>'}
 function renderCourts(){
  var h=header('Dvory');
@@ -639,6 +651,7 @@ function goalForm(g){
  h+='<label class="f">Ako často<select id="gf-freq" data-a="gfFreq"><option value="days"'+(wkly?'':' selected')+'>V konkrétne dni</option><option value="week"'+(wkly?' selected':'')+'>X-krát za týždeň, kedy sa mi hodí</option></select></label>';
  h+='<label class="f" id="gf-week-wrap" style="display:'+(wkly?'flex':'none')+'">Koľkokrát za týždeň<input id="gf-per" type="number" min="1" max="7" inputmode="numeric" value="'+(g.perWeek||3)+'"></label>';
  h+='<div id="gf-days-wrap" class="f" style="display:'+(wkly?'none':'flex')+';flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500"><span>Dni</span><div class="days7" role="group" aria-label="Dni">'+WDS.map(function(w,i){return '<button type="button" data-a="gfDay" data-v="'+i+'" class="'+(g.days.indexOf(i)>=0?'on':'')+'" aria-pressed="'+(g.days.indexOf(i)>=0?'true':'false')+'">'+w+'</button>'}).join('')+'</div></div>';
+ if(g.id!=='new'&&g.since!==todayKey())h+='<label class="row" style="gap:10px;font-size:14px;min-height:44px"><input id="gf-retro" type="checkbox" style="width:22px;height:22px;accent-color:var(--accent)"><span>Platí aj pre minulé dni <span class="small" style="display:block">Inak sa zmena týka až dneška a ďalších dní.</span></span></label>';
  h+='<div class="btnrow"><button class="btn solid" data-a="saveGoal" data-id="'+g.id+'">Uložiť</button><button class="btn" data-a="cancelGoal">Zrušiť</button>'+(g.id!=='new'?'<button class="btn danger" data-a="delGoal" data-id="'+g.id+'">'+(view.confirmDel===g.id?'Naozaj zmazať?':'Zmazať')+'</button>':'')+'</div></div>';
  return h;
 }
@@ -658,7 +671,8 @@ function saveGoalFromForm(id){
  if(id==='new'){data.id='g'+Date.now().toString(36);data.since=T0;S.goals.push(data);return}
  var og=goal(id);
  var ruleChanged=modeOf(og)!==m||og.target!==data.target||(og.min||0)!==min||(og.time||'')!==data.time||(og.freq||'days')!==data.freq||(isWeekly(data)&&(og.perWeek||3)!==data.perWeek)||(!isWeekly(data)&&og.days.join()!==data.days.join());
- if(ruleChanged&&og.since!==T0){
+ var retro=$('gf-retro')&&$('gf-retro').checked;
+ if(ruleChanged&&og.since!==T0&&!retro){
   var ng={};for(var kk in og)ng[kk]=og[kk];for(var kk2 in data)ng[kk2]=data[kk2];
   ng.id='g'+Date.now().toString(36);ng.since=T0;delete ng.until;og.until=addDays(T0,-1);
   if(S.log[T0]&&S.log[T0].g&&S.log[T0].g[og.id]){S.log[T0].g[ng.id]=S.log[T0].g[og.id];delete S.log[T0].g[og.id]}
