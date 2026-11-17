@@ -146,6 +146,10 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .onb.themed{--o-bg:var(--bg);--o-card:var(--card);--o-sel:color-mix(in srgb,var(--accent) 9%,var(--card));--o-border:var(--border);--o-border2:color-mix(in srgb,var(--muted) 60%,var(--card));--o-text:var(--text);--o-muted:var(--muted);--o-accent:var(--accent);--o-on:var(--onAccent);--o-link:var(--accent);--o-gold:var(--streak);--o-pink:var(--streak);background-image:none}
 .onb.themed.sky{background-image:radial-gradient(1.2px 1.2px at 8% 6%,var(--star1),transparent),radial-gradient(1px 1px at 31% 3%,var(--star2),transparent),radial-gradient(1.4px 1.4px at 77% 8%,var(--star1),transparent)}
 .onb.themed .oh1{font-family:var(--display)}
+.banner-top{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translateX(-50%);z-index:70;background:var(--card);border:1.5px solid var(--streak);color:var(--text);border-radius:18px;padding:12px 18px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.18);max-width:calc(100% - 32px);animation:pop .35s ease-out;transition:opacity .4s}
+.banner-top b{font-family:var(--display);font-size:22px;color:var(--streak)}
+.banner-top span{font-size:14px;color:var(--muted)}
+.banner-top.out{opacity:0}
 @keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .35s ease-out}
 </style>
@@ -384,13 +388,18 @@ var CHECK='<path d="M5 12.5l4.5 4.5L19 7.5"/>';
 
 /* ---- cloud sync ---- */
 var dbRef=null,writing=false,pendingWrite=false,writeTimer=null;
+var lastTodayStatus=null;
 function commit(){
  S.updatedAt=Date.now();
+ var T=todayKey(),nowSt=status(S,T),celebrate=lastTodayStatus!==null&&lastTodayStatus!=='done'&&nowSt==='done'&&S.celebrated!==T;
+ if(celebrate)S.celebrated=T;
+ lastTodayStatus=nowSt;
  var fresh=refreshProgress(S);
  saveLocal();
  if(fresh.length)view.toast={type:'unlock',id:fresh[fresh.length-1]};
  queueWrite();
  render();
+ if(celebrate){launchConfetti('happy');(function(){var th=themeById(S.theme),d=th.done,i=d.indexOf('. ');showBanner(th.unit==='noc'?'Noc splnená!':'Deň splnený!',i>0?d.slice(i+2):d)})()}
 }
 function queueWrite(){if(!dbRef)return;clearTimeout(writeTimer);writeTimer=setTimeout(doWrite,700)}
 function doWrite(){
@@ -758,6 +767,7 @@ function onbClick(a,el){
  return false;
 }
 
+function showBanner(title,text){var b=document.createElement('div');b.className='banner-top';b.setAttribute('role','status');b.innerHTML='<b>'+esc(title)+'</b><span>'+esc(text)+'</span>';document.body.appendChild(b);setTimeout(function(){b.classList.add('out')},2800);setTimeout(function(){b.remove()},3300)}
 /* ---- ukončenie cieľa ---- */
 var END_LINES={
  done:['Návyk je tvoj. Tamlin by plakal, Rhys by tlieskal.','Toto si zaslúži tanec. Aspoň v kuchyni.','Hotovo. Teraz to robíš aj bez appky. Trochu žiarlime.','Oficiálne: si človek, ktorý veci dotiahne.','Amren by povedala „nebolo to zlé“. U nej je to potlesk.'],
@@ -871,10 +881,11 @@ document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev
 document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&(view.sheet||view.toast||view.endAsk)){view.sheet=false;view.toast=null;view.endAsk=null;render()}});
 // nový deň pri návrate do appky
 var lastDay=todayKey();
-document.addEventListener('visibilitychange',function(){if(!document.hidden&&todayKey()!==lastDay){lastDay=todayKey();view.dayKey=lastDay;refreshProgress(S);render()}});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&todayKey()!==lastDay){lastDay=todayKey();view.dayKey=lastDay;refreshProgress(S);lastTodayStatus=status(S,lastDay);render()}});
 if(window.matchMedia)try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render)}catch(e){}
 
 refreshProgress(S);
+lastTodayStatus=status(S,todayKey());
 if(!S.onboarded)view.onb={first:true,step:1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};
 render();
 initSync();
