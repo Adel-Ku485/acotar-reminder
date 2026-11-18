@@ -13,12 +13,12 @@
 <title>Personal reminder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=Marcellus&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F4F8EE;--card:#fff;--border:#DCE8D2;--text:#23331F;--muted:#56634F;--accent:#4E7A3C;--onAccent:#fff;--streak:#B04A70;--onStreak:#fff;--stat1:#B04A70;--stat2:#4E7A3C;--navBg:#fff;--navBorder:#DCE8D2;--empty:#B9C7AE;--cupEmpty:#DCE8D2;--star1:transparent;--star2:transparent;--display:'Cormorant Garamond',serif}
+:root{--bg:#F4F8EE;--card:#fff;--border:#DCE8D2;--text:#23331F;--muted:#56634F;--accent:#4E7A3C;--onAccent:#fff;--streak:#B04A70;--onStreak:#fff;--stat1:#B04A70;--stat2:#4E7A3C;--navBg:#fff;--navBorder:#DCE8D2;--empty:#B9C7AE;--cupEmpty:#DCE8D2;--star1:transparent;--star2:transparent;--display:'Lora',serif}
 *{box-sizing:border-box}
 html,body,button,a,input,select,textarea,label{touch-action:manipulation}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Nunito,system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 body{min-height:100vh;transition:background-color .4s}
 body.sky{background-image:radial-gradient(1.2px 1.2px at 8% 6%,var(--star1),transparent),radial-gradient(1px 1px at 31% 3%,var(--star2),transparent),radial-gradient(1.4px 1.4px at 77% 8%,var(--star1),transparent),radial-gradient(1px 1px at 90% 19%,var(--star2),transparent),radial-gradient(1px 1px at 54% 14%,var(--star1),transparent),radial-gradient(1.2px 1.2px at 15% 36%,var(--star2),transparent),radial-gradient(1px 1px at 95% 50%,var(--star1),transparent),radial-gradient(1px 1px at 5% 66%,var(--star2),transparent),radial-gradient(1.2px 1.2px at 85% 76%,var(--star1),transparent),radial-gradient(1px 1px at 38% 90%,var(--star2),transparent);background-attachment:fixed}
 button{font-family:inherit;color:inherit;cursor:pointer}
@@ -121,7 +121,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .onb .in{max-width:480px;margin:0 auto;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;padding:calc(env(safe-area-inset-top) + 24px) 22px calc(env(safe-area-inset-bottom) + 24px)}
 .onb .gname{color:var(--o-text)}
 .odots{display:flex;gap:6px;align-items:center}.odots i{display:block;height:6px;width:6px;border-radius:3px;background:var(--o-border)}.odots i.on{background:var(--o-accent)}.odots i.cur{width:24px}
-.oh1{margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:36px;line-height:1.05}
+.oh1{margin:0;font-family:'Lora',serif;font-weight:600;font-size:36px;line-height:1.05}
 .osub{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--o-muted)}
 .ocenter{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
 .omedal{width:112px;height:112px;border-radius:50%;background:var(--o-card);border:1px solid var(--o-border);display:flex;align-items:center;justify-content:center;color:var(--o-gold);box-shadow:0 0 60px rgba(241,227,176,.18)}
@@ -200,35 +200,35 @@ var ICONS={
  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'
 };
 var THEMES=[
- {id:'spring',pack:'acotar',name:'Jarný dvor',place:'Tamlinovo panstvo',unlockAt:0,unit:'den',icon:'flower',font:"'Cormorant Garamond',serif",
+ {id:'spring',pack:'acotar',name:'Jarný dvor',place:'Tamlinovo panstvo',unlockAt:0,unit:'den',icon:'flower',font:"'Lora',serif",
   c:{bg:'#F4F8EE',card:'#FFFFFF',border:'#DCE8D2',text:'#23331F',muted:'#56634F',accent:'#4E7A3C',onAccent:'#FFFFFF',streak:'#B04A70',onStreak:'#FFFFFF',stat1:'#B04A70',stat2:'#4E7A3C',navBg:'#FFFFFF',navBorder:'#DCE8D2',empty:'#B9C7AE',cupEmpty:'#DCE8D2'},
   lines:{exercise:'Lov v lese s Lucienom',sweet:'Tamlin by ti dal koláč. Nedaj sa.',water:'Aj ruže pijú viac ako ty.'},
   done:'Deň splnený. Ruže rozkvitli.',left:' Aj tie ruže pijú viac.',nudge:'Jar nečaká. Ani tvoje ciele.',full:'Svieža ako jarná lúka.'},
- {id:'summer',pack:'acotar',name:'Letný dvor',place:'Adriata',unlockAt:3,unit:'den',icon:'wave',font:"'Marcellus',serif",
+ {id:'summer',pack:'acotar',name:'Letný dvor',place:'Adriata',unlockAt:3,unit:'den',icon:'wave',font:"'Lora',serif",
   c:{bg:'#F1FAF9',card:'#FFFFFF',border:'#CDEBE8',text:'#0E3B44',muted:'#45666B',accent:'#0F7480',onAccent:'#FFFFFF',streak:'#8A6414',onStreak:'#FFFFFF',stat1:'#0F7480',stat2:'#8A6414',navBg:'#FFFFFF',navBorder:'#CDEBE8',empty:'#9FCBC7',cupEmpty:'#CDEBE8'},
   lines:{exercise:'Plávanie ako Tarquin',sweet:'Ani perly z Adriaty nevyvážia ten koláč.',water:'Celé more a ty nepiješ?'},
   done:'Deň splnený. More ti tlieska.',left:' Celé more a ty nepiješ?',nudge:'Tarquin by sa len taktne usmial.',full:'Hydratovaná ako celý Letný dvor.'},
- {id:'autumn',pack:'acotar',name:'Jesenný dvor',place:'Beronov hrad',unlockAt:7,unit:'den',icon:'leaf',font:"'Playfair Display',serif",sky:true,
+ {id:'autumn',pack:'acotar',name:'Jesenný dvor',place:'Beronov hrad',unlockAt:7,unit:'den',icon:'leaf',font:"'Lora',serif",sky:true,
   c:{bg:'#1E110C',card:'#2A1912',border:'#4A2E1F',text:'#F6E8DA',muted:'#C9AE98',accent:'#E0B04E',onAccent:'#1E110C',streak:'#F0A8B0',onStreak:'#1E110C',stat1:'#F0A8B0',stat2:'#E0B04E',navBg:'#170D09',navBorder:'#3A2418',empty:'#6A4634',cupEmpty:'#4A2E1F',star1:'#E0B04E',star2:'#C9593F'},
   lines:{exercise:'Výcvik bez Erisovej drzosti',sweet:'Beron by si dal. Nebuď Beron.',water:'Lístie padá, voda nie.'},
   done:'Deň splnený. Lucien by bol hrdý. Asi.',left:' Lístie padá, voda nie.',nudge:'Eris by sa zasmial. Nedopraj mu to.',full:'Plná ako jesenná hostina.'},
- {id:'winter',pack:'acotar',name:'Zimný dvor',place:'Kalliasov palác',unlockAt:12,unit:'den',icon:'snow',font:"'Cormorant Garamond',serif",
+ {id:'winter',pack:'acotar',name:'Zimný dvor',place:'Kalliasov palác',unlockAt:12,unit:'den',icon:'snow',font:"'Lora',serif",
   c:{bg:'#EEF4FA',card:'#FFFFFF',border:'#D3E0EE',text:'#15263B',muted:'#4F6379',accent:'#2F6AA0',onAccent:'#FFFFFF',streak:'#2F6AA0',onStreak:'#FFFFFF',stat1:'#5A4F9A',stat2:'#2F6AA0',navBg:'#FFFFFF',navBorder:'#D3E0EE',empty:'#A9BED6',cupEmpty:'#D3E0EE'},
   lines:{exercise:'Kardio cez závej ako Kallias',sweet:'Ľadové srdce, žiadny koláč.',water:'Inak ti v pohári zamrzne.'},
   done:'Deň splnený. Chladne dokonalé.',left:' Inak ti v pohári zamrzne.',nudge:'Viviane by to už mala hotové.',full:'Čistá ako čerstvý sneh.'},
- {id:'dawn',pack:'acotar',name:'Dvor úsvitu',place:'Thesanov palác',unlockAt:18,unit:'den',icon:'sunrise',font:"'Cormorant Garamond',serif",
+ {id:'dawn',pack:'acotar',name:'Dvor úsvitu',place:'Thesanov palác',unlockAt:18,unit:'den',icon:'sunrise',font:"'Lora',serif",
   c:{bg:'#FBF1EE',card:'#FFFFFF',border:'#F0D9D3',text:'#3B2430',muted:'#6F5560',accent:'#A9476E',onAccent:'#FFFFFF',streak:'#A0612A',onStreak:'#FFFFFF',stat1:'#A9476E',stat2:'#76579A',navBg:'#FFFFFF',navBorder:'#F0D9D3',empty:'#DDB9B0',cupEmpty:'#F0D9D3'},
   lines:{exercise:'Strečing pri východe slnka',sweet:'Thesan vylieči všetko, len nie chuť na sladké.',water:'Nový deň, staré poháre.'},
   done:'Deň splnený. Zajtra nový úsvit.',left:' Nový deň, staré poháre.',nudge:'Úsvit nečaká na lenivcov.',full:'Žiariš ako ranná obloha.'},
- {id:'day',pack:'acotar',name:'Denný dvor',place:'Helionova knižnica',unlockAt:25,unit:'den',icon:'sun',font:"'Cinzel',serif",
+ {id:'day',pack:'acotar',name:'Denný dvor',place:'Helionova knižnica',unlockAt:25,unit:'den',icon:'sun',font:"'Lora',serif",
   c:{bg:'#FFF9EC',card:'#FFFFFF',border:'#F1E3BF',text:'#33280F',muted:'#665838',accent:'#7A5C12',onAccent:'#FFFFFF',streak:'#8A6414',onStreak:'#FFFFFF',stat1:'#A9476E',stat2:'#7A5C12',navBg:'#FFFFFF',navBorder:'#F1E3BF',empty:'#D9C79A',cupEmpty:'#F1E3BF'},
   lines:{exercise:'Helion by z toho urobil vedu',sweet:'Ani knižnica Denného dvora ten cukor nevysvetlí.',water:'Slnko svieti, ty piješ. Dohoda.'},
   done:'Deň splnený. Slnko je spokojné.',left:' Slnko svieti, ty piješ. Dohoda.',nudge:'Helion má na to teóriu. Ty máš výhovorky.',full:'Zlatá hviezda dňa.'},
- {id:'night',pack:'acotar',name:'Nočný dvor',place:'Velaris',unlockAt:32,unit:'noc',icon:'moon',font:"'Cormorant Garamond',serif",sky:true,
+ {id:'night',pack:'acotar',name:'Nočný dvor',place:'Velaris',unlockAt:32,unit:'noc',icon:'moon',font:"'Lora',serif",sky:true,
   c:{bg:'#0A0E24',card:'#141A3A',border:'#2A3266',text:'#ECEEF8',muted:'#A9AFD0',accent:'#A493FF',onAccent:'#0A0E24',streak:'#F1E3B0',onStreak:'#0A0E24',stat1:'#F2A9CF',stat2:'#C9BEFF',navBg:'#0D1230',navBorder:'#222A55',empty:'#4A5490',cupEmpty:'#2A3266',star1:'#FFFFFF',star2:'#C9CEDD'},
   lines:{exercise:'Výcvik ako s Cassianom',sweet:'Amren by ti tú čokoládu neodpustila.',water:'Ani Velaris sa nevypije samo.'},
   done:'Noc splnená. K hviezdam, ktoré počúvajú.',left:' Letný dvor sa za teba hanbí.',nudge:'Rhys si všimol. Mor tiež.',full:'Hydratovaná ako celý Letný dvor.'},
- {id:'base',pack:'base',name:'Základná',place:'bez kníh',unlockAt:0,unit:'den',icon:'heart',font:"'Playfair Display',serif",
+ {id:'base',pack:'base',name:'Základná',place:'bez kníh',unlockAt:0,unit:'den',icon:'heart',font:"'Lora',serif",
   c:{bg:'#FBF7FA',card:'#FFFFFF',border:'#EEDFEA',text:'#2A2230',muted:'#6C6170',accent:'#B8407A',onAccent:'#FFFFFF',streak:'#B8407A',onStreak:'#FFFFFF',stat1:'#B8407A',stat2:'#5E5AA8',navBg:'#FFFFFF',navBorder:'#EEDFEA',empty:'#D8C6D2',cupEmpty:'#EEDFEA'},
   dark:{bg:'#17121A',card:'#221B26',border:'#3A2F40',text:'#F3ECF4',muted:'#B9AABC',accent:'#F08DBA',onAccent:'#17121A',streak:'#F08DBA',onStreak:'#17121A',stat1:'#F08DBA',stat2:'#ABA6FF',navBg:'#120E14',navBorder:'#2E2533',empty:'#5A4A60',cupEmpty:'#3A2F40'},
   lines:{exercise:'Gauč ťa nepochváli.',sweet:'Čokoláda nie je zelenina. Overené.',water:'Si rastlinka. Zalej sa.'},
