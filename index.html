@@ -520,7 +520,7 @@ function renderTabs(){
  var items=[['today','Dnes',t.icon==='moon'?'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>':ICONS[t.icon]],['cal','Kalendár','<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'],['courts','Dvory','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>']];
  document.getElementById('tabs').innerHTML=items.map(function(i){return '<button data-a="tab" data-v="'+i[0]+'" class="'+(view.tab===i[0]?'on':'')+'"'+(view.tab===i[0]?' aria-current="page"':'')+'>'+svg(i[2],22)+i[1]+'</button>'}).join('');
 }
-function greet(){var h=NOW().getHours();return (h<10?'Dobré ráno':h<18?'Ahoj':'Dobrý večer')+(S.name?', '+esc(S.name):'')}
+function greet(){var h=NOW().getHours();return (h<10?'Dobré ránko':h<18?'Ahojky':'Krásny večer')+(S.name?', '+esc(S.name):'')}
 function header(sub){
  var t=themeById(S.theme);
  return '<div class="top"><div><div class="label">Personal reminder · '+esc(t.name)+'</div><h1>'+sub+'</h1></div><button class="iconbtn" data-a="settings" aria-label="Nastavenia">'+svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',20)+'</button></div>';
