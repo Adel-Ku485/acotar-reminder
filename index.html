@@ -105,8 +105,11 @@ nav.tabs button.on{color:var(--accent);font-weight:600}
 .lt{flex:1;padding-top:2px}.ln{display:block;font-size:12px;color:var(--muted);text-decoration:none}
 .ldel{background:none;border:0;color:var(--muted);font-size:20px;line-height:1;padding:0 4px;min-width:32px;min-height:32px}
 .lundo{font-size:13px;color:var(--muted);padding:8px 0;border-top:1px solid var(--border)}
-.ladd{display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid var(--border)}
-.ladd input{font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
+.frow{display:flex;gap:8px;align-items:flex-start}.fcol{flex:1;display:flex;flex-direction:column;gap:6px}
+.frow input{font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);width:100%}
+#gf-rows{display:flex;flex-direction:column;gap:10px}.fnl{align-self:flex-start;color:var(--accent);padding:0;font-size:13px}
+.ladd{display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
+.ladd input{flex:1;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
 .ufx{position:fixed;inset:0;z-index:55;background:var(--ubg);color:var(--utext);overflow:hidden}
 .ufx canvas{position:absolute;inset:0;width:100%;height:100%}
 .ucnt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px calc(30px + env(safe-area-inset-bottom));gap:10px}
@@ -785,9 +788,9 @@ function renderList(g,k){
  var h='<div class="card"><div class="row"><button class="gtap grow" data-a="listOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+esc(g.name)+' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+li.doneAll+' z '+li.total+'</span></span><span class="gsub">'+sub+'</span>'+(g.pace&&li.R>0?'<span class="gsub">'+pickLine(g,k)+'</span>':'')+'<span class="progress" style="display:block"><i style="width:'+(li.total?Math.round(li.doneAll/li.total*100):0)+'%"></i></span></button>';
  h+='<span aria-hidden="true" style="color:var(--muted);font-size:18px;padding:0 4px">'+(open?'▴':'▾')+'</span></div>';
  var ed=!!(view.listEdit&&view.listEdit[g.id]);
- if(open){h+='<div class="litems">';it.forEach(function(x,i){var dn=!!x.done&&x.done<=k;h+='<div class="litem'+(dn?' done':'')+'"><button class="lbox" data-a="listTick" data-id="'+g.id+'" data-i="'+i+'" aria-pressed="'+(dn?'true':'false')+'" aria-label="'+esc(x.t)+'">'+(dn?svg(CHECK,12,3):'')+'</button><span class="lt">'+esc(x.t)+(x.n?'<span class="ln">'+esc(x.n)+'</span>':'')+'</span>'+(ed?'<button class="ldel" data-a="listDel" data-id="'+g.id+'" data-i="'+i+'" aria-label="Zmazať bod '+esc(x.t)+'">×</button>':'')+'</div>'});
+ if(open){h+='<div class="litems">';if(ed)it.forEach(function(x,i){var sn=x.n||(view.liNote&&view.liNote[g.id+':'+i]);h+='<div class="frow" style="border-top:1px solid var(--border);padding:8px 0"><div class="fcol"><input data-a="liT" data-id="'+g.id+'" data-i="'+i+'" value="'+esc(x.t)+'" aria-label="Bod '+(i+1)+'">'+(sn?'<input data-a="liN" data-id="'+g.id+'" data-i="'+i+'" value="'+esc(x.n||'')+'" placeholder="Poznámka" aria-label="Poznámka k bodu '+(i+1)+'">':'<button class="obtn-link fnl" style="color:var(--accent);padding:0;font-size:13px" data-a="liNoteShow" data-id="'+g.id+'" data-i="'+i+'">+ poznámka</button>')+'</div><button class="ldel" data-a="listDel" data-id="'+g.id+'" data-i="'+i+'" aria-label="Zmazať bod '+esc(x.t)+'">×</button></div>'});else it.forEach(function(x,i){var dn=!!x.done&&x.done<=k;h+='<div class="litem'+(dn?' done':'')+'"><button class="lbox" data-a="listTick" data-id="'+g.id+'" data-i="'+i+'" aria-pressed="'+(dn?'true':'false')+'" aria-label="'+esc(x.t)+'">'+(dn?svg(CHECK,12,3):'')+'</button><span class="lt">'+esc(x.t)+(x.n?'<span class="ln">'+esc(x.n)+'</span>':'')+'</span></div>'});
   if(view.undo&&view.undo.id===g.id)h+='<div class="lundo" role="status">Bod „'+esc(view.undo.item.t)+'“ zmazaný · <button class="obtn-link" data-a="listUndo" data-id="'+g.id+'" style="color:var(--accent);padding:0">Späť</button></div>';
-  h+='<div class="ladd"><input id="la-t-'+g.id+'" placeholder="Nový bod…" aria-label="Nový bod"><input id="la-n-'+g.id+'" placeholder="Poznámka (nepovinné)" aria-label="Poznámka k bodu"><button class="btn" data-a="listAdd" data-id="'+g.id+'">Pridať bod</button></div><div style="text-align:right;padding-top:8px"><button class="obtn-link" data-a="listEdit" data-id="'+g.id+'" style="color:var(--accent);padding:0;font-size:14px">'+(ed?'Hotovo':'Upraviť body')+'</button></div></div>'}
+  if(!ed)h+='<div class="ladd"><input id="la-t-'+g.id+'" data-a="laKey" data-id="'+g.id+'" placeholder="Nový bod…" aria-label="Nový bod" enterkeyhint="done"><button class="btn" data-a="listAdd" data-id="'+g.id+'">Pridať</button></div>';h+='<div style="text-align:right;padding-top:8px"><button class="obtn-link" data-a="listEdit" data-id="'+g.id+'" style="color:var(--accent);padding:0;font-size:14px">'+(ed?'Hotovo':'Upraviť body')+'</button></div></div>'}
  return h+'</div>';
 }
 function renderGoal(g,k,t){
@@ -835,6 +838,8 @@ function renderGoal(g,k,t){
  return h+'</div>';
 }
 
+function fiRowsHtml(){if(!formItems.length)formItems.push({t:'',n:'',done:null});return formItems.map(function(x,i){var sn=x.n||fiNote[i];return '<div class="frow"><div class="fcol"><input data-a="fiT" data-i="'+i+'" value="'+esc(x.t)+'" placeholder="'+(i===0?'napr. Okná v obývačke':'Ďalší bod…')+'" aria-label="Bod '+(i+1)+'">'+(sn?'<input data-a="fiN" data-i="'+i+'" value="'+esc(x.n||'')+'" placeholder="Poznámka" aria-label="Poznámka k bodu '+(i+1)+'">':'<button type="button" class="obtn-link fnl" style="color:var(--accent);padding:0;font-size:13px" data-a="fiNoteShow" data-i="'+i+'">+ poznámka</button>')+'</div>'+(formItems.length>1?'<button type="button" class="ldel" data-a="fiDel" data-i="'+i+'" aria-label="Zmazať bod '+(i+1)+'">×</button>':'')+'</div>'}).join('')}
+function fiRefresh(focusI){var r=document.getElementById('gf-rows');if(r){r.innerHTML=fiRowsHtml();if(focusI!=null){var f=r.querySelector(focusI.sel);if(f)f.focus()}}}
 function goalForm(g){
  var m=modeOf(g),wkly=isWeekly(g);
  var isL=m==='list';
@@ -851,7 +856,7 @@ function goalForm(g){
  var itTxt=(g.items||[]).map(function(x){return x.t+(x.n?' - '+x.n:'')}).join('\n');
  h+='<label class="f" data-modes="list">Termín<span class="datew'+(g.due?' has':'')+'"><input id="gf-due" type="date" data-a="gfDue" value="'+esc(g.due||'')+'"><span class="dph">Vyber dátum</span></span><span id="gf-due-err" class="small" role="alert" style="color:var(--streak)"></span></label>';
  h+='<label class="f" data-modes="list">Typ projektu<input type="hidden" id="gf-pace" value="'+(g.pace===false?'0':'1')+'"><span class="ptiles" role="radiogroup" aria-label="Typ projektu"><button type="button" class="ptile'+(g.pace!==false?' on':'')+'" data-a="gfPaceTile" data-v="1" role="radio" aria-checked="'+(g.pace!==false?'true':'false')+'"><b>S tempom</b><span>Appka povie, koľko bodov stačí dnes. Ráta sa do série.</span></button><button type="button" class="ptile'+(g.pace===false?' on':'')+'" data-a="gfPaceTile" data-v="0" role="radio" aria-checked="'+(g.pace===false?'true':'false')+'"><b>Bez tlaku</b><span>Odškrtávaš, kedy chceš. Séria sa to netýka.</span></button></span></label>';
- h+='<label class="f" data-modes="list">Body (jeden na riadok, poznámku napíš za pomlčku)<textarea id="gf-items" rows="6" placeholder="Okná v obývačke&#10;Rúra - čistič je v špajzi&#10;Záclony vyprať">'+esc(itTxt)+'</textarea></label>';
+ h+='<div class="f" data-modes="list"><span>Body</span><div id="gf-rows">'+fiRowsHtml()+'</div><button type="button" class="btn" data-a="fiAdd" style="align-self:flex-start">+ Pridať bod</button></div>';
  h+='<label class="f" data-nolist="1">Ako často<select id="gf-freq" data-a="gfFreq"><option value="days"'+(wkly?'':' selected')+'>V konkrétne dni</option><option value="week"'+(wkly?' selected':'')+'>X-krát za týždeň, kedy sa mi hodí</option></select></label>';
  h+='<label class="f" id="gf-week-wrap" style="display:'+(wkly?'flex':'none')+'">Koľkokrát za týždeň<input id="gf-per" type="number" min="1" max="7" inputmode="numeric" value="'+(g.perWeek||3)+'"></label>';
  h+='<div id="gf-days-wrap" class="f" style="display:'+(wkly?'none':'flex')+';flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500"><span>Dni</span><div class="days7" role="group" aria-label="Dni">'+WDS.map(function(w,i){return '<button type="button" data-a="gfDay" data-v="'+i+'" class="'+(g.days.indexOf(i)>=0?'on':'')+'" aria-pressed="'+(g.days.indexOf(i)>=0?'true':'false')+'">'+w+'</button>'}).join('')+'</div></div>';
@@ -872,7 +877,7 @@ function saveGoalFromForm(id){
  var data={name:name,cat:$('gf-cat').value,mode:m,type:num?'count':'check',target:target,min:min,unit:m==='duration'?'min':(m==='count'?$('gf-unit').value.trim():''),
   vessel:(m==='count'&&/vod|pitn|piti/i.test(name))?$('gf-ves').value:undefined,allow:m==='quit'?(parseInt($('gf-allow').value,10)||0):0,time:m==='time'?$('gf-time').value:'',options:m==='choice'?(opts.length?opts:['iné']):null,days:formDays.length?formDays.slice():[0,1,2,3,4,5,6],kind:autoKind($('gf-cat').value,name,id==='new'?'':(goal(id)||{}).kind),freq:freq,perWeek:per};
  if(data.vessel){data.unit=vesselWord(VESSELS[data.vessel],5)}else delete data.vessel;
- if(m==='list'){var ogl=id!=='new'&&goal(id),oldIt=(ogl&&ogl.items)||[];data.freq='days';data.days=[0,1,2,3,4,5,6];data.target=1;data.due=$('gf-due').value||'';data.pace=$('gf-pace').value==='1';data.items=$('gf-items').value.split('\n').map(function(l){return l.trim()}).filter(Boolean).map(function(l){var mm=l.match(/^(.*?)\s+[-–]\s+(.*)$/),t=mm?mm[1].trim():l,n=mm?mm[2].trim():'';var o=oldIt.filter(function(x){return x.t===t})[0];return {t:t,n:n,done:o?o.done:null}});if(data.pace&&!data.due){var de=$('gf-due-err');if(de)de.textContent='Pri projekte s tempom potrebujem termín.';$('gf-due').focus();return false}}
+ if(m==='list'){var ogl=id!=='new'&&goal(id),oldIt=(ogl&&ogl.items)||[];data.freq='days';data.days=[0,1,2,3,4,5,6];data.target=1;data.due=$('gf-due').value||'';data.pace=$('gf-pace').value==='1';data.items=formItems.filter(function(x){return x.t.trim()}).map(function(x){return {t:x.t.trim(),n:(x.n||'').trim(),done:x.done||null}});if(data.pace&&!data.due){var de=$('gf-due-err');if(de)de.textContent='Pri projekte s tempom potrebujem termín.';$('gf-due').focus();return false}}
  if(m==='book'){data.unit='strán';data.book=$('gf-book').value.trim()||'Kniha';data.pages=parseInt($('gf-pages').value,10)||0;var ogb=id!=='new'&&goal(id);if(ogb&&ogb.bookId&&ogb.book===data.book){data.bookId=ogb.bookId}else{data.bookId='b'+Date.now().toString(36);data.bookSince=todayKey()}}
  var T0=todayKey();
  if(id==='new'){data.id='g'+Date.now().toString(36);data.since=T0;S.goals.push(data);return}
@@ -1083,7 +1088,7 @@ function launchConfetti(kind){
 
 /* ---- events ---- */
 function goal(id){for(var i=0;i<S.goals.length;i++)if(S.goals[i].id===id)return S.goals[i]}
-var formDays=null;
+var formDays=null,formItems=[],fiNote={};
 document.addEventListener('click',function(ev){
  var el=ev.target.closest('[data-a]');if(!el)return;
  var a=el.getAttribute('data-a'),id=el.getAttribute('data-id'),v=el.getAttribute('data-v'),k=view.dayKey;
@@ -1092,14 +1097,18 @@ document.addEventListener('click',function(ev){
  if(a==='note'||a==='name'||a==='importText'||a==='start')return;
  switch(a){
   case 'tab':view.tab=v;if(v==='today')view.dayKey=todayKey();render();window.scrollTo(0,0);break;
-  case 'newList':view.sheet=true;view.editGoal='new';view.newCat='';view.newMode='list';formDays=[0,1,2,3,4,5,6];render();view.newMode='';break;
+  case 'newList':view.sheet=true;view.editGoal='new';view.newCat='';view.newMode='list';formDays=[0,1,2,3,4,5,6];formItems=[{t:'',n:'',done:null}];fiNote={};render();view.newMode='';break;
+  case 'fiAdd':formItems.push({t:'',n:'',done:null});fiRefresh({sel:'[data-a=fiT][data-i="'+(formItems.length-1)+'"]'});break;
+  case 'fiDel':var fdi=+el.getAttribute('data-i');formItems.splice(fdi,1);var nn={};Object.keys(fiNote).forEach(function(k){k=+k;if(k<fdi)nn[k]=fiNote[k];else if(k>fdi)nn[k-1]=fiNote[k]});fiNote=nn;fiRefresh();break;
+  case 'fiNoteShow':var fni=+el.getAttribute('data-i');fiNote[fni]=true;fiRefresh({sel:'[data-a=fiN][data-i="'+fni+'"]'});break;
+  case 'liNoteShow':view.liNote=view.liNote||{};view.liNote[id+':'+el.getAttribute('data-i')]=true;render();var lnf=document.querySelector('[data-a=liN][data-id="'+id+'"][data-i="'+el.getAttribute('data-i')+'"]');if(lnf)lnf.focus();break;
   case 'gfPaceTile':var pv=el.getAttribute('data-v');document.getElementById('gf-pace').value=pv;document.querySelectorAll('.ptile').forEach(function(b){var on=b.getAttribute('data-v')===pv;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});break;
   case 'listOpen':var lgo=goal(id),cur=view.open[id]!=null?view.open[id]:!!lgo.pace;view.open[id]=!cur;render();break;
   case 'listTick':var lg=goal(id),li2=+el.getAttribute('data-i'),itm=lg.items[li2];var wasOk=gdone(S,view.dayKey,lg);if(itm.done&&itm.done<=view.dayKey)itm.done=null;else itm.done=view.dayKey;commit();if(lg.pace&&!wasOk&&gdone(S,view.dayKey,lg)&&listInfo(lg,view.dayKey).R===0){launchConfetti('happy');showBanner('Projekt hotový!','„'+lg.name+'“ je celý odškrtnutý.')}break;
   case 'listDel':var ld=goal(id),di=+el.getAttribute('data-i'),rem=ld.items.splice(di,1)[0];view.undo={id:id,item:rem,i:di,t:Date.now()};commit();var ut=view.undo.t;setTimeout(function(){if(view.undo&&view.undo.t===ut){view.undo=null;render()}},6000);break;
   case 'listUndo':var lu=goal(id);if(view.undo&&lu){lu.items.splice(view.undo.i,0,view.undo.item);view.undo=null;commit()}break;
-  case 'listEdit':view.listEdit=view.listEdit||{};view.listEdit[id]=!view.listEdit[id];render();break;
-  case 'listAdd':var la=goal(id),lt=document.getElementById('la-t-'+id),ln=document.getElementById('la-n-'+id);if(!lt||!lt.value.trim()){if(lt)lt.focus();break}la.items=la.items||[];la.items.push({t:lt.value.trim(),n:(ln&&ln.value.trim())||'',done:null});view.open[id]=true;commit();var nf=document.getElementById('la-t-'+id);if(nf)nf.focus();break;
+  case 'listEdit':view.listEdit=view.listEdit||{};var wasEd=view.listEdit[id];view.listEdit[id]=!wasEd;if(wasEd){var lge=goal(id);lge.items=lge.items.filter(function(x){return (x.t||'').trim()});lge.items.forEach(function(x){x.t=x.t.trim();x.n=(x.n||'').trim()});view.liNote={};commit()}else render();break;
+  case 'listAdd':var la=goal(id),lt=document.getElementById('la-t-'+id);if(!lt||!lt.value.trim()){if(lt)lt.focus();break}la.items=la.items||[];la.items.push({t:lt.value.trim(),n:'',done:null});view.open[id]=true;commit();var nf=document.getElementById('la-t-'+id);if(nf)nf.focus();break;
   case 'bookNext':var bgn=goal(id),bt=(document.getElementById('bn-t-'+id)||{}).value||'',bp=parseInt((document.getElementById('bn-p-'+id)||{}).value,10)||0;if(!bt.trim()){var bi=document.getElementById('bn-t-'+id);if(bi)bi.focus();break}bgn.book=bt.trim();bgn.pages=bp;bgn.bookId='b'+Date.now().toString(36);bgn.bookSince=todayKey();delete bgn.finished;commit();break;
   case 'check':var g=goal(id);setVal(S,k,g,!gval(S,k,g));commit();break;
   case 'inc':g=goal(id);setVal(S,k,g,Math.min(g.target*3,(+gval(S,k,g)||0)+1));commit();break;
@@ -1117,7 +1126,7 @@ document.addEventListener('click',function(ev){
   case 'closeToast':view.toast=null;render();break;
   case 'settings':view.sheet=true;view.importMsg='';render();break;
   case 'closeSheet':view.sheet=false;view.editGoal=null;view.reorder=false;render();break;
-  case 'editGoal':view.editGoal=id;view.confirmDel=null;var gg=id==='new'?null:goal(id);formDays=gg?gg.days.slice():[0,1,2,3,4,5,6];render();break;
+  case 'editGoal':view.editGoal=id;view.confirmDel=null;var gg=id==='new'?null:goal(id);formDays=gg?gg.days.slice():[0,1,2,3,4,5,6];formItems=gg&&gg.items?gg.items.map(function(x){return {t:x.t,n:x.n||'',done:x.done||null}}):[];fiNote={};render();break;
   case 'moveGoal':var A=activeGoals(S),ai=-1;A.forEach(function(x,i){if(x.id===id)ai=i});var aj=ai+(+v);if(ai>=0&&aj>=0&&aj<A.length){var mi=S.goals.indexOf(A[ai]),mj=S.goals.indexOf(A[aj]);var tmp=S.goals[mi];S.goals[mi]=S.goals[mj];S.goals[mj]=tmp;commit()}break;
   case 'endAsk':view.endAsk=id;render();break;
   case 'endDone':endGoal(id,'done');break;
@@ -1143,6 +1152,9 @@ document.addEventListener('input',function(ev){
  else if(el.id==='gf-name'||el.id==='gf-target'){syncForm()}
  else if(a==='importText'){view.importText=el.value}
  else if(a==='onbName'&&view.onb){view.onb.name=el.value}
+ else if(a==='fiT'){formItems[+el.getAttribute('data-i')].t=el.value}
+ else if(a==='fiN'){formItems[+el.getAttribute('data-i')].n=el.value}
+ else if(a==='liT'||a==='liN'){var lg2=goal(el.getAttribute('data-id')),it2=lg2&&lg2.items[+el.getAttribute('data-i')];if(it2){if(a==='liT')it2.t=el.value;else it2.n=el.value;saveLocal()}}
  else if(a==='gfDue'){var dw=el.parentNode;if(dw)dw.classList.toggle('has',!!el.value);var de2=document.getElementById('gf-due-err');if(de2)de2.textContent=''}
  else if(a==='onbTime'&&view.onb){view.onb.times=view.onb.times||{};view.onb.times[el.getAttribute('data-v')]=el.value}
  else if(a==='onbBook'&&view.onb){var ob=view.onb.book=view.onb.book||{},bk=el.getAttribute('data-v');ob[bk]=ob[bk]||{};ob[bk][el.getAttribute('data-f')]=el.value}
@@ -1150,7 +1162,7 @@ document.addEventListener('input',function(ev){
 });
 function bookSet(g,k,page){var prev=bookPage(S,g,k);S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[g.id]||{v:0,note:'',e:''};if(e.b!==g.bookId){e.v0=e.b?(+e.v||0):0}e.b=g.bookId;e.p=page;e.v=(e.v0||0)+Math.max(0,page-prev);S.log[k].g[g.id]=e;var fin=false;S.read=S.read||[];if(g.pages&&page>=g.pages&&!g.finished){g.finished=k;S.read.push({t:g.book,p:g.pages,d:k});fin=true}else if(g.finished&&g.pages&&page<g.pages){var f=g.finished;S.read=S.read.filter(function(r){return !(r.t===g.book&&r.d===f)});delete g.finished}commit();if(fin){launchConfetti('happy');showBanner('Kniha dočítaná!','„'+g.book+'“ je za tebou.')}}
 document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='gfPace'){var ph=document.getElementById('gf-pace-hint');if(ph)ph.textContent=PACE_H[ev.target.value==='1'?1:0];return}if(a==='bookSet'){var bg=goal(ev.target.getAttribute('data-id'));if(bg)bookSet(bg,view.dayKey,Math.max(0,Math.min(100000,parseInt(ev.target.value,10)||0)));return}if(a==='numSet'){var ng=goal(ev.target.getAttribute('data-id'));if(ng){setVal(S,view.dayKey,ng,Math.max(0,Math.min(1000000,parseInt(ev.target.value,10)||0)));commit()}return}if(a==='gfVes'){var tEl=document.getElementById('gf-target'),pv=VESSELS[ev.target.getAttribute('data-prev')||'glass250'],nv=VESSELS[ev.target.value];tEl.value=Math.max(1,Math.round((parseInt(tEl.value,10)||1)*pv.ml/nv.ml));ev.target.setAttribute('data-prev',ev.target.value);syncForm();return}if(a==='gfMode'){syncForm();return}if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
-document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&(view.sheet||view.toast||view.endAsk)){view.sheet=false;view.toast=null;view.endAsk=null;render()}});
+document.addEventListener('keydown',function(ev){var ta=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(ev.key==='Enter'&&ta==='laKey'){ev.preventDefault();var b=document.querySelector('[data-a=listAdd][data-id="'+ev.target.getAttribute('data-id')+'"]');if(b)b.click();return}if(ev.key==='Enter'&&ta==='fiT'){ev.preventDefault();var ab=document.querySelector('[data-a=fiAdd]');if(ab)ab.click();return}if(ev.key==='Escape'&&(view.sheet||view.toast||view.endAsk)){view.sheet=false;view.toast=null;view.endAsk=null;render()}});
 // nový deň pri návrate do appky
 var lastDay=todayKey();
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&todayKey()!==lastDay){lastDay=todayKey();view.dayKey=lastDay;refreshProgress(S);lastTodayStatus=status(S,lastDay);render()}});
