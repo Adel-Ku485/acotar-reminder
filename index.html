@@ -643,7 +643,7 @@ function renderCourts(){
 }
 function courtCard(t){
  var un=S.unlocked.indexOf(t.id)>=0,act=S.theme===t.id;
- var h='<div class="card court'+(un?'':' locked')+'">'+(EMBLEMS[t.id]?'<div class="embw" style="background:'+t.c.bg+';border-color:'+t.c.border+'">'+emblem(t.id,52,embCol(t))+'</div>':swatch(t))+'<div class="grow"><span class="gname">'+esc(t.name)+'</span><span class="gsub">'+esc(t.place)+(t.pack==='acotar'?' · od série '+t.unlockAt:'')+'</span>';
+ var h='<div class="card court'+(un?'':' locked')+'">'+(EMBLEMS[t.id]?'<div class="embw" style="background:'+t.c.bg+';border-color:'+t.c.border+'">'+emblem(t.id,52,embCol(t))+'</div>':swatch(t))+'<div class="grow"><span class="gname">'+esc(t.name)+'</span><span class="gsub">'+esc(t.place)+(t.pack==='acotar'?(t.unlockAt?' · od série '+t.unlockAt:' · začiatok cesty'):'')+'</span>';
  if(!un){h+='<div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/t.unlockAt*100))+'%"></i></div>'}
  h+='</div>';
  if(act)h+='<span class="small" style="font-weight:600;color:var(--accent)">Aktívny</span>';
