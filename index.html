@@ -384,11 +384,12 @@ function addDays(k,n){var d=dateOf(k);d.setDate(d.getDate()+n);return keyOf(d)}
 function wdOf(k){return (dateOf(k).getDay()+6)%7}
 var NOW=function(){return new Date()};
 function todayKey(){return keyOf(NOW())}
+function targetInfo(S){var t=S.target,n=NOW(),today=new Date(n.getFullYear(),n.getMonth(),n.getDate());var sp=(S.start||'').split('-'),st=sp.length===3?new Date(+sp[0],+sp[1]-1,+sp[2]):today,inC=Math.max(1,Math.round((today-st)/86400000)+1);if(!t||!/^\d{4}-\d{2}-\d{2}$/.test(t.date||''))return {mode:'in',n:inC};var p=t.date.split('-'),d=Math.round((new Date(+p[0],+p[1]-1,+p[2])-today)/86400000);if(d>0)return {mode:'to',n:d,label:t.label||''};if(d===0)return {mode:'day',label:t.label||''};return {mode:'in',n:inC,past:true}}
 function daysToXmas(){var n=NOW();var t=new Date(n.getFullYear(),11,24);var today=new Date(n.getFullYear(),n.getMonth(),n.getDate());if(today>t)t=new Date(n.getFullYear()+1,11,24);return Math.round((t-today)/86400000)}
 
 /* ===== Stav ===== */
 function defaultState(){
- return {v:1,name:'',theme:'spring',unlocked:['spring','base'],best:0,usedTokens:0,start:todayKey(),updatedAt:0,
+ return {v:1,name:'',target:null,theme:'spring',unlocked:['spring','base'],best:0,usedTokens:0,start:todayKey(),updatedAt:0,
   goals:[],onboarded:false,
   log:{}};
 }
@@ -396,6 +397,7 @@ function normalize(s){
  var d=defaultState();
  if(!s||typeof s!=='object')return d;
  var hadKey=s.onboarded!==undefined;
+ if(s.target===undefined)s.target=((s.goals&&s.goals.length)||(s.log&&Object.keys(s.log).length)||s.updatedAt)?{label:'Vianoc',date:'2026-12-24'}:null;
  for(var k in d) if(s[k]===undefined) s[k]=d[k];
  if(!hadKey&&((s.goals&&s.goals.length)||(s.log&&Object.keys(s.log).length)||s.updatedAt))s.onboarded=true;
  if(!Array.isArray(s.goals))s.goals=d.goals;
@@ -610,13 +612,13 @@ function renderToday(){
  if(!isToday)h+='<div class="banner"><span>Upravuješ <b>'+WD[wdOf(k)]+' '+fmtDay(k)+'</b></span><button class="pill" data-a="backToday">Späť na dnes</button></div>';
  if(isToday&&canForgiveYesterday(S))h+='<div class="banner"><span>Včera to nevyšlo. Použiť odpustenie a zachrániť sériu?</span><button class="pill" data-a="forgive">Odpustiť</button></div>';
  // streak card (kompaktná)
- var tk=tokens(S),nc=nextCourt(S),tot=totalDone(S),x=daysToXmas(),doneToday=status(S,todayKey())==='done';
+ var tk=tokens(S),nc=nextCourt(S),tot=totalDone(S),ti=targetInfo(S),doneToday=status(S,todayKey())==='done';
  h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><span class="gsub">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe</span></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
  for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);h+='<div class="dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':ds==='partial'?'partial':'')+(i===0?' today':'')+'" title="'+fmtDay(dk)+'">'+WDS[wdOf(dk)]+'</div>'}
  h+='</div>';
  if(nc){var need=nc.unlockAt-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalší: <b style="color:var(--text)">'+esc(nc.name)+'</b></span><span>ešte '+need+' '+unitWord(need,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/nc.unlockAt*100))+'%"></i></div></div>'}
  else h+='<span class="small">Všetky dvory odomknuté. Vysoká lady.</span>';
- h+='<div class="sstrip"><span><b style="color:var(--stat1)">'+x+'</b> '+plural(x,'deň','dni','dní')+' do Vianoc</span><span><b style="color:var(--stat2)">'+tot+'</b> '+plural(tot,'splnený deň','splnené dni','splnených dní')+'</span></div></div>';
+ h+='<div class="sstrip"><span>'+(ti.mode==='to'?'<b style="color:var(--stat1)">'+ti.n+'</b> '+plural(ti.n,'deň','dni','dní')+' do '+esc(ti.label):ti.mode==='day'?'<b style="color:var(--stat1)">Dnes</b> '+(ti.label==='Vianoc'?'sú Vianoce 🎄':'je ten deň 🎉'):'<b style="color:var(--stat1)">'+ti.n+'</b> '+plural(ti.n,'deň','dni','dní')+' vo výzve')+'</span><span><b style="color:var(--stat2)">'+tot+'</b> '+plural(tot,'splnený deň','splnené dni','splnených dní')+'</span></div></div>';
  // goals
  var gs=goalsFor(S,k);
  h+='<div class="row" style="justify-content:space-between;margin-top:4px"><h2>'+(isToday?'Dnešné ciele':'Ciele')+'</h2><span class="small">'+WD[wdOf(k)]+' '+fmtDay(k)+'</span></div>';
@@ -753,7 +755,7 @@ function renderSettings(){
  if(view.sub){var ttl={profile:'O tebe',push:'Upozornenia',backup:'Záloha dát'}[view.sub];
   h='<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="stickyhead"><button class="obtn-link" style="color:var(--accent);padding-left:0" data-a="subBack">‹ Nastavenia</button><h1 id="st" style="font-size:26px;margin:0">'+ttl+'</h1></div>';
   if(view.sub==='profile'){h+='<label class="f">Tvoje meno<input data-a="name" value="'+esc(S.name)+'" autocomplete="given-name"></label>';
-   h+='<label class="f">Začiatok výzvy<input type="date" data-a="start" value="'+S.start+'" max="'+todayKey()+'"></label><p class="small" style="margin:-4px 0 0">Daj skorší dátum, ak chceš dodatočne zapísať dni, keď si už makala. Potom ich doplníš cez Kalendár › Upraviť deň.</p>'}
+   h+='<label class="f">Začiatok výzvy<input type="date" data-a="start" value="'+S.start+'" max="'+todayKey()+'"></label><p class="small" style="margin:-4px 0 0">Daj skorší dátum, ak chceš dodatočne zapísať dni, keď si už makala. Potom ich doplníš cez Kalendár › Upraviť deň.</p>';var tg=S.target||{};h+='<div class="slb">Odpočítavanie</div><label class="f">Odpočítavať do<input data-a="tgtLabel" maxlength="30" placeholder="Vianoc" value="'+esc(tg.label||'')+'"></label><label class="f">Dátum<input type="date" data-a="tgtDate" value="'+esc(tg.date||'')+'" min="'+todayKey()+'"></label><p class="small" style="margin:-4px 0 0">Napíš to tak, aby to dokončilo vetu „34 dní do …“, napríklad leta alebo dovolenky. Bez dátumu ti appka ukazuje, koľko dní si vo výzve.</p>'+(S.target&&S.target.date?'<button class="obtn-link" style="color:var(--accent);align-self:flex-start;padding-left:0" data-a="tgtClear">Zrušiť odpočítavanie</button>':'')}
   else if(view.sub==='push')h+=pushSection();
   else{h+='<p class="small" style="margin:0">'+(view.sync==='cloud'?'Dáta sa ukladajú do tvojho účtu, ale záloha navyše nezaškodí.':'Tvoje ciele a odškrtnuté dni sú uložené len v tomto telefóne. Ak by si zmazala appku alebo dáta Safari, prídeš o ne. Záloha je text, ktorý si uložíš napríklad do Poznámok.')+'</p>';  h+='<p class="small" style="margin:0;font-weight:600;color:'+(lb===null||lb>7?'var(--streak)':'var(--muted)')+'">'+(lb===null?'Zálohu si ešte nemáš.':'Posledná záloha: '+(lb===0?'dnes':lb===1?'včera':'pred '+lb+' dňami'))+'</p>';  h+='<div class="btnrow"><button class="btn solid" data-a="copyBackup">Uložiť zálohu</button><button class="btn" data-a="toggleImport">Obnoviť zo zálohy</button></div>';  if(view.showImport)h+='<label class="f">Vlož text zálohy, ktorý si si uložila<textarea data-a="importText" placeholder="Sem vlož uloženú zálohu…">'+esc(view.importText)+'</textarea></label><div class="btnrow"><button class="btn solid" data-a="doImport">Obnoviť</button></div>';  if(view.importMsg)h+='<p class="small" role="status" style="margin:0">'+esc(view.importMsg)+'</p>'; }
   return h+'</div></div>'}
@@ -1132,7 +1134,7 @@ document.addEventListener('click',function(ev){
  var a=el.getAttribute('data-a'),id=el.getAttribute('data-id'),v=el.getAttribute('data-v'),k=view.dayKey;
  if(view.onb&&a.indexOf('onb')===0){if(a==='onbName'||a==='onbCustom')return;onbClick(a,el);return}
  if(a==='closeSheetBg'){if(ev.target===el){view.sheet=false;view.editGoal=null;render()}return}
- if(a==='note'||a==='name'||a==='importText'||a==='start')return;
+ if(a==='note'||a==='name'||a==='importText'||a==='start'||a==='tgtLabel'||a==='tgtDate')return;
  switch(a){
   case 'tab':view.tab=v;if(v==='today')view.dayKey=todayKey();render();window.scrollTo(0,0);break;
   case 'newList':view.sheet=true;view.editGoal='new';view.newCat='';view.newMode='list';formDays=[0,1,2,3,4,5,6];formItems=[{t:'',n:'',done:null}];fiNote={};render();view.newMode='';break;
@@ -1166,6 +1168,7 @@ document.addEventListener('click',function(ev){
   case 'closeSheet':view.sheet=false;view.editGoal=null;view.reorder=false;view.sub=null;render();break;
   case 'sub':view.sub=v;view.pushMsg='';render();break;
   case 'subBack':view.sub=null;render();break;
+  case 'tgtClear':S.target=null;commit();break;
   case 'editGoal':view.editGoal=id;view.confirmDel=null;var gg=id==='new'?null:goal(id);formDays=gg?gg.days.slice():[0,1,2,3,4,5,6];formItems=gg&&gg.items?gg.items.map(function(x){return {t:x.t,n:x.n||'',done:x.done||null}}):[];fiNote={};render();break;
   case 'moveGoal':var A=activeGoals(S),ai=-1;A.forEach(function(x,i){if(x.id===id)ai=i});var aj=ai+(+v);if(ai>=0&&aj>=0&&aj<A.length){var mi=S.goals.indexOf(A[ai]),mj=S.goals.indexOf(A[aj]);var tmp=S.goals[mi];S.goals[mi]=S.goals[mj];S.goals[mj]=tmp;commit()}break;
   case 'endAsk':view.endAsk=id;render();break;
@@ -1191,6 +1194,7 @@ var noteTimer=null;
 document.addEventListener('input',function(ev){
  var el=ev.target,a=el.getAttribute&&el.getAttribute('data-a');
  if(a==='note'){var id=el.getAttribute('data-id'),g=goal(id),k=view.dayKey;S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};e.note=el.value;S.log[k].g[id]=e;S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(queueWrite,900)}
+ else if(a==='tgtLabel'){S.target=S.target||{label:'',date:''};S.target.label=el.value.slice(0,30);S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(queueWrite,900)}
  else if(a==='name'){S.name=el.value.slice(0,40);S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(function(){queueWrite();var h=document.querySelector('h1');},900)}
  else if(el.id==='gf-name'||el.id==='gf-target'){syncForm()}
  else if(a==='importText'){view.importText=el.value}
@@ -1204,7 +1208,7 @@ document.addEventListener('input',function(ev){
  else if(a==='onbCustom'&&view.onb){view.onb.custom[el.getAttribute('data-v')][+el.getAttribute('data-i')][el.getAttribute('data-f')]=el.value;var bt=document.querySelector('.onb .obtn'),n=onbSelected().length;if(bt){bt.disabled=!n;if(!view.onb.first)bt.textContent=n?'Pridať '+(n===1?'cieľ':n+' '+plural(n,'cieľ','ciele','cieľov')):'Vyber aspoň jeden cieľ'}var ov=document.querySelector('.onb .over');if(ov){ov.style.display=n>=4?'':'none';ov.textContent=n>=4?overLine(n,view.onb.first):''}}
 });
 function bookSet(g,k,page){var prev=bookPage(S,g,k);S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[g.id]||{v:0,note:'',e:''};if(e.b!==g.bookId){e.v0=e.b?(+e.v||0):0}e.b=g.bookId;e.p=page;e.v=(e.v0||0)+Math.max(0,page-prev);S.log[k].g[g.id]=e;var fin=false;S.read=S.read||[];if(g.pages&&page>=g.pages&&!g.finished){g.finished=k;S.read.push({t:g.book,p:g.pages,d:k});fin=true}else if(g.finished&&g.pages&&page<g.pages){var f=g.finished;S.read=S.read.filter(function(r){return !(r.t===g.book&&r.d===f)});delete g.finished}commit();if(fin){launchConfetti('happy');showBanner('Kniha dočítaná!','„'+g.book+'“ je za tebou.')}}
-document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='pushTime'){var ps=pushSt(),tt=(ps.times||['16:00','20:30']).slice();tt[+ev.target.getAttribute('data-i')]=ev.target.value;ps.times=tt.filter(Boolean);pushSave(ps);if(ps.on&&ps.id)pushPost('/status',{id:ps.id,times:ps.times}).then(function(){view.pushMsg='Časy uložené.';render()}).catch(function(){});return}if(a==='gfPace'){var ph=document.getElementById('gf-pace-hint');if(ph)ph.textContent=PACE_H[ev.target.value==='1'?1:0];return}if(a==='bookSet'){var bg=goal(ev.target.getAttribute('data-id'));if(bg)bookSet(bg,view.dayKey,Math.max(0,Math.min(100000,parseInt(ev.target.value,10)||0)));return}if(a==='numSet'){var ng=goal(ev.target.getAttribute('data-id'));if(ng){setVal(S,view.dayKey,ng,Math.max(0,Math.min(1000000,parseInt(ev.target.value,10)||0)));commit()}return}if(a==='gfVes'){var tEl=document.getElementById('gf-target'),pv=VESSELS[ev.target.getAttribute('data-prev')||'glass250'],nv=VESSELS[ev.target.value];tEl.value=Math.max(1,Math.round((parseInt(tEl.value,10)||1)*pv.ml/nv.ml));ev.target.setAttribute('data-prev',ev.target.value);syncForm();return}if(a==='gfMode'){syncForm();return}if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
+document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(a==='tgtDate'){var tv=ev.target.value;S.target=S.target||{label:'',date:''};S.target.date=/^\d{4}-\d{2}-\d{2}$/.test(tv)?tv:'';if(!S.target.label&&S.target.date)S.target.label='cieľa';commit();return}if(a==='pushTime'){var ps=pushSt(),tt=(ps.times||['16:00','20:30']).slice();tt[+ev.target.getAttribute('data-i')]=ev.target.value;ps.times=tt.filter(Boolean);pushSave(ps);if(ps.on&&ps.id)pushPost('/status',{id:ps.id,times:ps.times}).then(function(){view.pushMsg='Časy uložené.';render()}).catch(function(){});return}if(a==='gfPace'){var ph=document.getElementById('gf-pace-hint');if(ph)ph.textContent=PACE_H[ev.target.value==='1'?1:0];return}if(a==='bookSet'){var bg=goal(ev.target.getAttribute('data-id'));if(bg)bookSet(bg,view.dayKey,Math.max(0,Math.min(100000,parseInt(ev.target.value,10)||0)));return}if(a==='numSet'){var ng=goal(ev.target.getAttribute('data-id'));if(ng){setVal(S,view.dayKey,ng,Math.max(0,Math.min(1000000,parseInt(ev.target.value,10)||0)));commit()}return}if(a==='gfVes'){var tEl=document.getElementById('gf-target'),pv=VESSELS[ev.target.getAttribute('data-prev')||'glass250'],nv=VESSELS[ev.target.value];tEl.value=Math.max(1,Math.round((parseInt(tEl.value,10)||1)*pv.ml/nv.ml));ev.target.setAttribute('data-prev',ev.target.value);syncForm();return}if(a==='gfMode'){syncForm();return}if(a==='gfFreq'){var w=ev.target.value==='week';document.getElementById('gf-week-wrap').style.display=w?'flex':'none';document.getElementById('gf-days-wrap').style.display=w?'none':'flex';return}if(a==='start'){var v=ev.target.value;if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=todayKey()){S.start=v;commit()}return}if(a==='note'||a==='name')render()});
 document.addEventListener('keydown',function(ev){var ta=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(ev.key==='Enter'&&ta==='laKey'){ev.preventDefault();var b=document.querySelector('[data-a=listAdd][data-id="'+ev.target.getAttribute('data-id')+'"]');if(b)b.click();return}if(ev.key==='Enter'&&ta==='fiT'){ev.preventDefault();var ab=document.querySelector('[data-a=fiAdd]');if(ab)ab.click();return}if(ev.key==='Escape'&&(view.sheet||view.toast||view.endAsk)){view.sheet=false;view.toast=null;view.endAsk=null;render()}});
 // nový deň pri návrate do appky
 var lastDay=todayKey();
