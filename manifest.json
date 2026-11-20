@@ -1,0 +1,10 @@
+{
+  "name": "Personal reminder",
+  "short_name": "Reminder",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0A0E24",
+  "theme_color": "#0A0E24",
+  "icons": [{ "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }]
+}
