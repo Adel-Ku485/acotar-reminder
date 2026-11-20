@@ -112,6 +112,19 @@ nav.tabs button.mid{justify-content:flex-end;padding-top:0}nav.tabs .fab{width:6
 #gf-rows{display:flex;flex-direction:column;gap:10px}.fnl{align-self:flex-start;color:var(--accent);padding:0;font-size:13px}
 .ladd{display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
 .ladd input{flex:1;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
+.wrp{position:fixed;inset:0;z-index:60;background:var(--wb);color:var(--wt);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:calc(env(safe-area-inset-top) + 56px) 28px calc(env(safe-area-inset-bottom) + 40px);transition:background .4s}
+.wrp .wbar{position:absolute;top:calc(env(safe-area-inset-top) + 14px);left:14px;right:14px;display:flex;gap:4px}.wrp .wbar i{flex:1;height:3px;border-radius:2px;background:currentColor;opacity:.25}.wrp .wbar i.f{opacity:.95}
+.wrp .wx{position:absolute;top:calc(env(safe-area-inset-top) + 26px);right:10px;background:none;border:none;color:inherit;padding:10px;z-index:2}
+.wrp .wtap{position:absolute;inset:0;display:flex}.wrp .wtap button{flex:1;background:none;border:none}.wrp .wtap button:last-child{flex:2}
+.wrp .wc{position:relative;pointer-events:none;max-width:360px;animation:wIn .45s ease both}.wrp .wc .wbtn{pointer-events:auto}
+@keyframes wIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.wrp .wk{font-size:13px;letter-spacing:.12em;text-transform:uppercase;opacity:.8;margin-bottom:10px;font-weight:700}
+.wrp .wn{font-family:var(--fd,Lora),serif;font-size:96px;line-height:1}
+.wrp .ws{font-family:var(--fd,Lora),serif;font-size:30px;line-height:1.25}
+.wrp .wl{font-size:17px;line-height:1.5;margin-top:12px;opacity:.92}
+.wrp .wem{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.wrp .wbtn{margin-top:26px;background:var(--wt);color:var(--wb);border:none;border-radius:999px;padding:14px 26px;font:inherit;font-weight:700;font-size:16px;min-height:48px}
+.wrp .wbtn.o{background:none;color:inherit;border:1.5px solid currentColor;margin-top:12px}
 .ufx{position:fixed;inset:0;z-index:55;background:var(--ubg);color:var(--utext);overflow:hidden}
 .ufx canvas{position:absolute;inset:0;width:100%;height:100%}
 .ucnt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px calc(30px + env(safe-area-inset-bottom));gap:10px}
@@ -680,9 +693,64 @@ var EMBLEMS={"spring": "<path d=\"M40 112h100\"/><path d=\"M58 112V78a32 32 0 0 
 function emblem(id,size,col,ring,sw){var e=EMBLEMS[id];if(!e)return '';return '<svg class="emb" viewBox="'+(ring===false?'40 30 106 106':'35 28 116 116')+'" width="'+size+'" height="'+size+'" aria-hidden="true" style="color:'+col+'"><g fill="none" stroke="currentColor" stroke-width="'+(sw||(size<30?2.4:1.4))+'" stroke-linecap="round" stroke-linejoin="round" transform="translate(3,6)">'+(ring===false?'':'<circle cx="90" cy="80" r="56"/><circle cx="90" cy="80" r="50" stroke-dasharray="1 5"/>')+e+'</g></svg>'}
 function embCol(t){return t.id==='night'?t.c.streak:t.c.accent}
 function swatch(t){var c=t.c;return '<div class="sw" aria-hidden="true"><i style="background:'+c.bg+'"></i><i style="background:'+c.accent+'"></i><i style="background:'+c.streak+'"></i></div>'}
+/* ===== Wrapped (rekapitulácia) ===== */
+var WRAP_END={spring:'Ruže pre teba kvitli celý čas. Teraz kvitni ty.',summer:'Adriata ti vzdáva hold. Tarquin dokonca odložil perlu.',autumn:'Aj Beron by uznal, že toto bolo dobré. Potichu.',winter:'Kallias ti nalieva horúcu čokoládu. Zaslúžiš si ju.',dawn:'Thesan zapisuje tvoj príbeh do kroniky úsvitu.',day:'Helion to prepočítal. Výsledok: si úžasná.',night:'Hviezdy si ťa všimli. A Rhys tiež.',base:'Bola to cesta. A ty si ju prešla.'};
+var WRAP_MS=[30,100,365];
+function wrapStats(S,to){
+ var t=todayKey();if(!to||to>t)to=t;
+ var from=S.start,days=0,done=0,run=0,maxRun=0,wd=[0,0,0,0,0,0,0],wdn=[0,0,0,0,0,0,0],hard=null,per={};
+ for(var k=from;k<=to;k=addDays(k,1)){
+  var gs=goalsFor(S,k);if(!gs.length)continue;days++;
+  var st=status(S,k),w=wdOf(k),okN=0;
+  gs.forEach(function(g){if(goalOk(S,k,g)){okN++;per[g.id]=(per[g.id]||0)+1}});
+  if(st==='done')done++;
+  if(st==='done'||st==='forgiven'){run++;if(run>maxRun)maxRun=run}else if(k<t)run=0;
+  if(k<t){wdn[w]++;if(st==='done')wd[w]++;var r=okN/gs.length;if(!hard||r<hard.r||(r===hard.r&&okN<hard.ok))hard={k:k,r:r,ok:okN,n:gs.length}}
+ }
+ var best=null;S.goals.forEach(function(g){var n=per[g.id]||0;if(n&&(!best||n>best.n))best={g:g,n:n}});
+ if(best&&best.g.type==='count'){var sum=0;for(var k2=from;k2<=to;k2=addDays(k2,1)){if(activeOn(best.g,k2))sum+=(+gval(S,k2,best.g)||0)}best.sum=sum}
+ var bw=-1,br=-1;for(var i=0;i<7;i++){if(wdn[i]>=2){var rr=wd[i]/wdn[i];if(rr>br){br=rr;bw=i}}}
+ var pages=0,books=0;S.goals.forEach(function(g){if(modeOf(g)==='book'){var p=bookRead(S,g);if(p>0){pages+=p;books++}}});
+ var proj=S.goals.filter(function(g){return g.mode==='list'&&(g.items||[]).length&&(g.items||[]).every(function(x){return x.done})});
+ var quit=null;S.goals.forEach(function(g){if(modeOf(g)==='quit'&&per[g.id]&&(!quit||per[g.id]>quit.n))quit={g:g,n:per[g.id]}});
+ return {streak:Math.max(S.best||0,maxRun),days:days,done:done,best:best,bw:bw,br:br,hard:hard&&hard.r<1?hard:null,pages:pages,books:books,proj:proj,quit:quit};
+}
+function wrapSlides(reason){
+ var t=themeById(S.theme),nm=S.name||'',st=wrapStats(S,reason.to),sl=[];
+ var title=reason.kind==='target'?(reason.label==='Vianoc'?(nm?nm+', Vianoce sú tu.':'Vianoce sú tu.'):(nm?nm+', je to tu.':'Je to tu.')):reason.kind==='ms'?(reason.n===30?'Mesiac za tebou'+(nm?', '+nm:'')+'.':reason.n===100?'100 dní!'+(nm?' '+nm+',':'')+' to je niečo.':'Celý rok'+(nm?', '+nm:'')+'. Celý.'):'Tvoja doterajšia cesta';
+ var sub=reason.kind==='target'?'Pozrime sa, čo si za ten čas dokázala.':reason.kind==='ms'&&reason.n===100?'Rhys by usporiadal oslavu na Velarise. Ja aspoň túto.':'Pozrime sa, čo si zatiaľ dokázala.';
+ sl.push({th:t.id,h:(EMBLEMS[t.id]?'<div style="margin-bottom:18px">'+emblem(t.id,110,'currentColor')+'</div>':'')+'<div class="ws">'+esc(title)+'</div><div class="wl">'+sub+'</div>'});
+ var pct=st.days?Math.round(st.done/st.days*100):0;
+ sl.push({h:'<div class="wk">Splnené dni</div><div class="wn">'+st.done+'</div><div class="wl">z '+st.days+' '+plural(st.days,'dňa','dní','dní')+' výzvy. To je '+pct+' %.'+(pct>=80?' Toto už nie je náhoda.':pct>=50?' Viac ako polovica. Počíta sa každý.':' Každý z nich sa počíta.')+'</div>'});
+ sl.push({h:'<div class="wk">Najdlhšia séria</div><div class="wn">'+st.streak+'</div><div class="wl">'+unitWord(st.streak,'den')+' v rade.'+(st.streak>=14?' Cassian by ti zatlieskal. Raz.':st.streak>=7?' Celý týždeň bez zaváhania.':' A ďalšia bude dlhšia.')+'</div>'});
+ if(st.best){var b=st.best,ex='';if(b.sum&&b.g.unit)ex='<br>Spolu '+b.sum+' '+esc(b.g.unit)+'.';else if(b.sum&&!b.g.unit&&b.sum>b.n)ex='<br>Spolu '+b.sum+'.';
+  sl.push({h:'<div class="wk">Najvernejší cieľ</div><div class="ws">'+esc(b.g.name)+'</div><div class="wl">splnený '+b.n+'-krát.'+ex+'</div>'})}
+ if(st.pages)sl.push({h:'<div class="wk">Čítanie</div><div class="wn">'+st.pages+'</div><div class="wl">'+plural(st.pages,'prečítaná strana','prečítané strany','prečítaných strán')+(st.books>1?' v '+st.books+' knihách':'')+'. Knižnica vo Velarise by bola hrdá.</div>'});
+ if(st.proj.length)sl.push({h:'<div class="wk">Dokončené projekty</div><div class="ws">'+st.proj.map(function(g){return esc(g.name)}).join('<br>')+'</div><div class="wl">Všetky body odškrtnuté. Do posledného.</div>'});
+ if(st.quit)sl.push({h:'<div class="wk">'+esc(st.quit.g.name)+'</div><div class="wn">'+st.quit.n+'</div><div class="wl">'+plural(st.quit.n,'deň','dni','dní')+' si to zvládla. Amren prikyvuje.</div>'});
+ if(st.bw>=0)sl.push({h:'<div class="wk">Tvoj najlepší deň</div><div class="ws">'+WD[st.bw].charAt(0).toUpperCase()+WD[st.bw].slice(1)+'</div><div class="wl">Vtedy si splnila '+Math.round(st.br*100)+' % dní. '+(st.bw>=5?'Víkendová hrdinka.':st.bw===0?'Pondelky sa ťa boja.':'Uprostred týždňa nezastaviteľná.')+'</div>'});
+ if(st.hard)sl.push({h:'<div class="wk">Najťažší deň</div><div class="ws">'+fmtDay(st.hard.k)+'</div><div class="wl">'+(st.hard.ok?'Len '+st.hard.ok+' z '+st.hard.n+' cieľov.':'Ani jeden cieľ.')+' A predsa si sa na druhý deň vrátila. To je to podstatné.</div>'});
+ var un=ACOTAR.filter(function(c){return S.unlocked.indexOf(c.id)>=0});
+ if(un.length)sl.push({h:'<div class="wk">Tvoja cesta</div><div class="ws">'+un.length+' '+plural(un.length,'dvor odomknutý','dvory odomknuté','dvorov odomknutých')+'</div><div class="wem">'+un.map(function(c){return EMBLEMS[c.id]?'<span style="width:46px;height:46px;border-radius:50%;background:'+c.c.bg+';border:1px solid '+c.c.border+';display:inline-flex;align-items:center;justify-content:center">'+emblem(c.id,36,embCol(c),false,3)+'</span>':''}).join('')+'</div><div class="wl">Teraz si na: '+esc(t.name)+'.</div>'});
+ sl.push({end:true,th:t.id,h:'<div class="ws">'+esc(WRAP_END[t.id]||WRAP_END.base)+'</div><div class="wl">A ďakujem, že si vydržala.</div>'+(reason.kind==='target'?'<button class="wbtn" data-a="wrapNewTarget">Nastaviť nový cieľ</button><button class="wbtn o" data-a="wrapClose">Pokračovať</button>':'<button class="wbtn" data-a="wrapClose">Pokračovať</button>')});
+ var cyc=un.length?un:[t];sl.forEach(function(x,i){if(!x.th)x.th=cyc[i%cyc.length].id;x.alt=i%2===1});
+ return sl;
+}
+function wrapPending(){
+ if(!S.onboarded)return null;var seen=S.wrapSeen||[],t=todayKey();
+ if(S.target&&/^\d{4}-\d{2}-\d{2}$/.test(S.target.date||'')&&S.target.date<=t&&S.target.date>=S.start&&seen.indexOf('t:'+S.target.date)<0)return {kind:'target',id:'t:'+S.target.date,label:S.target.label,to:S.target.date};
+ var inC=daysDiff(S.start,t)+1;for(var i=WRAP_MS.length-1;i>=0;i--){if(inC>=WRAP_MS[i]&&seen.indexOf('m:'+WRAP_MS[i])<0){return {kind:'ms',id:'m:'+WRAP_MS[i],n:WRAP_MS[i]}}}
+ return null;
+}
+function openWrap(reason){if(reason.id){S.wrapSeen=(S.wrapSeen||[]).concat([reason.id]);WRAP_MS.forEach(function(m){if(daysDiff(S.start,todayKey())+1>=m&&(reason.kind!=='ms'||m<=reason.n)&&S.wrapSeen.indexOf('m:'+m)<0)S.wrapSeen.push('m:'+m)});S.updatedAt=Date.now();saveLocal();queueWrite()}view.wrap={slides:wrapSlides(reason),i:0};render()}
+function renderWrap(){var w=view.wrap,x=w.slides[w.i],c=themeById(x.th).c,dk=c.bg.charAt(1)<'5',bg=dk?(x.alt?c.card:c.bg):(x.alt?c.text:c.accent),fg=dk?c.text:(x.alt?c.bg:c.onAccent);
+ var h='<div class="wrp" role="dialog" aria-modal="true" aria-label="Rekapitulácia" style="--wb:'+bg+';--wt:'+fg+'"><div class="wbar" aria-hidden="true">'+w.slides.map(function(_,i){return '<i class="'+(i<=w.i?'f':'')+'"></i>'}).join('')+'</div>';
+ if(!x.end)h+='<div class="wtap"><button data-a="wrapPrev" aria-label="Späť"></button><button data-a="wrapNext" aria-label="Ďalej"></button></div>';
+ h+='<button class="wx" data-a="wrapClose" aria-label="Zavrieť">'+svg('<path d="M6 6l12 12M18 6L6 18"/>',24)+'</button><div class="wc" key="'+w.i+'">'+x.h+'</div></div>';return h}
 function renderCourts(){
  var h=header('Dvory');
  h+='<p class="small" style="margin:-6px 0 14px">Feyrina cesta: za každú sériu sa odomkne ďalší dvor. Najlepšia séria: <b style="color:var(--text)">'+S.best+' '+unitWord(S.best,'den')+'</b>.</p><div class="stack">';
+ h+='<button class="card row gtap" style="gap:12px;padding:14px 16px;border:1px solid var(--border)" data-a="wrapOpen"><span style="color:var(--accent)">'+svg('<path d="M12 3l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 15.4 7 18.2l1.2-5.6L4 8.8l5.6-.6z"/>',22,2)+'</span><span class="grow"><span class="gname">Tvoja doterajšia cesta</span><span class="gsub">Rekapitulácia tvojej výzvy</span></span><span aria-hidden="true" style="color:var(--muted);font-size:22px">›</span></button>';
  ACOTAR.forEach(function(t){h+=courtCard(t)});
  h+='<h2 style="margin-top:10px">Ďalšie témy</h2>'+courtCard(themeById('base'));
  return h+'</div>';
@@ -738,6 +806,7 @@ function renderOverlay(){
  if(view.onb){o.innerHTML=renderOnb();document.body.style.overflow='hidden';return}
  document.body.style.overflow='';
  if(view.sheet)h+=renderSettings();
+ if(view.wrap)h+=renderWrap();
  if(view.endAsk)h+=renderEndAsk();
  if(view.toast&&view.toast.type==='end')h+=renderEndToast(view.toast);
  if(view.toast&&view.toast.type==='unlock'){
@@ -1168,6 +1237,11 @@ document.addEventListener('click',function(ev){
   case 'closeSheet':view.sheet=false;view.editGoal=null;view.reorder=false;view.sub=null;render();break;
   case 'sub':view.sub=v;view.pushMsg='';render();break;
   case 'subBack':view.sub=null;render();break;
+  case 'wrapOpen':openWrap({kind:'manual'});break;
+  case 'wrapNext':if(view.wrap.i<view.wrap.slides.length-1){view.wrap.i++;render()}break;
+  case 'wrapPrev':if(view.wrap.i>0){view.wrap.i--;render()}break;
+  case 'wrapClose':view.wrap=null;render();break;
+  case 'wrapNewTarget':view.wrap=null;view.sheet=true;view.sub='profile';render();break;
   case 'tgtClear':S.target=null;commit();break;
   case 'editGoal':view.editGoal=id;view.confirmDel=null;var gg=id==='new'?null:goal(id);formDays=gg?gg.days.slice():[0,1,2,3,4,5,6];formItems=gg&&gg.items?gg.items.map(function(x){return {t:x.t,n:x.n||'',done:x.done||null}}):[];fiNote={};render();break;
   case 'moveGoal':var A=activeGoals(S),ai=-1;A.forEach(function(x,i){if(x.id===id)ai=i});var aj=ai+(+v);if(ai>=0&&aj>=0&&aj<A.length){var mi=S.goals.indexOf(A[ai]),mj=S.goals.indexOf(A[aj]);var tmp=S.goals[mi];S.goals[mi]=S.goals[mj];S.goals[mj]=tmp;commit()}break;
@@ -1212,13 +1286,14 @@ document.addEventListener('change',function(ev){var a=ev.target.getAttribute&&ev
 document.addEventListener('keydown',function(ev){var ta=ev.target.getAttribute&&ev.target.getAttribute('data-a');if(ev.key==='Enter'&&ta==='laKey'){ev.preventDefault();var b=document.querySelector('[data-a=listAdd][data-id="'+ev.target.getAttribute('data-id')+'"]');if(b)b.click();return}if(ev.key==='Enter'&&ta==='fiT'){ev.preventDefault();var ab=document.querySelector('[data-a=fiAdd]');if(ab)ab.click();return}if(ev.key==='Escape'&&(view.sheet||view.toast||view.endAsk)){view.sheet=false;view.toast=null;view.endAsk=null;render()}});
 // nový deň pri návrate do appky
 var lastDay=todayKey();
-document.addEventListener('visibilitychange',function(){if(!document.hidden&&todayKey()!==lastDay){lastDay=todayKey();view.dayKey=lastDay;refreshProgress(S);lastTodayStatus=status(S,lastDay);render()}});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&todayKey()!==lastDay){lastDay=todayKey();view.dayKey=lastDay;refreshProgress(S);lastTodayStatus=status(S,lastDay);render();var wp=wrapPending();if(wp&&!view.onb&&!view.wrap)openWrap(wp)}});
 if(window.matchMedia)try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render)}catch(e){}
 
 refreshProgress(S);
 lastTodayStatus=status(S,todayKey());
 if(!S.onboarded)view.onb={first:true,step:1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};
 render();
+(function(){var wp=wrapPending();if(wp&&!view.onb)setTimeout(function(){if(!view.wrap&&!view.onb&&!view.sheet)openWrap(wp)},600)})();
 setTimeout(function(){try{pushSync()}catch(e){}},2000);document.addEventListener('visibilitychange',function(){if(!document.hidden){try{pushSync()}catch(e){}}});
 initSync();
 </script>
