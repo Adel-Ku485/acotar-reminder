@@ -20,6 +20,7 @@ const NOTHING = {
   dawn: 'Dnes ešte nič? Nový začiatok je hneď teraz.', day: 'Dnes ešte nič? Helion to zaznamenal.',
   night: 'Dnes ešte nič? Rhys čaká. Trpezlivo. Zatiaľ.', base: 'Dnes ešte nič? Appka je smutná.'
 };
+const TITLES = { spring: 'Jarný dvor', summer: 'Letný dvor', autumn: 'Jesenný dvor', winter: 'Zimný dvor', dawn: 'Dvor úsvitu', day: 'Denný dvor', night: 'Nočný dvor', base: 'Personal reminder' };
 function plural(n, a, b, c) { return n === 1 ? a : (n >= 2 && n <= 4 ? b : c); }
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
@@ -52,7 +53,7 @@ export default {
     }
     if (url.pathname === '/unsubscribe') { await env.SUBS.delete(key); return json({ ok: true }); }
     if (url.pathname === '/test') {
-      const r = await sendPush(env, rec.sub, { title: 'Personal reminder', body: 'Upozornenia fungujú! Teraz ťa budem strážiť. Jemne. Väčšinou.' });
+      const r = await sendPush(env, rec.sub, { title: TITLES[rec.theme] || TITLES.base, body: 'Upozornenia fungujú! Teraz ťa budem strážiť. Jemne. Väčšinou.' });
       return json({ ok: r.ok, status: r.status });
     }
     return json({ error: 'not found' }, 404);
@@ -92,7 +93,7 @@ async function checkOne(env, key) {
     if (left == null) body = NOTHING[th];
     else { const lines = LINES[th]; body = lines[(tm / 15 | 0) % lines.length].replace('{n}', left + ' ' + plural(left, 'cieľ', 'ciele', 'cieľov')); }
     if (rec.name) body = rec.name + ', ' + body.charAt(0).toLowerCase() + body.slice(1);
-    const r = await sendPush(env, rec.sub, { title: 'Personal reminder', body });
+    const r = await sendPush(env, rec.sub, { title: TITLES[th], body });
     if (r.status === 404 || r.status === 410) { await env.SUBS.delete(key); return; }
     rec.sent[t] = now.day;
     await env.SUBS.put(key, JSON.stringify(rec));
