@@ -493,7 +493,7 @@ var CHECK='<path d="M5 12.5l4.5 4.5L19 7.5"/>';
 /* ---- cloud sync ---- */
 var dbRef=null,writing=false,pendingWrite=false,writeTimer=null;
 var lastTodayStatus=null;
-var PUSH_URL='',VAPID_PUB='BP5Go71HrKQuIQ4rWbKDYfGJgu7c1y2MvzkKwZZDzT4tS7tt10iqNkR8Je-3JcqDFXK_PPPZbOU3zeD_c49FmDc';
+var PUSH_URL='https://reminder-push.adela-kumor.workers.dev',VAPID_PUB='BP5Go71HrKQuIQ4rWbKDYfGJgu7c1y2MvzkKwZZDzT4tS7tt10iqNkR8Je-3JcqDFXK_PPPZbOU3zeD_c49FmDc';
 function pushSt(){try{return JSON.parse(localStorage.getItem('pr-push')||'{}')}catch(e){return {}}}
 function pushSave(o){try{localStorage.setItem('pr-push',JSON.stringify(o))}catch(e){}}
 function pushSupported(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window}
