@@ -125,6 +125,7 @@ nav.tabs button.on{color:var(--accent);font-weight:600}
 .ubtns{display:flex;gap:10px;margin-top:18px}
 .ub1{border:0;border-radius:999px;background:var(--uaccent);color:var(--uonAccent);font:inherit;font-weight:700;font-size:16px;padding:14px 26px;min-height:48px}
 .ub2{border:1.5px solid var(--uaccent);border-radius:999px;background:transparent;color:var(--uaccent);font:inherit;font-weight:700;font-size:16px;padding:14px 24px;min-height:48px}
+.srow{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;background:none;border:none;border-top:1px solid var(--border);padding:10px 2px;text-align:left;color:var(--text);font:inherit;font-size:16px}.srow:first-child{border-top:none}.srow .sv{margin-left:auto;color:var(--muted);font-size:14px;white-space:nowrap}.srow svg{flex:none;color:var(--accent)}.slb{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 4px -4px;font-weight:700}.pcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;color:var(--text)}.pcard .pn{font-family:var(--fd,Lora),serif;font-size:22px;line-height:1.2;display:block}.pen{margin-left:auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none}.tgl{position:relative;width:52px;height:30px;border-radius:15px;border:none;background:var(--border);flex:none;padding:0}.tgl:after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}.tgl[aria-checked=true]{background:var(--accent)}.tgl[aria-checked=true]:after{left:25px}
 .embw{width:64px;height:64px;border-radius:18px;border:1px solid;display:flex;align-items:center;justify-content:center;flex:none}
 .court.locked .embw{filter:grayscale(1);opacity:.45}
 .uemb{margin-bottom:4px}
@@ -514,12 +515,12 @@ var pushTimer=null;
 function pushSyncSoon(){if(!PUSH_URL)return;clearTimeout(pushTimer);pushTimer=setTimeout(pushSync,1500)}
 function pushSync(){var st=pushSt();if(!st.on||!st.id)return;var left=pushLeft(),day=todayKey();if(left===st.lastLeft&&day===st.lastDay&&S.theme===st.lastTheme&&(S.name||'')===(st.lastName||''))return;
  pushPost('/status',{id:st.id,left:left,day:day,theme:S.theme,name:S.name||''}).then(function(r){if(r&&r.ok){st.lastLeft=left;st.lastDay=day;st.lastTheme=S.theme;st.lastName=S.name||'';pushSave(st)}}).catch(function(){})}
-function pushSection(){var h='<h2 style="margin-top:8px">Upozornenia</h2>',st=pushSt();
- if(!PUSH_URL)return h+'<p class="small" style="margin:0">Upozornenia sa práve pripravujú.</p>';
- if(!pushSupported())return h+'<p class="small" style="margin:0">'+(navigator.standalone===false?'Upozornenia fungujú len v appke otvorenej z ikonky na ploche. Otvor ju odtiaľ a skús to znova.':'Tento prehliadač upozornenia nepodporuje. Na iPhone otvor appku z ikonky na ploche (iOS 16.4 a novší).')+'</p>';
- if(!st.on){h+='<p class="small" style="margin:0">Pípnem ti, keď ešte nemáš všetko splnené. Nikdy inokedy, sľubujem.</p><div class="btnrow"><button class="btn solid" data-a="pushOn">Zapnúť upozornenia</button></div>'}
- else{var t=st.times||['16:00','20:30'];h+='<p class="small" style="margin:0">Pípnem len vtedy, keď ti ešte niečo chýba.</p><div class="grid2"><label class="f">Poobede<input type="time" data-a="pushTime" data-i="0" value="'+esc(t[0]||'')+'"></label><label class="f">Večer<input type="time" data-a="pushTime" data-i="1" value="'+esc(t[1]||'')+'"></label></div><div class="btnrow"><button class="btn" data-a="pushTest">Poslať skúšobné</button><button class="btn" data-a="pushOff">Vypnúť</button></div>'}
- if(view.pushMsg)h+='<p class="small" role="status" style="margin:0">'+esc(view.pushMsg)+'</p>';
+function pushSection(){var h='',st=pushSt();
+ if(!PUSH_URL)return '<p class="small" style="margin:0">Upozornenia sa práve pripravujú.</p>';
+ if(!pushSupported())return '<p class="small" style="margin:0">'+(navigator.standalone===false?'Upozornenia fungujú len v appke otvorenej z ikonky na ploche. Otvor ju odtiaľ a skús to znova.':'Tento prehliadač upozornenia nepodporuje. Na iPhone otvor appku z ikonky na ploche (iOS 16.4 a novší).')+'</p>';
+ h+='<div class="card" style="padding:12px 16px"><div class="row" style="justify-content:space-between;gap:12px"><span id="pt" style="font-size:16px">Pripomínať mi</span><button class="tgl" role="switch" aria-labelledby="pt" aria-checked="'+(st.on?'true':'false')+'" data-a="'+(st.on?'pushOff':'pushOn')+'"></button></div><p class="small" style="margin:6px 0 0">'+(st.on?'Pípnem len vtedy, keď ti ešte niečo chýba.':'Pípnem ti, keď ešte nemáš všetko splnené. Nikdy inokedy, sľubujem.')+'</p></div>';
+ if(st.on){var t=st.times||['16:00','20:30'];h+='<div class="slb">Kedy</div><div class="grid2"><label class="f">Poobede<input type="time" data-a="pushTime" data-i="0" value="'+esc(t[0]||'')+'"></label><label class="f">Večer<input type="time" data-a="pushTime" data-i="1" value="'+esc(t[1]||'')+'"></label></div><button class="obtn-link" style="color:var(--accent);margin-top:28px;align-self:center" data-a="pushTest">Poslať skúšobné upozornenie</button>'}
+ if(view.pushMsg)h+='<p class="small" role="status" style="margin:0;text-align:center">'+esc(view.pushMsg)+'</p>';
  return h}
 function commit(){
  S.updatedAt=Date.now();pushSyncSoon();
@@ -579,7 +580,7 @@ function render(){
  var a=document.getElementById('app');
  a.innerHTML=view.tab==='today'?renderToday():view.tab==='cal'?renderCal():renderCourts();
  renderTabs();
- var _si=document.querySelector('.sheet .in'),_sk=view.editGoal?'edit:'+view.editGoal:(view.sheet||''),_st=_si&&render._k===_sk?_si.scrollTop:0;
+ var _si=document.querySelector('.sheet .in'),_sk=view.editGoal?'edit:'+view.editGoal:view.sub?'sub:'+view.sub:(view.sheet||''),_st=_si&&render._k===_sk?_si.scrollTop:0;
  renderOverlay();
  var _ni=document.querySelector('.sheet .in');if(_ni&&_st)_ni.scrollTop=_st;render._k=_ni?_sk:'';
  syncForm();
@@ -747,25 +748,31 @@ function renderOverlay(){
 function renderSettings(){
  if(view.editGoal){var eg=view.editGoal==='new'?{id:'new',name:'',type:'check',target:1,unit:'',days:[0,1,2,3,4,5,6],kind:'other',freq:'days',perWeek:3,cat:view.newCat||'',mode:view.newMode||undefined}:goal(view.editGoal);
   return '<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="stickyhead"><button class="obtn-link" style="color:var(--accent);padding-left:0" data-a="cancelGoal">‹ Späť</button><h1 id="st" style="font-size:26px;margin:0">'+(view.editGoal==='new'?(modeOf(eg)==='list'?'Nový projekt':'Nový cieľ'):(modeOf(eg)==='list'?'Upraviť projekt':'Upraviť cieľ'))+'</h1></div>'+goalForm(eg)+'</div></div>';}
- var h='<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="row stickyhead" style="justify-content:space-between;flex-direction:row;align-items:center"><h1 id="st" style="font-size:26px;margin:0">Nastavenia</h1><button class="iconbtn" data-a="closeSheet" aria-label="Zavrieť">'+svg('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</button></div>';
- h+='<label class="f">Tvoje meno<input data-a="name" value="'+esc(S.name)+'" autocomplete="given-name"></label>';
- h+='<label class="f">Začiatok výzvy<input type="date" data-a="start" value="'+S.start+'" max="'+todayKey()+'"></label><p class="small" style="margin:-4px 0 0">Daj skorší dátum, ak chceš dodatočne zapísať dni, keď si už makala. Potom ich doplníš cez Kalendár › Upraviť deň.</p>';
+ var h,t=themeById(S.theme),lb=S.lastBackup?Math.floor((Date.now()-S.lastBackup)/86400000):null,chev='<span aria-hidden="true" style="color:var(--muted);font-size:22px;margin-left:4px">›</span>';
+ if(view.sub){var ttl={profile:'O tebe',push:'Upozornenia',backup:'Záloha dát'}[view.sub];
+  h='<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="stickyhead"><button class="obtn-link" style="color:var(--accent);padding-left:0" data-a="subBack">‹ Nastavenia</button><h1 id="st" style="font-size:26px;margin:0">'+ttl+'</h1></div>';
+  if(view.sub==='profile'){h+='<label class="f">Tvoje meno<input data-a="name" value="'+esc(S.name)+'" autocomplete="given-name"></label>';
+   h+='<label class="f">Začiatok výzvy<input type="date" data-a="start" value="'+S.start+'" max="'+todayKey()+'"></label><p class="small" style="margin:-4px 0 0">Daj skorší dátum, ak chceš dodatočne zapísať dni, keď si už makala. Potom ich doplníš cez Kalendár › Upraviť deň.</p>'}
+  else if(view.sub==='push')h+=pushSection();
+  else{h+='<p class="small" style="margin:0">'+(view.sync==='cloud'?'Dáta sa ukladajú do tvojho účtu, ale záloha navyše nezaškodí.':'Tvoje ciele a odškrtnuté dni sú uložené len v tomto telefóne. Ak by si zmazala appku alebo dáta Safari, prídeš o ne. Záloha je text, ktorý si uložíš napríklad do Poznámok.')+'</p>';  h+='<p class="small" style="margin:0;font-weight:600;color:'+(lb===null||lb>7?'var(--streak)':'var(--muted)')+'">'+(lb===null?'Zálohu si ešte nemáš.':'Posledná záloha: '+(lb===0?'dnes':lb===1?'včera':'pred '+lb+' dňami'))+'</p>';  h+='<div class="btnrow"><button class="btn solid" data-a="copyBackup">Uložiť zálohu</button><button class="btn" data-a="toggleImport">Obnoviť zo zálohy</button></div>';  if(view.showImport)h+='<label class="f">Vlož text zálohy, ktorý si si uložila<textarea data-a="importText" placeholder="Sem vlož uloženú zálohu…">'+esc(view.importText)+'</textarea></label><div class="btnrow"><button class="btn solid" data-a="doImport">Obnoviť</button></div>';  if(view.importMsg)h+='<p class="small" role="status" style="margin:0">'+esc(view.importMsg)+'</p>'; }
+  return h+'</div></div>'}
+ h='<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="row stickyhead" style="justify-content:space-between;flex-direction:row;align-items:center"><h1 id="st" style="font-size:26px;margin:0">Nastavenia</h1><button class="iconbtn" data-a="closeSheet" aria-label="Zavrieť">'+svg('<path d="M6 6l12 12M18 6L6 18"/>',20)+'</button></div>';
+ var sp=(S.start||'').split('-');
+ h+='<button class="card pcard" data-a="sub" data-v="profile" aria-label="Upraviť meno a začiatok výzvy">'+(EMBLEMS[t.id]?'<span class="embw" style="width:52px;height:52px;border-radius:50%;background:'+t.c.bg+';border-color:'+t.c.border+'">'+emblem(t.id,40,embCol(t))+'</span>':'')+'<span><span class="pn">'+esc(S.name||'Tvoje meno')+'</span><span class="gsub">'+esc(t.name)+(sp.length===3?' · vo výzve od '+(+sp[2])+'. '+(+sp[1])+'.':'')+'</span></span><span class="pen" aria-hidden="true">'+svg('<path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/>',18,2)+'</span></button>';
  var AG=activeGoals(S);
- h+='<div class="row" style="justify-content:space-between"><h2>Ciele</h2>'+(AG.length>1?'<button class="obtn-link" style="color:var(--accent);padding:10px 0" data-a="reorder">'+(view.reorder?'Hotovo':'Upraviť poradie')+'</button>':'')+'</div>';
+ h+='<div class="row" style="justify-content:space-between"><div class="slb" style="margin:0">Ciele</div>'+(AG.length>1?'<button class="obtn-link" style="color:var(--accent);padding:10px 0" data-a="reorder">'+(view.reorder?'Hotovo':'Upraviť poradie')+'</button>':'')+'</div>';
  AG.forEach(function(g,gi){
   if(view.reorder){h+='<div class="card row" style="gap:4px;padding:6px 6px 6px 14px"><div class="grow"><span class="gname">'+catIcon(g)+esc(g.name)+'</span></div><button class="iconbtn" data-a="moveGoal" data-id="'+g.id+'" data-v="-1" aria-label="Posunúť vyššie: '+esc(g.name)+'"'+(gi===0?' disabled style="opacity:.3"':'')+'>'+svg('<path d="M12 19V5M6 11l6-6 6 6"/>',18,2)+'</button><button class="iconbtn" data-a="moveGoal" data-id="'+g.id+'" data-v="1" aria-label="Posunúť nižšie: '+esc(g.name)+'"'+(gi===AG.length-1?' disabled style="opacity:.3"':'')+'>'+svg('<path d="M12 5v14M6 13l6 6 6-6"/>',18,2)+'</button></div>'}
   else h+='<button class="card row gtap" style="gap:8px;padding:12px 14px;width:100%;border:1px solid var(--border)" data-a="editGoal" data-id="'+g.id+'" aria-label="Upraviť: '+esc(g.name)+'"><span class="grow"><span class="gname">'+catIcon(g)+esc(g.name)+'</span><span class="gsub">'+goalDesc(g)+'</span></span><span aria-hidden="true" style="color:var(--muted);font-size:22px">›</span></button>';
  });
- if(!view.reorder)h+='<button class="btn solid" data-a="onbStart" data-v="2">+ Pridať cieľ</button><button class="btn" data-a="newList">+ Nový projekt</button>';
+ if(!view.reorder)h+='<div class="btnrow" style="flex-wrap:nowrap"><button class="btn solid" style="flex:1" data-a="onbStart" data-v="2">+ Cieľ</button><button class="btn" style="flex:1" data-a="newList">+ Projekt</button></div>';
  [['done','Hotové návyky'],['quit','Ukončené']].forEach(function(sec){var list=S.goals.filter(function(g){return g.ended&&g.ended.how===sec[0]});if(!list.length)return;h+='<h2 style="margin-top:8px">'+sec[1]+'</h2>';list.forEach(function(g){var st=goalStats(g);h+='<div class="card row" style="gap:8px"><div class="grow"><span class="gname">'+catIcon(g)+esc(g.name)+'</span><span class="gsub">'+st.done+' '+plural(st.done,'splnený deň','splnené dni','splnených dní')+' · ukončené '+fmtDay(g.ended.date)+'</span></div><button class="btn" data-a="restoreGoal" data-id="'+g.id+'">Obnoviť</button></div>'})});
-  var lb=S.lastBackup?Math.floor((Date.now()-S.lastBackup)/86400000):null;
- h+=pushSection();
- h+='<div class="btnrow"><button class="btn" data-a="howItWorks">Ako appka funguje</button></div>';
- h+='<h2 style="margin-top:8px">Záloha dát</h2><p class="small" style="margin:0">'+(view.sync==='cloud'?'Dáta sa ukladajú do tvojho účtu, ale záloha navyše nezaškodí.':'Tvoje ciele a odškrtnuté dni sú uložené len v tomto telefóne. Ak by si zmazala appku alebo dáta Safari, prídeš o ne. Záloha je text, ktorý si uložíš napríklad do Poznámok.')+'</p>';
- h+='<p class="small" style="margin:0;font-weight:600;color:'+(lb===null||lb>7?'var(--streak)':'var(--muted)')+'">'+(lb===null?'Zálohu si ešte nemáš.':'Posledná záloha: '+(lb===0?'dnes':lb===1?'včera':'pred '+lb+' dňami'))+'</p>';
- h+='<div class="btnrow"><button class="btn solid" data-a="copyBackup">Uložiť zálohu</button><button class="btn" data-a="toggleImport">Obnoviť zo zálohy</button></div>';
- if(view.showImport)h+='<label class="f">Vlož text zálohy, ktorý si si uložila<textarea data-a="importText" placeholder="Sem vlož uloženú zálohu…">'+esc(view.importText)+'</textarea></label><div class="btnrow"><button class="btn solid" data-a="doImport">Obnoviť</button></div>';
- if(view.importMsg)h+='<p class="small" role="status" style="margin:0">'+esc(view.importMsg)+'</p>';
+ var ps=pushSt(),pv=!PUSH_URL?'čoskoro':ps.on?(ps.times||['16:00','20:30']).filter(Boolean).join(' · '):'vypnuté';
+ h+='<div class="slb">Ďalšie</div><div class="card" style="padding:4px 14px">';
+ h+='<button class="srow" data-a="sub" data-v="push">'+svg('<path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',20,2)+'Upozornenia<span class="sv">'+pv+'</span>'+chev+'</button>';
+ h+='<button class="srow" data-a="sub" data-v="backup">'+svg('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',20,2)+'Záloha dát<span class="sv"'+(lb===null||lb>7?' style="color:var(--streak)"':'')+'>'+(lb===null?'zatiaľ žiadna':lb===0?'dnes':lb===1?'včera':'pred '+lb+' dňami')+'</span>'+chev+'</button>';
+ h+='<button class="srow" data-a="howItWorks">'+svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/>',20,2)+'Ako appka funguje<span class="sv"></span>'+chev+'</button>';
+ h+='</div>';
  return h+'</div></div>';
 }
 var KINDS=[['exercise','Cvičenie'],['water','Voda'],['sweet','Bez sladkého'],['other','Iné']];
@@ -1155,7 +1162,9 @@ document.addEventListener('click',function(ev){
   case 'setTheme':var fromU=view.toast&&view.toast.type==='unlock';S.theme=v;view.toast=null;commit();if(fromU)setTimeout(function(){launchConfetti('happy')},60);break;
   case 'closeToast':view.toast=null;render();break;
   case 'settings':view.sheet=true;view.importMsg='';render();break;
-  case 'closeSheet':view.sheet=false;view.editGoal=null;view.reorder=false;render();break;
+  case 'closeSheet':view.sheet=false;view.editGoal=null;view.reorder=false;view.sub=null;render();break;
+  case 'sub':view.sub=v;view.pushMsg='';render();break;
+  case 'subBack':view.sub=null;render();break;
   case 'editGoal':view.editGoal=id;view.confirmDel=null;var gg=id==='new'?null:goal(id);formDays=gg?gg.days.slice():[0,1,2,3,4,5,6];formItems=gg&&gg.items?gg.items.map(function(x){return {t:x.t,n:x.n||'',done:x.done||null}}):[];fiNote={};render();break;
   case 'moveGoal':var A=activeGoals(S),ai=-1;A.forEach(function(x,i){if(x.id===id)ai=i});var aj=ai+(+v);if(ai>=0&&aj>=0&&aj<A.length){var mi=S.goals.indexOf(A[ai]),mj=S.goals.indexOf(A[aj]);var tmp=S.goals[mi];S.goals[mi]=S.goals[mj];S.goals[mj]=tmp;commit()}break;
   case 'endAsk':view.endAsk=id;render();break;
