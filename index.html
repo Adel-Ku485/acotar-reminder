@@ -45,6 +45,7 @@ h2{margin:0;font-size:15px;font-weight:600}
 .donechip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--onStreak);background:var(--streak);border-radius:14px;padding:6px 10px;flex-shrink:0}
 .dots{display:flex;gap:8px;margin-top:10px}
 .dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid color-mix(in srgb,var(--muted) 70%,var(--card));color:var(--muted)}
+.dot.pre{border-style:dotted;opacity:.35}
 .dot.done{background:var(--streak);border-color:var(--streak);color:var(--onStreak)}
 .dot.partial{border-color:var(--streak);color:var(--text);background:linear-gradient(to top,color-mix(in srgb,var(--streak) 45%,transparent) 50%,transparent 50%)}
 .dot.forgiven{border-color:var(--streak);border-style:dashed;color:var(--streak)}
@@ -74,7 +75,7 @@ h2{margin:0;font-size:15px;font-weight:600}
 .cup.wk{width:22px;height:8px;border-radius:4px}
 .cup.on{background:var(--accent)}
 .extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
-.emojis{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.emojis{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(to right,#000 82%,transparent);mask-image:linear-gradient(to right,#000 82%,transparent);padding-right:28px;scrollbar-width:none}.emojis::-webkit-scrollbar{display:none}
 .emo{flex-shrink:0}
 .emo{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--bg);font-size:20px;padding:0}
 .emo.on{border:2px solid var(--accent)}
@@ -280,7 +281,7 @@ var THEMES=[
  {id:'night',pack:'acotar',name:'Nočný dvor',place:'Velaris',unlockAt:32,unit:'noc',icon:'moon',font:"'Lora',serif",sky:true,
   c:{bg:'#0A0E24',card:'#141A3A',border:'#2A3266',text:'#ECEEF8',muted:'#A9AFD0',accent:'#A493FF',onAccent:'#0A0E24',streak:'#F1E3B0',onStreak:'#0A0E24',stat1:'#F2A9CF',stat2:'#C9BEFF',navBg:'#0D1230',navBorder:'#222A55',empty:'#4A5490',cupEmpty:'#2A3266',star1:'#FFFFFF',star2:'#C9CEDD'},
   lines:{exercise:'Výcvik ako s Cassianom',sweet:'Amren by ti tú čokoládu neodpustila.',water:'Ani Velaris sa nevypije samo.'},
-  done:'Noc splnená. K hviezdam, ktoré počúvajú.',left:' Letný dvor sa za teba hanbí.',nudge:'Rhys si všimol. Mor tiež.',full:'Hydratovaná ako celý Letný dvor.'},
+  done:'Noc splnená. K hviezdam, ktoré počúvajú.',left:' Rhys sa tvári, že to nevidí. Vidí.',nudge:'Rhys si všimol. Mor tiež.',full:'Hydratovaná lepšie ako Cassian po výcviku.'},
  {id:'base',pack:'base',name:'Základná',place:'bez kníh',unlockAt:0,unit:'den',icon:'heart',font:"'Lora',serif",
   c:{bg:'#FBF7FA',card:'#FFFFFF',border:'#EEDFEA',text:'#2A2230',muted:'#6C6170',accent:'#B8407A',onAccent:'#FFFFFF',streak:'#B8407A',onStreak:'#FFFFFF',stat1:'#B8407A',stat2:'#5E5AA8',navBg:'#FFFFFF',navBorder:'#EEDFEA',empty:'#D8C6D2',cupEmpty:'#EEDFEA'},
   dark:{bg:'#17121A',card:'#221B26',border:'#3A2F40',text:'#F3ECF4',muted:'#B9AABC',accent:'#F08DBA',onAccent:'#17121A',streak:'#F08DBA',onStreak:'#17121A',stat1:'#F08DBA',stat2:'#ABA6FF',navBg:'#120E14',navBorder:'#2E2533',empty:'#5A4A60',cupEmpty:'#3A2F40'},
@@ -628,7 +629,7 @@ function renderToday(){
  // streak card (kompaktná)
  var tk=tokens(S),nc=nextCourt(S),tot=totalDone(S),ti=targetInfo(S),doneToday=status(S,todayKey())==='done';
  h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><span class="gsub">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe</span></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
- for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);h+='<div class="dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':ds==='partial'?'partial':'')+(i===0?' today':'')+'" title="'+fmtDay(dk)+'">'+WDS[wdOf(dk)]+'</div>'}
+ for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);h+='<div class="dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':ds==='partial'?'partial':dk<S.start?'pre':'')+(i===0?' today':'')+'" title="'+fmtDay(dk)+'">'+WDS[wdOf(dk)]+'</div>'}
  h+='</div>';
  if(nc){var need=nc.unlockAt-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalší: <b style="color:var(--text)">'+esc(nc.name)+'</b></span><span>ešte '+need+' '+unitWord(need,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/nc.unlockAt*100))+'%"></i></div></div>'}
  else h+='<span class="small">Všetky dvory odomknuté. Vysoká lady.</span>';
@@ -820,7 +821,7 @@ function renderOverlay(){
 }
 function renderSettings(){
  if(view.editGoal){var eg=view.editGoal==='new'?{id:'new',name:'',type:'check',target:1,unit:'',days:[0,1,2,3,4,5,6],kind:'other',freq:'days',perWeek:3,cat:view.newCat||'',mode:view.newMode||undefined}:goal(view.editGoal);
-  return '<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="stickyhead"><button class="obtn-link" style="color:var(--accent);padding-left:0" data-a="cancelGoal">‹ Späť</button><h1 id="st" style="font-size:26px;margin:0">'+(view.editGoal==='new'?(modeOf(eg)==='list'?'Nový projekt':'Nový cieľ'):(modeOf(eg)==='list'?'Upraviť projekt':'Upraviť cieľ'))+'</h1></div>'+goalForm(eg)+'</div></div>';}
+  return '<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="stickyhead"><button class="obtn-link" style="color:var(--accent);padding-left:0" data-a="cancelGoal">‹ Nastavenia</button><h1 id="st" style="font-size:26px;margin:0">'+(view.editGoal==='new'?(modeOf(eg)==='list'?'Nový projekt':'Nový cieľ'):(modeOf(eg)==='list'?'Upraviť projekt':'Upraviť cieľ'))+'</h1></div>'+goalForm(eg)+'</div></div>';}
  var h,t=themeById(S.theme),lb=S.lastBackup?Math.floor((Date.now()-S.lastBackup)/86400000):null,chev='<span aria-hidden="true" style="color:var(--muted);font-size:22px;margin-left:4px">›</span>';
  if(view.sub){var ttl={profile:'O tebe',push:'Upozornenia',backup:'Záloha dát'}[view.sub];
   h='<div class="sheet" data-a="closeSheetBg"><div class="in stack" role="dialog" aria-modal="true" aria-labelledby="st"><div class="stickyhead"><button class="obtn-link" style="color:var(--accent);padding-left:0" data-a="subBack">‹ Nastavenia</button><h1 id="st" style="font-size:26px;margin:0">'+ttl+'</h1></div>';
@@ -971,7 +972,7 @@ function goalForm(g){
  h+='<label class="f" id="gf-week-wrap" style="display:'+(wkly?'flex':'none')+'">Koľkokrát za týždeň<input id="gf-per" type="number" min="1" max="7" inputmode="numeric" value="'+(g.perWeek||3)+'"></label>';
  h+='<div id="gf-days-wrap" class="f" style="display:'+(wkly?'none':'flex')+';flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500"><span>Dni</span><div class="days7" role="group" aria-label="Dni">'+WDS.map(function(w,i){return '<button type="button" data-a="gfDay" data-v="'+i+'" class="'+(g.days.indexOf(i)>=0?'on':'')+'" aria-pressed="'+(g.days.indexOf(i)>=0?'true':'false')+'">'+w+'</button>'}).join('')+'</div></div>';
  if(g.id!=='new'&&g.since!==todayKey())h+='<label class="row" style="gap:10px;font-size:14px;min-height:44px"><input id="gf-retro" type="checkbox" style="width:22px;height:22px;accent-color:var(--accent)"><span>Platí aj pre minulé dni <span class="small" style="display:block">Inak sa zmena týka až dneška a ďalších dní.</span></span></label>';
- h+='<div class="btnrow"><button class="btn solid" data-a="saveGoal" data-id="'+g.id+'">Uložiť</button><button class="btn" data-a="cancelGoal">Zrušiť</button>'+'</div>'+(g.id!=='new'?'<div class="stack" style="gap:8px;border-top:1px solid var(--border);padding-top:14px;margin-top:4px"><button class="btn" data-a="endAsk" data-id="'+g.id+'">Ukončiť cieľ</button><button class="btn danger" data-a="delGoal" data-id="'+g.id+'">'+(view.confirmDel===g.id?'Naozaj zmazať aj s celou históriou?':'Zmazať')+'</button>'+(view.confirmDel===g.id?'<span class="small" role="status">Ak chceš históriu zachovať, daj radšej Ukončiť cieľ. Zmazať je na omyly.</span>':'')+'</div>':'')+'</div>';
+ h+='<button class="btn solid" style="width:100%;min-height:52px;font-size:17px" data-a="saveGoal" data-id="'+g.id+'">Uložiť</button><button class="obtn-link" style="align-self:center;color:var(--muted)" data-a="cancelGoal">Zrušiť</button>'+(g.id!=='new'?'<div class="stack" style="gap:2px;border-top:1px solid var(--border);padding-top:10px;margin-top:18px;align-items:center"><button class="obtn-link" style="color:var(--accent)" data-a="endAsk" data-id="'+g.id+'">Ukončiť cieľ</button><button class="obtn-link" style="color:#B3261E" data-a="delGoal" data-id="'+g.id+'">'+(view.confirmDel===g.id?'Naozaj zmazať aj s celou históriou?':'Zmazať')+'</button>'+(view.confirmDel===g.id?'<span class="small" role="status">Ak chceš históriu zachovať, daj radšej Ukončiť cieľ. Zmazať je na omyly.</span>':'')+'</div>':'')+'</div>';
  return h;
 }
 function goalDesc(g){var m=modeOf(g),d=m==='list'?'projekt · '+((g.items||[]).filter(function(x){return x.done}).length)+' z '+(g.items||[]).length+(g.due?' · do '+fmtDay(g.due):'')+(g.pace?'':' · bez série'):m==='book'?'kniha · '+g.target+' strán denne':g.sumWeek?g.target+' '+esc(g.unit||'')+' za týždeň':m==='count'?g.target+(g.unit?' '+esc(g.unit):''):m==='duration'?g.target+' min':m==='time'?'do '+esc(g.time||''):m==='choice'?'áno + čo':m==='quit'?'zbaviť sa':'áno / nie';var c=catById(g.cat);return (c?c.name+' · ':'')+d+' · '+(isWeekly(g)?(g.perWeek||3)+'× za týždeň':(g.days.length===7?'každý deň':g.days.map(function(x){return WDS[x]}).join(' ')))}
