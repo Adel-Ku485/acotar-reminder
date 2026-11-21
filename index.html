@@ -45,20 +45,21 @@ h2{margin:0;font-size:15px;font-weight:600}
 .donechip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--onStreak);background:var(--streak);border-radius:14px;padding:6px 10px;flex-shrink:0}
 .dots{display:flex;gap:8px;margin-top:10px}
 .dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid color-mix(in srgb,var(--muted) 70%,var(--card));color:var(--muted)}
+.stars{display:flex;gap:4px;justify-content:center}.stars button{background:none;border:none;padding:4px;color:var(--muted);line-height:0}.stars button.on{color:var(--streak)}.starsm{color:var(--streak);font-size:13px;letter-spacing:1px;white-space:nowrap}
 .dot.pre{border-style:dotted;opacity:.35}
 .dot.done{background:var(--streak);border-color:var(--streak);color:var(--onStreak)}
 .dot.partial{border-color:var(--streak);color:var(--text);background:linear-gradient(to top,color-mix(in srgb,var(--streak) 45%,transparent) 50%,transparent 50%)}
 .dot.forgiven{border-color:var(--streak);border-style:dashed;color:var(--streak)}
 .dot.today{box-shadow:0 0 0 3px var(--bg),0 0 0 4.5px var(--accent)}
-.small{font-size:12px;color:var(--muted)}
+.small{font-size:13.5px;color:var(--muted)}
 .progress{width:100%;height:6px;border-radius:3px;background:var(--cupEmpty);overflow:hidden;margin-top:6px}
 .progress>i{display:block;height:100%;background:var(--accent);border-radius:3px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .stat b{display:block;font-family:var(--display);font-size:28px;font-weight:600;line-height:1.1}
 .row{display:flex;align-items:center;gap:12px}
 .grow{flex:1;min-width:0}
-.gname{font-size:15px;font-weight:600;display:block}
-.gsub{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+.gname{font-size:16.5px;font-weight:600;display:block}
+.gsub{font-size:13.5px;color:var(--muted);display:block;margin-top:2px}
 .gtap{background:none;border:none;text-align:left;padding:0;width:100%;min-height:44px}
 .check{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--accent);background:transparent;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:transform .15s}
 .check.on{background:var(--accent);color:var(--onAccent)}
@@ -84,7 +85,7 @@ h2{margin:0;font-size:15px;font-weight:600}
 .banner .pill{height:40px;font-size:13px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--navBg);border-top:1px solid var(--navBorder);padding:6px 10px calc(env(safe-area-inset-bottom) + 8px);display:flex;justify-content:center;z-index:5}
 nav.tabs .in{max-width:480px;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
-nav.tabs button{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--muted);min-height:48px;padding:6px 0}
+nav.tabs button{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12.5px;font-weight:500;color:var(--muted);min-height:48px;padding:6px 0}
 nav.tabs button.on{color:var(--accent);font-weight:600}
 nav.tabs button.mid{justify-content:flex-end;padding-top:0}nav.tabs .fab{width:62px;height:62px;border-radius:50%;background:var(--accent);color:var(--onAccent);display:flex;align-items:center;justify-content:center;margin-top:-30px;border:4px solid var(--navBg);box-sizing:border-box;transition:transform .15s}nav.tabs button.mid:active .fab{transform:scale(.94)}nav.tabs button.mid:not(.on) .fab{opacity:.92}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center}
@@ -163,7 +164,7 @@ nav.tabs button.mid{justify-content:flex-end;padding-top:0}nav.tabs .fab{width:6
 .btn{height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-weight:600;font-size:14px}
 .btn.solid{background:var(--accent);color:var(--onAccent)}
 .btn.danger{border-color:#B3261E;color:#B3261E}
-label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted);font-weight:500}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .cicon{display:inline-flex;vertical-align:-3px;margin-right:6px}
 .cbadge{border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -727,7 +728,7 @@ function wrapSlides(reason){
  sl.push({h:'<div class="wk">Najdlhšia séria</div><div class="wn">'+st.streak+'</div><div class="wl">'+unitWord(st.streak,'den')+' v rade.'+(st.streak>=14?' Cassian by ti zatlieskal. Raz.':st.streak>=7?' Celý týždeň bez zaváhania.':' A ďalšia bude dlhšia.')+'</div>'});
  if(st.best){var b=st.best,ex='';if(b.sum&&b.g.unit)ex='<br>Spolu '+b.sum+' '+esc(b.g.unit)+'.';else if(b.sum&&!b.g.unit&&b.sum>b.n)ex='<br>Spolu '+b.sum+'.';
   sl.push({h:'<div class="wk">Najvernejší cieľ</div><div class="ws">'+esc(b.g.name)+'</div><div class="wl">splnený '+b.n+'-krát.'+ex+'</div>'})}
- if(st.pages)sl.push({h:'<div class="wk">Čítanie</div><div class="wn">'+st.pages+'</div><div class="wl">'+plural(st.pages,'prečítaná strana','prečítané strany','prečítaných strán')+(st.books>1?' v '+st.books+' knihách':'')+'. Knižnica vo Velarise by bola hrdá.</div>'});
+ if(st.pages)sl.push({h:'<div class="wk">Čítanie</div><div class="wn">'+st.pages+'</div><div class="wl">'+plural(st.pages,'prečítaná strana','prečítané strany','prečítaných strán')+(st.books>1?' v '+st.books+' knihách':'')+'. Knižnica vo Velarise by bola hrdá.'+(function(){var bb=(S.read||[]).filter(function(r){return r.r}).sort(function(x,y){return y.r-x.r})[0];return bb?'<br>Najlepšia: '+esc(bb.t)+' '+'★★★★★'.slice(0,bb.r):''})()+'</div>'});
  if(st.proj.length)sl.push({h:'<div class="wk">Dokončené projekty</div><div class="ws">'+st.proj.map(function(g){return esc(g.name)}).join('<br>')+'</div><div class="wl">Všetky body odškrtnuté. Do posledného.</div>'});
  if(st.quit)sl.push({h:'<div class="wk">'+esc(st.quit.g.name)+'</div><div class="wn">'+st.quit.n+'</div><div class="wl">'+plural(st.quit.n,'deň','dni','dní')+' si to zvládla. Amren prikyvuje.</div>'});
  if(st.bw>=0)sl.push({h:'<div class="wk">Tvoj najlepší deň</div><div class="ws">'+WD[st.bw].charAt(0).toUpperCase()+WD[st.bw].slice(1)+'</div><div class="wl">Vtedy si splnila '+Math.round(st.br*100)+' % dní. '+(st.bw>=5?'Víkendová hrdinka.':st.bw===0?'Pondelky sa ťa boja.':'Uprostred týždňa nezastaviteľná.')+'</div>'});
@@ -840,7 +841,7 @@ function renderSettings(){
   else h+='<button class="card row gtap" style="gap:8px;padding:12px 14px;width:100%;border:1px solid var(--border)" data-a="editGoal" data-id="'+g.id+'" aria-label="Upraviť: '+esc(g.name)+'"><span class="grow"><span class="gname">'+catIcon(g)+esc(g.name)+'</span><span class="gsub">'+goalDesc(g)+'</span></span><span aria-hidden="true" style="color:var(--muted);font-size:22px">›</span></button>';
  });
  if(!view.reorder)h+='<div class="btnrow" style="flex-wrap:nowrap"><button class="btn solid" style="flex:1" data-a="onbStart" data-v="2">+ Cieľ</button><button class="btn" style="flex:1" data-a="newList">+ Projekt</button></div>';
- [['done','Hotové návyky'],['quit','Ukončené']].forEach(function(sec){var list=S.goals.filter(function(g){return g.ended&&g.ended.how===sec[0]});if(!list.length)return;h+='<h2 style="margin-top:8px">'+sec[1]+'</h2>';list.forEach(function(g){var st=goalStats(g);h+='<div class="card row" style="gap:8px"><div class="grow"><span class="gname">'+catIcon(g)+esc(g.name)+'</span><span class="gsub">'+st.done+' '+plural(st.done,'splnený deň','splnené dni','splnených dní')+' · ukončené '+fmtDay(g.ended.date)+'</span></div><button class="btn" data-a="restoreGoal" data-id="'+g.id+'">Obnoviť</button></div>'})});
+ [['done','Hotové návyky'],['quit','Ukončené']].forEach(function(sec){var list=S.goals.filter(function(g){return g.ended&&g.ended.how===sec[0]});if(!list.length)return;h+='<h2 style="margin-top:8px">'+sec[1]+'</h2>';list.forEach(function(g){var st=goalStats(g);h+='<div class="card row" style="gap:8px"><div class="grow"><span class="gname">'+catIcon(g)+esc(g.name)+' '+starTxt(g.ended.rating)+'</span><span class="gsub">'+st.done+' '+plural(st.done,'splnený deň','splnené dni','splnených dní')+' · ukončené '+fmtDay(g.ended.date)+'</span>'+(g.ended.note?'<span class="gsub" style="font-style:italic">„'+esc(g.ended.note)+'“</span>':'')+(g.ended.rating?'':'<button class="obtn-link" style="padding-left:0;color:var(--accent)" data-a="rateLater" data-id="'+g.id+'">Ohodnotiť</button>')+'</div><button class="btn" data-a="restoreGoal" data-id="'+g.id+'">Obnoviť</button></div>'})});
  var ps=pushSt(),pv=!PUSH_URL?'čoskoro':ps.on?(ps.times||['16:00','20:30']).filter(Boolean).join(' · '):'vypnuté';
  h+='<div class="slb">Ďalšie</div><div class="card" style="padding:4px 14px">';
  h+='<button class="srow" data-a="sub" data-v="push">'+svg('<path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',20,2)+'Upozornenia<span class="sv">'+pv+'</span>'+chev+'</button>';
@@ -883,13 +884,14 @@ function noteBlock(g,e){var h='<div class="extra"><label class="f">Poznámka<tex
 function renderBook(g,k){
  var e=entry(S,k).g[g.id]||{},v=e.b===g.bookId?Math.max(0,(+e.v||0)-(+e.v0||0)):0,pg=bookPage(S,g),P=g.pages||0,fin=P&&pg>=P,open=view.open[g.id];
  var sub='Strana '+pg+(P?' z '+P:'');
- if(fin)sub+=' · dočítané!';else if(P){var rem=P-pg,rd=bookRead(S,g),days=Math.max(1,Math.round((new Date(todayKey())-new Date(g.bookSince||g.since||todayKey()))/864e5)+1),pace=rd>0?rd/days:g.target;sub+=' · zostáva '+rem+' · dočítaš asi '+fmtDay(addDays(todayKey(),Math.ceil(rem/Math.max(1,pace))))}
+ if(fin)sub+=' · dočítané!';else if(P){var rem=P-pg,rd=bookRead(S,g),days=Math.max(1,Math.round((new Date(todayKey())-new Date(g.bookSince||g.since||todayKey()))/864e5)+1),pace=rd>0?rd/days:g.target;sub+=' · dočítaš asi '+fmtDay(addDays(todayKey(),Math.ceil(rem/Math.max(1,pace))))}
  if(e.note)sub+=' · '+esc(e.note);
- var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.book||g.name)+' <span style="font-size:12px;font-weight:500;color:var(--accent)">dnes '+v+' z '+g.target+' strán</span></span><span class="gsub">'+sub+'</span>'+(!fin&&v<g.target&&!e.note?'<span class="gsub">'+pickLine(g,k)+'</span>':'')+(P?'<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round(pg/P*100))+'%"></i></span>':'')+'</button>';
- h+='<label class="numwrap"><span class="sr">Na ktorej strane si skončila: '+esc(g.book||'')+'</span><input class="numin" type="number" inputmode="numeric" min="0" data-a="bookSet" data-id="'+g.id+'" value="'+(e.b===g.bookId&&e.p?e.p:'')+'" placeholder="str."></label></div>';
- if(!fin&&!v)h+='<div class="small" style="margin-top:6px">Napíš stranu, na ktorej si skončila.</div>';
+ var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.book||g.name)+'</span><span class="gsub">'+sub+'</span>'+(P?'<span class="progress" style="display:block;margin:8px 0 6px"><i style="width:'+Math.min(100,Math.round(pg/P*100))+'%"></i></span>':'')+(!fin&&!pg?'<span class="gsub">Napíš stranu, na ktorej si skončila.</span>':!fin&&v<g.target&&!e.note?'<span class="gsub">'+pickLine(g,k)+'</span>':'')+'</button>';
+ h+='<label class="numwrap" style="display:flex;flex-direction:column"><span class="sr">Na ktorej strane si skončila: '+esc(g.book||'')+'</span><input class="numin" type="number" inputmode="numeric" min="0" data-a="bookSet" data-id="'+g.id+'" value="'+(e.b===g.bookId&&e.p?e.p:'')+'" placeholder="str."><span class="gsub" style="text-align:center;margin-top:4px;color:var(--accent)">dnes '+v+'/'+g.target+'</span></label></div>';
+ 
+ if(fin){var ri=-1;(S.read||[]).forEach(function(r,i){if(r.t===g.book&&r.d===g.finished)ri=i});if(ri>=0){var rr=S.read[ri];h+='<div class="extra"><span class="small" style="font-weight:600;text-align:center">Aká bola?</span>'+starRow('book',ri,rr.r||0)+'<textarea data-a="rateNote" data-k="book" data-id="'+ri+'" rows="2" placeholder="Čo ti v nej utkvelo? (nepovinné)">'+esc(rr.n||'')+'</textarea></div>'}}
  if(fin)h+='<div class="extra"><span class="small" style="font-weight:600;color:var(--accent)">Dočítané! Čo čítaš ďalej?</span><label class="f">Názov knihy<input id="bn-t-'+g.id+'" placeholder="napr. Dvor hmly a zúrivosti"></label><label class="f">Počet strán<input id="bn-p-'+g.id+'" type="number" inputmode="numeric" min="1" placeholder="napr. 626"></label><div class="btnrow"><button class="btn solid" data-a="bookNext" data-id="'+g.id+'">Začať novú knihu</button></div></div>';
- if(open){var rl=(S.read||[]);if(rl.length)h+='<div class="extra"><span class="small">Prečítané: '+rl.map(function(r){return esc(r.t)}).join(', ')+'</span></div>';h+=noteBlock(g,e)}
+ if(open){var rl=(S.read||[]);if(rl.length)h+='<div class="extra"><span class="small" style="font-weight:600">Tvoja polička</span>'+rl.map(function(r){return '<div class="row" style="justify-content:space-between;gap:8px"><span class="gsub" style="color:var(--text)">'+esc(r.t)+(r.n?'<br><i style="color:var(--muted)">„'+esc(r.n)+'“</i>':'')+'</span>'+starTxt(r.r)+'</div>'}).join('')+'</div>';h+=noteBlock(g,e)}
  return h+'</div>';
 }
 function renderList(g,k){
@@ -1151,6 +1153,10 @@ function goalStats(g){
  var span=Math.max(1,Math.round((dateOf(to)-dateOf(from))/86400000)+1);
  return {done:n,weeks:Math.max(1,Math.ceil(span/7)),days:span};
 }
+var STAR='<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/>';
+function starRow(k,id,val){var h='<div class="stars" role="radiogroup" aria-label="Hodnotenie">';for(var i=1;i<=5;i++)h+='<button role="radio" aria-checked="'+(val===i?'true':'false')+'" aria-label="'+i+' z 5" class="'+(val>=i?'on':'')+'" data-a="rate" data-k="'+k+'" data-id="'+esc(id)+'" data-v="'+i+'">'+svg(STAR,30,1.6).replace('fill="none"',val>=i?'fill="currentColor"':'fill="none"')+'</button>';return h+'</div>'}
+function starTxt(v){return v?'<span class="starsm" aria-label="'+v+' z 5">'+'★★★★★'.slice(0,v)+'<span style="opacity:.3">'+'★★★★★'.slice(v)+'</span></span>':''}
+function rateTarget(k,id){if(k==='goal'){var g=goal(id);return g&&g.ended?g.ended:null}var r=(S.read||[])[+id];return r||null}
 function endGoal(id,how){
  var g=goal(id);if(!g)return;var T=todayKey();
  g.until=addDays(T,-1);g.ended={how:how,date:T};
@@ -1180,7 +1186,7 @@ function renderEndToast(t){
  var happy=t.how==='done',s=t.stats;
  var stat=happy?(s.done+' '+plural(s.done,'splnený deň','splnené dni','splnených dní')+' za '+s.weeks+' '+plural(s.weeks,'týždeň','týždne','týždňov')):('Vydržala si '+s.done+' '+plural(s.done,'deň','dni','dní')+'. Aj to sa ráta.');
  var icon=happy?'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/>':'<path d="M7 15a4 4 0 0 1-.6-8 5.5 5.5 0 0 1 10.6 1.5A3.5 3.5 0 0 1 17 15z"/><path d="M8 18l-1 2M12 18l-1 2M16 18l-1 2"/>';
- return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="et"><div class="in pop"><span class="cbadge" style="width:72px;height:72px;color:'+(happy?'var(--streak)':'var(--muted)')+';background:color-mix(in srgb,'+(happy?'var(--streak)':'var(--muted)')+' 15%,transparent)">'+svg(icon,38,1.6)+'</span><div class="label">'+(happy?'Hotový návyk':'Ukončené')+'</div><h1 id="et" style="font-size:28px;margin:0">'+esc(t.name)+'</h1><p style="margin:0;font-weight:600">'+stat+'</p><p class="quip" style="margin:0">'+esc(t.line)+'</p><button class="btn solid" data-a="closeToast">'+(happy?'Ďakujem, viem':'Dobre, ideme ďalej')+'</button></div></div>';
+ return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="et"><div class="in pop"><span class="cbadge" style="width:72px;height:72px;color:'+(happy?'var(--streak)':'var(--muted)')+';background:color-mix(in srgb,'+(happy?'var(--streak)':'var(--muted)')+' 15%,transparent)">'+svg(icon,38,1.6)+'</span><div class="label">'+(happy?'Hotový návyk':'Ukončené')+'</div><h1 id="et" style="font-size:28px;margin:0">'+esc(t.name)+'</h1><p style="margin:0;font-weight:600">'+stat+'</p><p class="quip" style="margin:0">'+esc(t.line)+'</p>'+(function(){var g=S.goals.filter(function(x){return x.name===t.name&&x.ended}).pop();if(!g)return '';var en=g.ended;return '<div style="width:100%;border-top:1px solid var(--border);padding-top:12px"><div class="small" style="text-align:center;font-weight:600;margin-bottom:4px">Aké to bolo?</div>'+starRow('goal',g.id,en.rating||0)+'<textarea data-a="rateNote" data-k="goal" data-id="'+g.id+'" rows="2" placeholder="Pár slov pre budúcu teba (nepovinné)" style="width:100%;margin-top:8px">'+esc(en.note||'')+'</textarea></div>'})()+'<button class="btn solid" data-a="closeToast">'+(happy?'Ďakujem, viem':'Dobre, ideme ďalej')+'</button></div></div>';
 }
 function launchConfetti(kind){
  try{if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
@@ -1205,7 +1211,7 @@ document.addEventListener('click',function(ev){
  var a=el.getAttribute('data-a'),id=el.getAttribute('data-id'),v=el.getAttribute('data-v'),k=view.dayKey;
  if(view.onb&&a.indexOf('onb')===0){if(a==='onbName'||a==='onbCustom')return;onbClick(a,el);return}
  if(a==='closeSheetBg'){if(ev.target===el){view.sheet=false;view.editGoal=null;render()}return}
- if(a==='note'||a==='name'||a==='importText'||a==='start'||a==='tgtLabel'||a==='tgtDate')return;
+ if(a==='note'||a==='name'||a==='importText'||a==='start'||a==='tgtLabel'||a==='tgtDate'||a==='rateNote')return;
  switch(a){
   case 'tab':view.tab=v;if(v==='today')view.dayKey=todayKey();render();window.scrollTo(0,0);break;
   case 'newList':view.sheet=true;view.editGoal='new';view.newCat='';view.newMode='list';formDays=[0,1,2,3,4,5,6];formItems=[{t:'',n:'',done:null}];fiNote={};render();view.newMode='';break;
@@ -1248,6 +1254,8 @@ document.addEventListener('click',function(ev){
   case 'editGoal':view.editGoal=id;view.confirmDel=null;var gg=id==='new'?null:goal(id);formDays=gg?gg.days.slice():[0,1,2,3,4,5,6];formItems=gg&&gg.items?gg.items.map(function(x){return {t:x.t,n:x.n||'',done:x.done||null}}):[];fiNote={};render();break;
   case 'moveGoal':var A=activeGoals(S),ai=-1;A.forEach(function(x,i){if(x.id===id)ai=i});var aj=ai+(+v);if(ai>=0&&aj>=0&&aj<A.length){var mi=S.goals.indexOf(A[ai]),mj=S.goals.indexOf(A[aj]);var tmp=S.goals[mi];S.goals[mi]=S.goals[mj];S.goals[mj]=tmp;commit()}break;
   case 'endAsk':view.endAsk=id;render();break;
+  case 'rate':var rt=rateTarget(el.getAttribute('data-k'),id);if(rt){if(el.getAttribute('data-k')==='goal')rt.rating=+v;else rt.r=+v;commit()}break;
+  case 'rateLater':var rg=goal(id);if(rg&&rg.ended){view.toast={type:'end',how:rg.ended.how,name:rg.name,stats:goalStats(rg),line:'Pár hviezdičiek na pamiatku.'};render()}break;
   case 'endDone':endGoal(id,'done');break;
   case 'endQuit':endGoal(id,'quit');break;
   case 'endCancel':view.endAsk=null;render();break;
@@ -1272,6 +1280,7 @@ var noteTimer=null;
 document.addEventListener('input',function(ev){
  var el=ev.target,a=el.getAttribute&&el.getAttribute('data-a');
  if(a==='note'){var id=el.getAttribute('data-id'),g=goal(id),k=view.dayKey;S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};e.note=el.value;S.log[k].g[id]=e;S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(queueWrite,900)}
+ else if(a==='rateNote'){var rn=rateTarget(el.getAttribute('data-k'),el.getAttribute('data-id'));if(rn){if(el.getAttribute('data-k')==='goal')rn.note=el.value.slice(0,300);else rn.n=el.value.slice(0,300);S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(queueWrite,900)}}
  else if(a==='tgtLabel'){S.target=S.target||{label:'',date:''};S.target.label=el.value.slice(0,30);S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(queueWrite,900)}
  else if(a==='name'){S.name=el.value.slice(0,40);S.updatedAt=Date.now();saveLocal();clearTimeout(noteTimer);noteTimer=setTimeout(function(){queueWrite();var h=document.querySelector('h1');},900)}
  else if(el.id==='gf-name'||el.id==='gf-target'){syncForm()}
