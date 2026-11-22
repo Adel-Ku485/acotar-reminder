@@ -89,7 +89,7 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--navBg);border-t
 nav.tabs .in{max-width:480px;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 nav.tabs button{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12.5px;font-weight:500;color:var(--muted);min-height:48px;padding:6px 0}
 nav.tabs button.on{color:var(--accent);font-weight:600}
-nav.tabs button.mid{justify-content:flex-end;padding-top:0}nav.tabs .fab{width:62px;height:62px;border-radius:50%;background:var(--accent);color:var(--onAccent);display:flex;align-items:center;justify-content:center;margin-top:-30px;border:4px solid var(--navBg);box-sizing:border-box;transition:transform .15s}nav.tabs button.mid:active .fab{transform:scale(.94)}nav.tabs button.mid:not(.on) .fab{background:var(--navBg);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+nav.tabs button{justify-content:flex-end}nav.tabs .tic{height:32px;display:flex;align-items:center;justify-content:center}nav.tabs .fab{width:62px;height:62px;border-radius:50%;background:var(--accent);color:var(--onAccent);display:flex;align-items:center;justify-content:center;margin-top:-30px;border:4px solid var(--navBg);box-sizing:border-box;transition:transform .15s;animation:fabPop .28s ease-out}nav.tabs button.on:active .fab{transform:scale(.94)}@keyframes fabPop{from{transform:translateY(8px) scale(.8)}to{transform:none}}@media (prefers-reduced-motion:reduce){nav.tabs .fab{animation:none}}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center}
 .cal .h{font-size:11px;color:var(--muted);font-weight:600;padding:4px 0}
 .cday{aspect-ratio:1;border-radius:12px;border:1px solid var(--border);background:var(--card);font-size:13px;font-weight:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;gap:1px}
@@ -647,7 +647,7 @@ function render(){
 function renderTabs(){
  var t=themeById(S.theme);
  var items=[['cal','Kalendár','<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'],['today','Dnes',t.icon==='moon'?'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>':ICONS[t.icon]],['courts','Cesta','<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/>']];
- document.getElementById('tabs').innerHTML=items.map(function(i){return '<button data-a="tab" data-v="'+i[0]+'" class="'+(view.tab===i[0]?'on':'')+(i[0]==='today'?' mid':'')+'"'+(view.tab===i[0]?' aria-current="page"':'')+'>'+(i[0]==='today'?'<span class="fab">'+(EMBLEMS[t.id]?emblem(t.id,40,'currentColor',false,3.2):svg(i[2],28))+'</span>':svg(i[2],22))+i[1]+'</button>'}).join('');
+ document.getElementById('tabs').innerHTML=items.map(function(i){return '<button data-a="tab" data-v="'+i[0]+'" class="'+(view.tab===i[0]?'on':'')+'"'+(view.tab===i[0]?' aria-current="page"':'')+'>'+(view.tab===i[0]?'<span class="fab">'+(i[0]==='today'&&EMBLEMS[t.id]?emblem(t.id,40,'currentColor',false,3.2):svg(i[2],28))+'</span>':'<span class="tic">'+(i[0]==='today'&&EMBLEMS[t.id]?emblem(t.id,26,'currentColor',false,2.4):svg(i[2],22))+'</span>')+i[1]+'</button>'}).join('');
 }
 function greet(){var h=NOW().getHours();return (h<10?'Dobré ránko':h<18?'Ahojky':'Krásny večer')+(S.name?', '+esc(S.name):'')}
 function header(sub){
