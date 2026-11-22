@@ -553,6 +553,7 @@ function pushSection(){var h='',st=pushSt();
  if(view.pushMsg)h+='<p class="small" role="status" style="margin:0;text-align:center">'+esc(view.pushMsg)+'</p>';
  return h}
 var TOKEN_BACK={spring:'Tamlin ti ho vracia aj s kúskom koláča.',summer:'Tarquin ti ho vracia do zálohy. Perla za perlou.',autumn:'Lucien ti ho vracia. Beron o tom nemusí vedieť.',winter:'Kallias ti ho vracia zabalené v deke.',dawn:'Thesan ti ho vracia s prvým lúčom.',day:'Helion to prepočítal a vracia ti ho.',night:'Rhys ti ho vracia s úsmevom. Vraj na horšie časy.',base:'Máš ho späť na horšie časy.'};
+var FORGIVE_LINES={spring:'Tamlin sa tvári, že nič nevidel. Séria pokračuje.',summer:'Tarquin zavrel oči. Raz. Séria pokračuje.',autumn:'Lucien to Beronovi nepovie. Séria pokračuje.',winter:'Kallias to zametie pod sneh. Séria pokračuje.',dawn:'Thesan to vyliečil. Séria pokračuje.',day:'Helion to zarátal ako výnimku. Séria pokračuje.',night:'Rhys ti žmurkol. Séria pokračuje.',base:'Raz sa to stať môže. Séria pokračuje.'};
 var lastUsedTok=null;
 function commit(){
  S.updatedAt=Date.now();pushSyncSoon();
@@ -1318,7 +1319,7 @@ document.addEventListener('click',function(ev){
   case 'toggleOpen':view.open[id]=!view.open[id];render();break;
   case 'mood':g=goal(id);S.log[k]=S.log[k]||{g:{}};var em2=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};em2.m=em2.m===v?'':v;S.log[k].g[id]=em2;commit();break;
   case 'emoji':g=goal(id);S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};e.e=e.e===v?'':v;S.log[k].g[id]=e;commit();break;
-  case 'forgive':if(forgiveYesterday(S))commit();break;
+  case 'forgive':if(forgiveYesterday(S)){commit();showBanner('Séria zachránená!',FORGIVE_LINES[S.theme]||FORGIVE_LINES.base);var bg=document.querySelector('.scard .big');if(bg){bg.classList.remove('pop');void bg.offsetWidth;bg.classList.add('pop')}}break;
   case 'fillYesterday':view.fill=true;view.dayKey=addDays(todayKey(),-1);render();window.scrollTo(0,0);break;
   case 'backToday':view.fill=false;view.dayKey=todayKey();render();break;
   case 'calPrev':case 'calNext':var p=view.calMonth.split('-'),d=new Date(+p[0],+p[1]-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break;
