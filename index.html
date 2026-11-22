@@ -254,6 +254,13 @@ body{background-color:transparent}
 .pbg{position:absolute;left:0;right:0;top:0;height:calc(env(safe-area-inset-top) + 210px);z-index:-1;pointer-events:none;overflow:hidden}
 .embw.pwt{padding:0;overflow:hidden;border:0}
 .uemb.pwu{width:min(280px,72vw);aspect-ratio:46/30;border-radius:22px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.pwgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pwt-card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:10px 8px 12px;border:1.5px solid transparent;color:var(--text);font:inherit}
+.pwt-card.on{border-color:var(--accent)}
+.pwt-card .progress{width:100%}
+.pwth{width:58px;height:58px;border-radius:16px;overflow:hidden;margin-bottom:4px;display:block}
+.pwth.lv0{filter:saturate(.55) brightness(.85)}.pwth.lv2{box-shadow:0 0 0 2px var(--accent)}.pwth.lv3{box-shadow:0 0 0 2px var(--streak),0 0 14px var(--streak)}
+.pwon{position:absolute;top:6px;right:6px;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--accent);color:var(--onAccent);border-radius:8px;padding:2px 6px}
 </style>
 </head>
 <body>
@@ -507,9 +514,11 @@ function forgiveYesterday(S){
 function refreshProgress(S){
  var cur=streak(S);if(cur>S.best)S.best=cur;
  var fresh=[];
- ACOTAR.forEach(function(t){if(S.best>=t.unlockAt&&S.unlocked.indexOf(t.id)<0){S.unlocked.push(t.id);fresh.push(t.id)}});
+ ACOTAR.forEach(function(t){if(S.best>=courtAt(S,t)&&S.unlocked.indexOf(t.id)<0){S.unlocked.push(t.id);fresh.push(t.id)}});
  return fresh;
 }
+function courtLen(S){if(S&&S.target&&/^\d{4}-\d{2}-\d{2}$/.test(S.target.date||'')&&S.start&&S.target.date>S.start){var L=daysDiff(S.start,S.target.date)+1;return Math.max(21,Math.min(120,L-3))}return 0}
+function courtAt(S,t){if(!t||t.pack!=='acotar')return 0;var i=ACOTAR.indexOf(t);if(i<=0)return 0;if(i===1)return 7;var N=courtLen(S),fr=[1/3,1/2,2/3,5/6,1],def=[14,21,30,45,60],v=7;for(var j=2;j<=i;j++){var x=N?Math.round(7+(N-7)*(j-1)/5):def[j-2];v=Math.max(v+1,x)}return v}
 function nextCourt(S){for(var i=0;i<ACOTAR.length;i++){if(S.unlocked.indexOf(ACOTAR[i].id)<0)return ACOTAR[i]}return null}
 function plural(n,one,few,many){return n===1?one:(n>=2&&n<=4?few:many)}
 function unitWord(n,u){return u==='noc'?plural(n,'noc','noci','nocí'):plural(n,'deň','dni','dní')}
@@ -522,7 +531,13 @@ var POWERS={"spring": "<defs> <radialGradient id=\"pwsBG\" cx=\"50%\" cy=\"45%\"
 var POWER_NAME={spring:'Moc rastu',summer:'Moc vody',autumn:'Moc ohňa',winter:'Moc ľadu',dawn:'Liečivé svetlo',day:'Moc svetla',night:'Ilýrske krídla'};
 var POWER_GAIN={spring:'moc rastu',summer:'moc vody',autumn:'moc ohňa',winter:'moc ľadu',dawn:'liečivé svetlo',day:'moc svetla',night:'ilýrske krídla'};
 var PW_PART={"spring": ["<ellipse rx=\"4\" ry=\"2.4\" fill=\"#f4a7c6\"/>", "pa-fall"], "summer": ["<path d=\"M0 -6 C4 -1 4 2 0 5 C-4 2 -4 -1 0 -6Z\" fill=\"#6fd6dd\"/>", "pa-bob"], "autumn": ["<circle r=\"2\" fill=\"#ff9a2e\"/>", "pa-rise"], "winter": ["<g stroke=\"#9fd4ff\" stroke-width=\"1.4\" stroke-linecap=\"round\"><path d=\"M0 -6V6M-5 -3L5 3M-5 3L5 -3\"/></g>", "pa-tw"], "dawn": ["<path d=\"M0 -5 C1 -1 1 -1 5 0 C1 1 1 1 0 5 C-1 1 -1 1 -5 0 C-1 -1 -1 -1 0 -5Z\" fill=\"#f5b38f\"/>", "pa-tw"], "day": ["<circle r=\"2.4\" fill=\"#f2c14e\"/>", "pa-tw"], "night": ["<path d=\"M0 -5 L1.5 -1.5 L5 0 L1.5 1.5 L0 5 L-1.5 1.5 L-5 0 L-1.5 -1.5Z\" fill=\"#f3d98a\"/>", "pa-tw"]};
-function powerBg(id){var p=PW_PART[id],c=POWERS[id].replace(/<rect x="-200"[^>]*\/>/,'').replace(/<g filter="url\(#pw\w+B8\)"[^>]*>.*?<\/g>/,''),q='',r=7;for(var i=0;i<16;i++){r=(r*9301+49297)%233280;var x=r/233280*460;r=(r*9301+49297)%233280;var y=10+r/233280*200;q+='<g class="'+p[1]+'" style="animation-delay:-'+(i*0.8)+'s;opacity:.45"><g transform="translate('+x.toFixed(0)+' '+y.toFixed(0)+')">'+p[0]+'</g></g>'}return '<svg class="pw" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+q+'<g opacity=".38" transform="translate(195 10) scale(.62)">'+c+'</g></svg>'}
+function powerBg(id){var p=PW_PART[id],c=POWERS[id].replace(/<rect x="-200"[^>]*\/>/,'').replace(/<g filter="url\(#pw\w+B8\)"[^>]*>.*?<\/g>/,''),q='',r=7;for(var i=0;i<16;i++){r=(r*9301+49297)%233280;var x=r/233280*460;r=(r*9301+49297)%233280;var y=10+r/233280*200;q+='<g class="'+p[1]+'" style="animation-delay:-'+(i*0.8)+'s;opacity:.45"><g transform="translate('+x.toFixed(0)+' '+y.toFixed(0)+')">'+p[0]+'</g></g>'}return '<svg class="pw" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+q+'<g opacity="'+(.38+.1*(pwOpen()?pwLevel(id):0))+'" transform="translate(195 10) scale(.62)">'+c+'</g></svg>'}
+var PW_LV=[30,75,150],PW_LVN=['Spiaca','Prebudená','Silná','Majstrovská'],PW_IDS=['spring','summer','autumn','winter','dawn','day','night'];
+var PW_TITLE={spring:'Majsterka rastu',summer:'Majsterka vody',autumn:'Majsterka ohňa',winter:'Majsterka ľadu',dawn:'Liečiteľka úsvitu',day:'Majsterka svetla',night:'Majsterka hviezd'};
+function pwOpen(){return S.unlocked.indexOf('night')>=0}
+function pwCount(id){var n=0,L=S.pwLog||{};for(var k in L)if(L[k]===id)n++;return n}
+function pwLevel(id){var c=pwCount(id),l=0;PW_LV.forEach(function(x){if(c>=x)l++});return l}
+function pwSync(){if(!pwOpen()||!S.train)return;if(!S.pwLog)S.pwLog={};var T=todayKey(),ks=[T,addDays(T,-1),view.dayKey];ks.forEach(function(k){if(!k||k<(S.trainStart||T))return;var d=status(S,k)==='done';if(d&&!S.pwLog[k])S.pwLog[k]=S.train;else if(!d&&S.pwLog[k])delete S.pwLog[k]})}
 function powerSvg(id,mode){var vb=mode==='strip'?'-120 40 700 200':mode==='thumb'?(id==='night'?'60 30 340 260':'110 20 240 240'):'0 0 460 300';return '<svg class="pw'+(mode==='thumb'?' still':'')+'" viewBox="'+vb+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+POWERS[id]+'</svg>'}
 var LS_KEY='personal-reminder-acotar-v1';
 var S=load();
@@ -585,6 +600,8 @@ function commit(){
  var T=todayKey(),nowSt=status(S,T),celebrate=lastTodayStatus!==null&&lastTodayStatus!=='done'&&nowSt==='done'&&S.celebrated!==T;
  if(celebrate)S.celebrated=T;
  lastTodayStatus=nowSt;
+ var pwB=S.train?pwLevel(S.train):0;pwSync();var pwA=S.train?pwLevel(S.train):0;
+ if(S.train&&pwA>pwB){var pid=S.train;setTimeout(function(){showBanner(pwA===3?PW_TITLE[pid]+'!':POWER_NAME[pid]+' je '+PW_LVN[pwA].toLowerCase()+'!',pwA===3?'150 dní tréningu. Feyre by bola hrdá.':pwCount(pid)+' dní tréningu. Ďalšia úroveň pri '+PW_LV[pwA]+'.');try{launchConfetti('happy')}catch(e){}},500)}
  var fresh=refreshProgress(S);
  var nb=view.toast?0:checkBadges(!!fresh.length);
  saveLocal();
@@ -675,8 +692,9 @@ function renderToday(){
  h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><span class="gsub">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe</span></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
  for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);var cls='dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':ds==='partial'?'partial':dk<S.start?'pre':'')+(i===0?' today':'')+(dk===view.dayKey?' sel':'');h+=(dk>=S.start?'<button class="'+cls+'" data-a="editDay" data-v="'+dk+'" aria-label="'+(i===0?'Dnes':'Upraviť '+fmtDay(dk))+'">':'<div class="'+cls+'" title="'+fmtDay(dk)+'">')+WDS[wdOf(dk)]+(dk>=S.start?'</button>':'</div>')}
  h+='</div>';
- if(nc){var need=nc.unlockAt-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalší: <b style="color:var(--text)">'+esc(nc.name)+'</b></span><span>ešte '+need+' '+unitWord(need,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/nc.unlockAt*100))+'%"></i></div></div>'}
- else h+='<span class="small">Všetky dvory odomknuté. Vysoká lady.</span>';
+ if(nc){var need=courtAt(S,nc)-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalší: <b style="color:var(--text)">'+esc(nc.name)+'</b></span><span>ešte '+need+' '+unitWord(need,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/courtAt(S,nc)*100))+'%"></i></div></div>'}
+ else if(S.train){var pl=pwLevel(S.train),pc=pwCount(S.train);h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Trénuješ: <b style="color:var(--text)">'+esc(POWER_NAME[S.train])+'</b> · '+PW_LVN[pl]+'</span><span>'+(pl<3?'ešte '+(PW_LV[pl]-pc)+' '+unitWord(PW_LV[pl]-pc,'den'):'Majstrovská')+'</span></div><div class="progress"><i style="width:'+(pl<3?Math.round((pc-(pl?PW_LV[pl-1]:0))/(PW_LV[pl]-(pl?PW_LV[pl-1]:0))*100):100)+'%"></i></div></div>'}
+ else h+='<button class="small gtap" data-a="tab" data-v="courts" style="text-align:left;color:var(--accent);font-weight:600;padding:0">Všetky dvory odomknuté. Vyber si moc, ktorú prebudíš ›</button>';
  h+='<div class="sstrip"><span>'+(ti.mode==='to'?'<b style="color:var(--stat1)">'+ti.n+'</b> '+plural(ti.n,'deň','dni','dní')+' do '+esc(ti.label):ti.mode==='day'?'<b style="color:var(--stat1)">Dnes</b> '+(ti.label==='Vianoc'?'sú Vianoce 🎄':'je ten deň 🎉'):'<b style="color:var(--stat1)">'+ti.n+'</b> '+plural(ti.n,'deň','dni','dní')+' vo výzve')+'</span><span><b style="color:var(--stat2)">'+tot+'</b> '+plural(tot,'splnený deň','splnené dni','splnených dní')+'</span></div></div>';
  // goals
  var gs=goalsFor(S,k);
@@ -860,15 +878,25 @@ function renderCourts(){
  h+='<p class="small" style="margin:-6px 0 14px">Feyrina cesta: za každú sériu sa odomkne ďalší dvor. Najlepšia séria: <b style="color:var(--text)">'+S.best+' '+unitWord(S.best,'den')+'</b>.</p><div class="stack">';
  h+='<button class="card row gtap" style="gap:12px;padding:14px 16px;border:1px solid var(--border)" data-a="wrapOpen"><span style="color:var(--accent)">'+svg('<path d="M12 3l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 15.4 7 18.2l1.2-5.6L4 8.8l5.6-.6z"/>',22,2)+'</span><span class="grow"><span class="gname">Tvoja doterajšia cesta</span><span class="gsub">Rekapitulácia tvojej výzvy</span></span><span aria-hidden="true" style="color:var(--muted);font-size:22px">›</span></button>';
  h+=renderBadgesSection();
+ h+=renderPowersSection();
  h+='<h2 style="margin-top:8px">Dvory</h2>';
  ACOTAR.forEach(function(t){h+=courtCard(t)});
  h+='<h2 style="margin-top:10px">Ďalšie témy</h2>'+courtCard(themeById('base'));
  return h+'</div>';
 }
+function renderPowersSection(){
+ var h='<h2 style="margin-top:8px">Tvoje moci</h2>',op=pwOpen();
+ if(!op)return h+'<div class="card"><p class="small" style="margin:0">Po odomknutí Nočného dvora začneš prebúdzať moci. Každý splnený deň posilní tú, ktorú si vyberieš: prebudená po '+PW_LV[0]+', silná po '+PW_LV[1]+' a majstrovská po '+PW_LV[2]+' dňoch.</p></div>';
+ if(!S.train)h+='<p class="small" style="margin:-4px 0 10px">Ktorú moc chceš prebudiť? Každý splnený deň ju posilní. Zmeniť ju môžeš kedykoľvek, pokrok sa ti uloží.</p>';
+ h+='<div class="pwgrid">';
+ PW_IDS.forEach(function(id){var l=pwLevel(id),c=pwCount(id),on=S.train===id,nx=l<3?PW_LV[l]:PW_LV[2],pv=l<3?Math.round((c-(l?PW_LV[l-1]:0))/(nx-(l?PW_LV[l-1]:0))*100):100;
+  h+='<button class="card pwt-card'+(on?' on':'')+'" data-a="trainPw" data-v="'+id+'" aria-pressed="'+(on?'true':'false')+'"><span class="pwth lv'+l+'">'+powerSvg(id,'thumb')+'</span><span class="gname" style="font-size:13px">'+esc(POWER_NAME[id])+'</span><span class="gsub" style="font-size:11.5px">'+(l===3?esc(PW_TITLE[id]):PW_LVN[l]+' · '+c+'/'+nx)+'</span><span class="progress" style="margin-top:4px"><i style="width:'+pv+'%"></i></span>'+(on?'<span class="pwon">Trénuješ</span>':'')+'</button>'});
+ return h+'</div>';
+}
 function courtCard(t){
  var un=S.unlocked.indexOf(t.id)>=0,act=S.theme===t.id;
- var h='<div class="card court'+(un?'':' locked')+'">'+(POWERS[t.id]?'<div class="embw pwt">'+powerSvg(t.id,'thumb')+'</div>':EMBLEMS[t.id]?'<div class="embw" style="background:'+t.c.bg+';border-color:'+t.c.border+'">'+emblem(t.id,52,embCol(t))+'</div>':swatch(t))+'<div class="grow"><span class="gname">'+esc(t.name)+'</span><span class="gsub">'+esc(t.place)+(t.pack==='acotar'?(t.unlockAt?' · od série '+t.unlockAt:' · začiatok cesty'):'')+'</span>';
- if(!un){h+='<div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/t.unlockAt*100))+'%"></i></div>'}
+ var h='<div class="card court'+(un?'':' locked')+'">'+(POWERS[t.id]?'<div class="embw pwt">'+powerSvg(t.id,'thumb')+'</div>':EMBLEMS[t.id]?'<div class="embw" style="background:'+t.c.bg+';border-color:'+t.c.border+'">'+emblem(t.id,52,embCol(t))+'</div>':swatch(t))+'<div class="grow"><span class="gname">'+esc(t.name)+'</span><span class="gsub">'+esc(t.place)+(t.pack==='acotar'?(courtAt(S,t)?' · od série '+courtAt(S,t):' · začiatok cesty'):'')+'</span>';
+ if(!un){h+='<div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/courtAt(S,t)*100))+'%"></i></div>'}
  h+='</div>';
  if(act)h+='<span class="small" style="font-weight:600;color:var(--accent)">Aktívny</span>';
  else if(un)h+='<button class="btn solid" data-a="setTheme" data-v="'+t.id+'">Zvoliť</button>';
@@ -924,7 +952,7 @@ function renderOverlay(){
  if(view.toast&&view.toast.type==='unlock'){
   var t=themeById(view.toast.id);
   var cc=t.c,el0=view.toast.t0?(performance.now()-view.toast.t0)/1000:0,st='';['bg','card','border','text','muted','accent','onAccent','streak'].forEach(function(k){st+='--u'+k+':'+cc[k]+';'});var dl=function(x){return el0>0?'':'transition-delay:'+x+'s'};
-  h+='<div class="ufx" role="dialog" aria-modal="true" aria-labelledby="ut" style="'+st+'"><canvas id="ufx-cv" aria-hidden="true"></canvas><div class="ucnt'+(el0>0?' go':'')+'" id="ufx-cnt">'+(POWERS[t.id]?'<div class="uf uemb pwu" style="'+dl(.05)+'">'+powerSvg(t.id,'full')+'</div>':EMBLEMS[t.id]?'<div class="uf uemb" style="'+dl(.05)+'">'+emblem(t.id,120,embCol(t))+'</div>':'')+'<div class="uf uk" style="'+dl(.2)+'">ODOMKNUTÉ</div><h1 id="ut" class="uf un" style="'+dl(.7)+'">'+esc(t.name)+'</h1><div class="uf ud" style="'+dl(1.1)+'">'+(POWER_GAIN[t.id]?'Získavaš '+POWER_GAIN[t.id]+' · séria ':'Séria ')+t.unlockAt+' '+unitWord(t.unlockAt,'den')+'</div><div class="uf uw" style="'+dl(1.6)+'">'+esc(UNLOCK_W[t.id]||(t.place+' ťa víta.'))+'</div>'+(t.id==='night'?'<div class="uf umotto" style="'+(el0>0?'':'transition-delay:4.2s')+'">K hviezdam, ktoré počúvajú.</div>':'')+'<div class="uf uprev" style="'+dl(2.3)+'"><b>'+t.unlockAt+'</b><div><div style="font-weight:700;font-size:15px">dní v rade</div><span>takto bude vyzerať appka</span></div><i></i></div><div class="uf ubtns" style="'+dl(2.8)+'"><button class="ub1" data-a="setTheme" data-v="'+t.id+'">Prepnúť sa</button><button class="ub2" data-a="closeToast">Neskôr</button></div></div></div>';
+  h+='<div class="ufx" role="dialog" aria-modal="true" aria-labelledby="ut" style="'+st+'"><canvas id="ufx-cv" aria-hidden="true"></canvas><div class="ucnt'+(el0>0?' go':'')+'" id="ufx-cnt">'+(POWERS[t.id]?'<div class="uf uemb pwu" style="'+dl(.05)+'">'+powerSvg(t.id,'full')+'</div>':EMBLEMS[t.id]?'<div class="uf uemb" style="'+dl(.05)+'">'+emblem(t.id,120,embCol(t))+'</div>':'')+'<div class="uf uk" style="'+dl(.2)+'">ODOMKNUTÉ</div><h1 id="ut" class="uf un" style="'+dl(.7)+'">'+esc(t.name)+'</h1><div class="uf ud" style="'+dl(1.1)+'">'+(POWER_GAIN[t.id]?'Získavaš '+POWER_GAIN[t.id]+' · séria ':'Séria ')+courtAt(S,t)+' '+unitWord(courtAt(S,t),'den')+'</div><div class="uf uw" style="'+dl(1.6)+'">'+esc(UNLOCK_W[t.id]||(t.place+' ťa víta.'))+'</div>'+(t.id==='night'?'<div class="uf umotto" style="'+(el0>0?'':'transition-delay:4.2s')+'">K hviezdam, ktoré počúvajú.<br><span style="font-family:inherit;font-size:13px;opacity:.85">Teraz môžeš prebúdzať moci na stránke Cesta.</span></div>':'')+'<div class="uf uprev" style="'+dl(2.3)+'"><b>'+courtAt(S,t)+'</b><div><div style="font-weight:700;font-size:15px">dní v rade</div><span>takto bude vyzerať appka</span></div><i></i></div><div class="uf ubtns" style="'+dl(2.8)+'"><button class="ub1" data-a="setTheme" data-v="'+t.id+'">Prepnúť sa</button><button class="ub2" data-a="closeToast">Neskôr</button></div></div></div>';
  }
  o.innerHTML=h;
  if(view.toast&&view.toast.type==='unlock')startUfx(themeById(view.toast.id));
@@ -1350,6 +1378,7 @@ document.addEventListener('click',function(ev){
   case 'calPrev':case 'calNext':var p=view.calMonth.split('-'),d=new Date(+p[0],+p[1]-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break;
   case 'calSel':view.calSel=view.calSel===v?null:v;render();break;
   case 'editDay':view.fill=false;view.dayKey=v;view.tab='today';render();window.scrollTo(0,0);break;
+  case 'trainPw':if(S.train!==v){S.train=v;if(!S.trainStart)S.trainStart=todayKey();commit();showBanner('Trénuješ: '+POWER_NAME[v],'Každý splnený deň ju posilní.')}break;
   case 'setTheme':var fromU=view.toast&&view.toast.type==='unlock';S.theme=v;view.toast=null;commit();if(fromU)setTimeout(function(){launchConfetti('happy')},60);break;
   case 'closeToast':view.toast=null;render();break;
   case 'badgeOpen':view.badge=id;render();break;
