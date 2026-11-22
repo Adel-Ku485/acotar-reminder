@@ -471,7 +471,8 @@ function streak(S){
  return s;
 }
 function totalDone(S){var n=0;for(var k in S.log){if(status(S,k)==='done')n++}return n}
-function tokens(S){var earned=1+Math.floor(totalDone(S)/7);return Math.max(0,Math.min(2,earned-S.usedTokens))}
+function usedTokens(S){var n=0;for(var k in S.log){if(S.log[k]&&S.log[k].forgiven&&status(S,k)==='forgiven')n++}return n}
+function tokens(S){var earned=1+Math.floor(totalDone(S)/7);return Math.max(0,Math.min(2,earned-usedTokens(S)))}
 function canForgiveYesterday(S){
  var y=addDays(todayKey(),-1);
  if(y<S.start)return false;
@@ -800,7 +801,7 @@ function badgeVisible(b,d){if(b.k==='water')return d.hasWater;if(b.k==='train')r
 function checkBadges(silent){
  var d=badgeData(),first=!S.badges,got=[];S.badges=S.badges||{};
  BADGES.forEach(function(b){if(!S.badges[b.id]&&(d[b.k]||0)>=b.t){S.badges[b.id]=todayKey();got.push(b)}});
- if(got.length&&!silent){if(first)showBanner('Odznaky sú tu!','Za doterajšie dni ich máš '+got.length+'. Nájdeš ich v Ceste.');else{view.toast={type:'badge',id:got[got.length-1].id};launchConfetti('happy')}}
+ if(got.length&&!silent){if(first)showBanner('Odznaky sú tu!','Za doterajšie dni ich máš '+got.length+'. Nájdeš ich na stránke Cesta.');else{view.toast={type:'badge',id:got[got.length-1].id};launchConfetti('happy')}}
  return got.length;
 }
 function badgeIcon(b,on,size){return '<span class="bdg'+(on?' on':'')+'" style="width:'+size+'px;height:'+size+'px">'+svg(BI[b.i],Math.round(size*.5),1.7)+'</span>'}
