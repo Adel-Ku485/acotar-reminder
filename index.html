@@ -265,6 +265,7 @@ body{background-color:transparent}
 .gmore summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);list-style:none;display:flex;align-items:center;justify-content:space-between}
 .gmore summary::-webkit-details-marker{display:none}
 .gmore summary:after{content:'›';font-size:20px;transition:transform .2s}.gmore[open] summary:after{transform:rotate(90deg)}
+.tokbtn{background:none;border:none;padding:0;font:inherit;text-align:left;display:inline-flex;align-items:center;gap:4px;color:var(--muted);cursor:pointer}
 </style>
 </head>
 <body>
@@ -693,7 +694,7 @@ function renderToday(){
  if(isToday&&canForgiveYesterday(S)){var tkn=tokens(S);h+='<div class="banner" style="flex-direction:column;align-items:stretch;gap:2px"><span style="font-family:var(--fd,Lora),serif;font-size:19px;color:var(--text)">Včera to nevyšlo</span><span class="small" style="margin:0">Zachrániš sériu odpustením? Máš '+tkn+' v zálohe.</span><div class="row" style="gap:8px;margin-top:10px"><button class="pill" style="flex:1;margin:0" data-a="forgive">Odpustiť</button><button class="pill" style="flex:1.6;margin:0;background:transparent;color:var(--accent);border:1.5px solid var(--accent)" data-a="fillYesterday">Zabudla som zapísať</button></div></div>';}
  // streak card (kompaktná)
  var tk=tokens(S),nc=nextCourt(S),tot=totalDone(S),ti=targetInfo(S),doneToday=status(S,todayKey())==='done';
- h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><span class="gsub">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe</span></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
+ h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><button class="gsub tokbtn" data-a="tokInfo" aria-label="Čo je odpustenie">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe '+svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',13,2.2)+'</button></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
  for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);var cls='dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':ds==='partial'?'partial':dk<S.start?'pre':'')+(i===0?' today':'')+(dk===view.dayKey?' sel':'');h+=(dk>=S.start?'<button class="'+cls+'" data-a="editDay" data-v="'+dk+'" aria-label="'+(i===0?'Dnes':'Upraviť '+fmtDay(dk))+'">':'<div class="'+cls+'" title="'+fmtDay(dk)+'">')+WDS[wdOf(dk)]+(dk>=S.start?'</button>':'</div>')}
  h+='</div>';
  if(nc){var need=courtAt(S,nc)-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalší: <b style="color:var(--text)">'+esc(nc.name)+'</b></span><span>ešte '+need+' '+unitWord(need,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/courtAt(S,nc)*100))+'%"></i></div></div>'}
@@ -860,6 +861,8 @@ function checkBadges(silent){
 function badgeIcon(b,on,size){return '<span class="bdg'+(on?' on':'')+'" style="width:'+size+'px;height:'+size+'px">'+svg(BI[b.i],Math.round(size*.5),1.7)+'</span>'}
 function renderBadgeToast(t){var b=BADGES.filter(function(x){return x.id===t.id})[0];if(!b)return '';
  return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bt"><div class="in pop">'+badgeIcon(b,true,88)+'<div class="label">Nový odznak</div><h1 id="bt" style="font-size:26px;margin:0">'+esc(b.n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p><p class="quip" style="margin:0">'+esc(b.l)+'</p><button class="btn solid" data-a="closeToast">Juchú</button></div></div>'}
+function renderTokInfo(){var tk=tokens(S),td=totalDone(S),nx=7-td%7;
+ return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="ti" data-a="tokClose"><div class="in pop"><span style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--soft,rgba(127,127,127,.12));color:var(--accent)">'+svg('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',34,2)+'</span><div class="label">Odpustenie</div><h1 id="ti" style="font-size:24px;margin:0">Máš '+tk+' v zálohe</h1><p style="margin:0;line-height:1.5">Odpustenie zachráni sériu, keď jeden deň nevyjde. Jedno máš hneď na štarte a za každých 7 splnených dní pribudne ďalšie. Naraz môžeš mať najviac 2.</p><p class="small" style="margin:0">'+(tk>=2?'Záloha je plná.':'Ďalšie pribudne o '+nx+' '+plural(nx,'splnený deň','splnené dni','splnených dní')+'.')+'</p><button class="btn" data-a="tokClose">Rozumiem</button></div></div>'}
 function renderBadgeInfo(){var b=BADGES.filter(function(x){return x.id===view.badge})[0];if(!b)return '';var d=badgeData(),on=S.badges&&S.badges[b.id],cur=Math.min(d[b.k]||0,b.t);
  return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bi" data-a="badgeClose"><div class="in pop">'+badgeIcon(b,!!on,80)+'<div class="label">'+esc(b.g)+'</div><h1 id="bi" style="font-size:24px;margin:0">'+esc(b.n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p>'+(on?'<p class="small" style="margin:0">Získané '+fmtDay(on)+'</p><p class="quip" style="margin:0">'+esc(b.l)+'</p>':'<div style="width:100%"><div class="progress"><i style="width:'+Math.round(cur/b.t*100)+'%"></i></div><p class="small" style="margin:6px 0 0">'+cur+' z '+b.t+'</p></div>')+'<button class="btn" data-a="badgeClose">Zavrieť</button></div></div>'}
 function renderBadgesSection(){
@@ -953,6 +956,7 @@ function renderOverlay(){
  if(view.toast&&view.toast.type==='end')h+=renderEndToast(view.toast);
  if(view.toast&&view.toast.type==='badge')h+=renderBadgeToast(view.toast);
  if(view.badge)h+=renderBadgeInfo();
+ if(view.tokInfo)h+=renderTokInfo();
  if(view.toast&&view.toast.type==='unlock'){
   var t=themeById(view.toast.id);
   var cc=t.c,el0=view.toast.t0?(performance.now()-view.toast.t0)/1000:0,st='';['bg','card','border','text','muted','accent','onAccent','streak'].forEach(function(k){st+='--u'+k+':'+cc[k]+';'});var dl=function(x){return el0>0?'':'transition-delay:'+x+'s'};
@@ -1388,6 +1392,8 @@ document.addEventListener('click',function(ev){
   case 'setTheme':var fromU=view.toast&&view.toast.type==='unlock';S.theme=v;view.toast=null;commit();if(fromU)setTimeout(function(){launchConfetti('happy')},60);break;
   case 'closeToast':view.toast=null;render();break;
   case 'badgeOpen':view.badge=id;render();break;
+  case 'tokInfo':view.tokInfo=true;render();break;
+  case 'tokClose':if(el.tagName==='DIV'&&ev.target!==el)break;view.tokInfo=false;render();break;
   case 'badgeClose':if(el.tagName==='DIV'&&ev.target!==el)break;view.badge=null;render();break;
   case 'badgesAll':view.allBadges=!view.allBadges;render();break;
   case 'settings':view.sheet=true;view.importMsg='';render();break;
