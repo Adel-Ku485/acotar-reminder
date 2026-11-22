@@ -231,7 +231,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 .onb.themed .oh1{font-family:var(--display)}
 .numwrap{flex-shrink:0}
 .numin{width:112px;height:46px;border-radius:23px;text-align:center;font-weight:600;font-size:17px;background:var(--card);border:1.5px solid var(--accent)}
-.banner-top{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translateX(-50%);z-index:70;background:var(--card);border:1.5px solid var(--streak);color:var(--text);border-radius:18px;padding:12px 18px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.18);max-width:calc(100% - 32px);animation:pop .35s ease-out;transition:opacity .4s}
+.banner-top{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translateX(-50%);z-index:70;background:var(--card);border:1.5px solid var(--streak);color:var(--text);border-radius:18px;padding:12px 18px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.18);max-width:calc(100% - 32px);animation:bpop .35s ease-out;transition:opacity .4s}@keyframes bpop{from{opacity:0;transform:translateX(-50%) scale(.85)}to{opacity:1;transform:translateX(-50%) scale(1)}}
 .banner-top b{font-family:var(--display);font-size:22px;color:var(--streak)}
 .banner-top span{font-size:14px;color:var(--muted)}
 .banner-top.out{opacity:0}
