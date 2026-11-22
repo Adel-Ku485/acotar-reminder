@@ -556,6 +556,7 @@ var TOKEN_BACK={spring:'Tamlin ti ho vracia aj s kúskom koláča.',summer:'Tarq
 var lastUsedTok=null;
 function commit(){
  S.updatedAt=Date.now();pushSyncSoon();
+ for(var fk in S.log){if(S.log[fk]&&S.log[fk].forgiven&&status(S,fk)==='done')delete S.log[fk].forgiven}
  var uT=usedTokens(S);if(lastUsedTok!==null&&uT<lastUsedTok)setTimeout(function(){showBanner('Odpustenie je späť!','Deň si doplnila celý. '+(TOKEN_BACK[S.theme]||TOKEN_BACK.base))},400);lastUsedTok=uT;
  var T=todayKey(),nowSt=status(S,T),celebrate=lastTodayStatus!==null&&lastTodayStatus!=='done'&&nowSt==='done'&&S.celebrated!==T;
  if(celebrate)S.celebrated=T;
