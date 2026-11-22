@@ -1392,6 +1392,7 @@ refreshProgress(S);
 lastTodayStatus=status(S,todayKey());
 if(!S.onboarded)view.onb={first:true,step:1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};
 try{if(S.onboarded)checkBadges(false)&&saveLocal()}catch(e){}
+if(!S.fixForgive1){var fy=addDays(todayKey(),-1);if(S.log[fy]&&S.log[fy].forgiven&&status(S,fy)==='forgiven')delete S.log[fy].forgiven;S.fixForgive1=1;saveLocal();queueWrite()}
 lastUsedTok=usedTokens(S);
 render();
 (function(){if(S.onboarded&&!view.onb){checkBadges(false);saveLocal()}})();
