@@ -886,7 +886,7 @@ function renderCourts(){
 }
 function renderPowersSection(){
  var h='<h2 style="margin-top:8px">Tvoje moci</h2>',op=pwOpen();
- if(!op)return h+'<div class="card"><p class="small" style="margin:0">Po odomknutí Nočného dvora začneš prebúdzať moci. Každý splnený deň posilní tú, ktorú si vyberieš: prebudená po '+PW_LV[0]+', silná po '+PW_LV[1]+' a majstrovská po '+PW_LV[2]+' dňoch.</p></div>';
+ if(!op)return h+'<div class="card"><p class="small" style="margin:0;font-family:var(--fd,Lora),serif;font-style:italic;font-size:16px;color:var(--accent);line-height:1.45">Feyre dostala kúsok moci od každého dvora. Ty tiež. Po Nočnom dvore si vyberieš jednu a každým splneným dňom ju budeš prebúdzať. ✨</p></div>';
  if(!S.train)h+='<p class="small" style="margin:-4px 0 10px">Ktorú moc chceš prebudiť? Každý splnený deň ju posilní. Zmeniť ju môžeš kedykoľvek, pokrok sa ti uloží.</p>';
  h+='<div class="pwgrid">';
  PW_IDS.forEach(function(id){var l=pwLevel(id),c=pwCount(id),on=S.train===id,nx=l<3?PW_LV[l]:PW_LV[2],pv=l<3?Math.round((c-(l?PW_LV[l-1]:0))/(nx-(l?PW_LV[l-1]:0))*100):100;
