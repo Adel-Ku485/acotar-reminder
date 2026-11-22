@@ -552,8 +552,11 @@ function pushSection(){var h='',st=pushSt();
  if(st.on){var t=st.times||['16:00','20:30'];h+='<div class="slb">Kedy</div><div class="grid2"><label class="f">Poobede<input type="time" data-a="pushTime" data-i="0" value="'+esc(t[0]||'')+'"></label><label class="f">Večer<input type="time" data-a="pushTime" data-i="1" value="'+esc(t[1]||'')+'"></label></div>';var mo=pushExtra().morning;h+='<div class="slb">Ranná správa</div><div class="card" style="padding:12px 16px"><div class="row" style="justify-content:space-between;gap:12px"><span id="pm" style="font-size:16px">Dobré ránko od tvojho dvora</span><button class="tgl" role="switch" aria-labelledby="pm" aria-checked="'+(mo?'true':'false')+'" data-a="pushMorning"></button></div><p class="small" style="margin:6px 0 0">Každé ráno trocha motivácie, niekedy aj s tipom na deň.</p>'+(mo?'<label class="f" style="margin-top:10px">Čas<input type="time" data-a="pushMorningTime" value="'+esc(mo)+'"></label>':'')+''+(mo?'<button class="obtn-link" style="color:var(--accent);padding-left:0;margin-top:4px" data-a="pushTestMorning">Ukážka rannej správy</button>':'')+'</div><button class="obtn-link" style="color:var(--accent);margin-top:28px;align-self:center" data-a="pushTest">Poslať skúšobné upozornenie</button>'}
  if(view.pushMsg)h+='<p class="small" role="status" style="margin:0;text-align:center">'+esc(view.pushMsg)+'</p>';
  return h}
+var TOKEN_BACK={spring:'Tamlin ti ho vracia aj s kúskom koláča.',summer:'Tarquin ti ho vracia do zálohy. Perla za perlou.',autumn:'Lucien ti ho vracia. Beron o tom nemusí vedieť.',winter:'Kallias ti ho vracia zabalené v deke.',dawn:'Thesan ti ho vracia s prvým lúčom.',day:'Helion to prepočítal a vracia ti ho.',night:'Rhys ti ho vracia s úsmevom. Vraj na horšie časy.',base:'Máš ho späť na horšie časy.'};
+var lastUsedTok=null;
 function commit(){
  S.updatedAt=Date.now();pushSyncSoon();
+ var uT=usedTokens(S);if(lastUsedTok!==null&&uT<lastUsedTok)setTimeout(function(){showBanner('Odpustenie je späť!','Deň si doplnila celý. '+(TOKEN_BACK[S.theme]||TOKEN_BACK.base))},400);lastUsedTok=uT;
  var T=todayKey(),nowSt=status(S,T),celebrate=lastTodayStatus!==null&&lastTodayStatus!=='done'&&nowSt==='done'&&S.celebrated!==T;
  if(celebrate)S.celebrated=T;
  lastTodayStatus=nowSt;
@@ -638,7 +641,7 @@ function renderToday(){
  var mo=isToday?motd(k):'';if(mo)h+='<p class="motd">'+esc(mo)+'</p>';
  h+='<div class="stack">';
  if(!isToday)h+='<div class="banner"><span>Upravuješ <b>'+WD[wdOf(k)]+' '+fmtDay(k)+'</b></span><button class="pill" data-a="backToday">Späť na dnes</button></div>';
- if(isToday&&canForgiveYesterday(S))h+='<div class="banner"><span>Včera to nevyšlo. Použiť odpustenie a zachrániť sériu?</span><button class="pill" data-a="forgive">Odpustiť</button></div>';
+ if(isToday&&canForgiveYesterday(S))h+='<div class="banner" style="flex-wrap:wrap"><span>Včera to nevyšlo. Použiť odpustenie a zachrániť sériu?</span><button class="pill" data-a="forgive">Odpustiť</button><span class="small" style="flex-basis:100%;margin:0">Ak si včera všetko splnila a len si to zabudla zapísať, <button class="obtn-link" style="display:inline;padding:0;min-height:0;color:var(--accent);font-size:inherit;text-decoration:underline" data-a="editDay" data-v="'+addDays(todayKey(),-1)+'">doplň včerajšok</button> a odpustenie ti ostane.</span></div>';
  // streak card (kompaktná)
  var tk=tokens(S),nc=nextCourt(S),tot=totalDone(S),ti=targetInfo(S),doneToday=status(S,todayKey())==='done';
  h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><span class="gsub">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe</span></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
@@ -1388,6 +1391,7 @@ refreshProgress(S);
 lastTodayStatus=status(S,todayKey());
 if(!S.onboarded)view.onb={first:true,step:1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};
 try{if(S.onboarded)checkBadges(false)&&saveLocal()}catch(e){}
+lastUsedTok=usedTokens(S);
 render();
 (function(){if(S.onboarded&&!view.onb){checkBadges(false);saveLocal()}})();
 (function(){var wp=wrapPending();if(wp&&!view.onb)setTimeout(function(){if(!view.wrap&&!view.onb&&!view.sheet)openWrap(wp)},600)})();
