@@ -567,6 +567,7 @@ function commit(){
  if(fresh.length)view.toast={type:'unlock',id:fresh[fresh.length-1]};
  queueWrite();
  render();
+ if(view.fill&&view.dayKey!==T&&status(S,view.dayKey)==='done'){view.fill=false;view.dayKey=T;setTimeout(function(){render();window.scrollTo(0,0);launchConfetti('happy');showBanner('Včerajšok doplnený!','Séria je zachránená a odpustenie ti ostalo.')},500)}
  if(celebrate){launchConfetti('happy');(function(){var th=themeById(S.theme),d=th.done,i=d.indexOf('. ');showBanner(th.unit==='noc'?'Noc splnená!':'Deň splnený!',i>0?d.slice(i+2):d)})()}
 }
 function queueWrite(){if(!dbRef)return;clearTimeout(writeTimer);writeTimer=setTimeout(doWrite,700)}
@@ -641,8 +642,9 @@ function renderToday(){
  h+=header(greet());
  var mo=isToday?motd(k):'';if(mo)h+='<p class="motd">'+esc(mo)+'</p>';
  h+='<div class="stack">';
- if(!isToday)h+='<div class="banner"><span>Upravuješ <b>'+WD[wdOf(k)]+' '+fmtDay(k)+'</b></span><button class="pill" data-a="backToday">Späť na dnes</button></div>';
- if(isToday&&canForgiveYesterday(S)){var tkn=tokens(S);h+='<div class="banner" style="flex-direction:column;align-items:stretch;gap:2px"><span style="font-family:var(--fd,Lora),serif;font-size:19px;color:var(--text)">Včera to nevyšlo</span><span class="small" style="margin:0">Zachrániš sériu odpustením? Máš '+tkn+' v zálohe.</span><div class="row" style="gap:8px;margin-top:10px"><button class="pill" style="flex:1;margin:0" data-a="forgive">Odpustiť</button><button class="pill" style="flex:1.6;margin:0;background:transparent;color:var(--accent);border:1.5px solid var(--accent)" data-a="editDay" data-v="'+addDays(todayKey(),-1)+'">Zabudla som zapísať</button></div></div>';}
+ if(!isToday&&view.fill)h+='<div class="banner" style="flex-direction:column;align-items:stretch;gap:2px"><span style="font-family:var(--fd,Lora),serif;font-size:19px;color:var(--text)">Dopĺňaš včerajšok <span class="small" style="font-family:inherit">('+WD[wdOf(k)]+' '+fmtDay(k)+')</span></span><span class="small" style="margin:0">Odškrtni, čo si včera stihla. Keď bude všetko, séria je zachránená a odpustenie ti ostane.</span><button class="pill" style="align-self:flex-start;margin-top:8px" data-a="backToday">Späť na dnes</button></div>';
+ else if(!isToday)h+='<div class="banner"><span>Upravuješ <b>'+WD[wdOf(k)]+' '+fmtDay(k)+'</b></span><button class="pill" data-a="backToday">Späť na dnes</button></div>';
+ if(isToday&&canForgiveYesterday(S)){var tkn=tokens(S);h+='<div class="banner" style="flex-direction:column;align-items:stretch;gap:2px"><span style="font-family:var(--fd,Lora),serif;font-size:19px;color:var(--text)">Včera to nevyšlo</span><span class="small" style="margin:0">Zachrániš sériu odpustením? Máš '+tkn+' v zálohe.</span><div class="row" style="gap:8px;margin-top:10px"><button class="pill" style="flex:1;margin:0" data-a="forgive">Odpustiť</button><button class="pill" style="flex:1.6;margin:0;background:transparent;color:var(--accent);border:1.5px solid var(--accent)" data-a="fillYesterday">Zabudla som zapísať</button></div></div>';}
  // streak card (kompaktná)
  var tk=tokens(S),nc=nextCourt(S),tot=totalDone(S),ti=targetInfo(S),doneToday=status(S,todayKey())==='done';
  h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><span class="gsub">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe</span></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
@@ -1317,10 +1319,11 @@ document.addEventListener('click',function(ev){
   case 'mood':g=goal(id);S.log[k]=S.log[k]||{g:{}};var em2=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};em2.m=em2.m===v?'':v;S.log[k].g[id]=em2;commit();break;
   case 'emoji':g=goal(id);S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};e.e=e.e===v?'':v;S.log[k].g[id]=e;commit();break;
   case 'forgive':if(forgiveYesterday(S))commit();break;
-  case 'backToday':view.dayKey=todayKey();render();break;
+  case 'fillYesterday':view.fill=true;view.dayKey=addDays(todayKey(),-1);render();window.scrollTo(0,0);break;
+  case 'backToday':view.fill=false;view.dayKey=todayKey();render();break;
   case 'calPrev':case 'calNext':var p=view.calMonth.split('-'),d=new Date(+p[0],+p[1]-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break;
   case 'calSel':view.calSel=view.calSel===v?null:v;render();break;
-  case 'editDay':view.dayKey=v;view.tab='today';render();window.scrollTo(0,0);break;
+  case 'editDay':view.fill=false;view.dayKey=v;view.tab='today';render();window.scrollTo(0,0);break;
   case 'setTheme':var fromU=view.toast&&view.toast.type==='unlock';S.theme=v;view.toast=null;commit();if(fromU)setTimeout(function(){launchConfetti('happy')},60);break;
   case 'closeToast':view.toast=null;render();break;
   case 'badgeOpen':view.badge=id;render();break;
