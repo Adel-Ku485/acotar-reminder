@@ -528,7 +528,7 @@ var S=load();
 var view={tab:'today',dayKey:todayKey(),open:{},calMonth:null,calSel:null,sheet:false,editGoal:null,confirmDel:null,toast:null,sync:'local',importText:'',importMsg:''};
 var EMOJIS=['💪','🧘‍♀️','🏃‍♀️','🚴‍♀️','🏋️‍♀️','💧','🥗','🍫','🔥','😴','😅','🥹','✨','🌙'];
 var MOODS=['😫','😕','😐','🙂','🤩'];
-var ACT_EMO={move:['🏃‍♀️','🧘‍♀️','🏋️‍♀️','🚴‍♀️','🏊‍♀️','💃','🥾','⛷️'],food:['🥗','🍎','🍳','🍫','💧','🍵'],sleep:['😴','🌙','🛁','🧘‍♀️','📵'],mind:['😴','🌙','🛁','🧘‍♀️','📵'],phone:['😴','🌙','🛁','🧘‍♀️','📵'],learn:['📖','✍️','🎧','💡'],love:['❤️','☕','📞','🎁'],money:['💰','🐷','🧾'],care:['🛁','💆‍♀️','💅','🧴','✨'],other:['✨','🔥','🎉','⭐']};
+var ACT_EMO={move:['🏃‍♀️','🚶‍♀️','🧘‍♀️','🏋️‍♀️','🤸‍♀️','🚴‍♀️','🏊‍♀️','💃','🥾','⛷️'],food:['🥗','🥦','🍎','🍳','🍲','💧','🥤','🍵'],sleep:['😴','🌙','🛌','🫖','📵'],mind:['🧘‍♀️','📓','🌿','🫶','🕯️'],phone:['📵','📚','🚶‍♀️','🎨','🧩'],learn:['📖','✍️','🎧','💡','💻','🗣️'],love:['❤️','☕','📞','🎁','💌','🫂'],money:['💰','🐷','🧾','📊','🛒❌'],care:['🛁','💆‍♀️','💅','🧴','✨'],other:['✨','🔥','🎉','⭐','💪','😅']};
 function emoPre(e){return e?((e.m||'')+(e.e||'')+((e.m||e.e)?' ':'')):''}
 function emojiRows(g,e){var acts=ACT_EMO[lineCat(g)]||ACT_EMO.other,h='<div class="small" style="margin-top:4px">Ako to išlo?</div><div class="emojis" style="-webkit-mask-image:none;mask-image:none;padding-right:0;flex-wrap:wrap" role="group" aria-label="Ako to išlo">';
  MOODS.forEach(function(em){h+='<button class="emo'+(e.m===em?' on':'')+'" data-a="mood" data-id="'+g.id+'" data-v="'+em+'" aria-pressed="'+(e.m===em?'true':'false')+'">'+em+'</button>'});
