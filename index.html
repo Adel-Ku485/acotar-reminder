@@ -617,7 +617,7 @@ function render(){
 }
 function renderTabs(){
  var t=themeById(S.theme);
- var items=[['cal','Kalendár','<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'],['today','Dnes',t.icon==='moon'?'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>':ICONS[t.icon]],['courts','Dvory','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>']];
+ var items=[['cal','Kalendár','<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'],['today','Dnes',t.icon==='moon'?'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>':ICONS[t.icon]],['courts','Cesta','<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/>']];
  document.getElementById('tabs').innerHTML=items.map(function(i){return '<button data-a="tab" data-v="'+i[0]+'" class="'+(view.tab===i[0]?'on':'')+(i[0]==='today'?' mid':'')+'"'+(view.tab===i[0]?' aria-current="page"':'')+'>'+(i[0]==='today'?'<span class="fab">'+(EMBLEMS[t.id]?emblem(t.id,40,'currentColor',false,3.2):svg(i[2],28))+'</span>':svg(i[2],22))+i[1]+'</button>'}).join('');
 }
 function greet(){var h=NOW().getHours();return (h<10?'Dobré ránko':h<18?'Ahojky':'Krásny večer')+(S.name?', '+esc(S.name):'')}
@@ -800,7 +800,7 @@ function badgeVisible(b,d){if(b.k==='water')return d.hasWater;if(b.k==='train')r
 function checkBadges(silent){
  var d=badgeData(),first=!S.badges,got=[];S.badges=S.badges||{};
  BADGES.forEach(function(b){if(!S.badges[b.id]&&(d[b.k]||0)>=b.t){S.badges[b.id]=todayKey();got.push(b)}});
- if(got.length&&!silent){if(first)showBanner('Odznaky sú tu!','Za doterajšie dni ich máš '+got.length+'. Nájdeš ich v Dvoroch.');else{view.toast={type:'badge',id:got[got.length-1].id};launchConfetti('happy')}}
+ if(got.length&&!silent){if(first)showBanner('Odznaky sú tu!','Za doterajšie dni ich máš '+got.length+'. Nájdeš ich v Ceste.');else{view.toast={type:'badge',id:got[got.length-1].id};launchConfetti('happy')}}
  return got.length;
 }
 function badgeIcon(b,on,size){return '<span class="bdg'+(on?' on':'')+'" style="width:'+size+'px;height:'+size+'px">'+svg(BI[b.i],Math.round(size*.5),1.7)+'</span>'}
@@ -824,7 +824,7 @@ function renderBadgesSection(){
  return h;
 }
 function renderCourts(){
- var h=header('Dvory');
+ var h=header('Tvoja cesta');
  h+='<p class="small" style="margin:-6px 0 14px">Feyrina cesta: za každú sériu sa odomkne ďalší dvor. Najlepšia séria: <b style="color:var(--text)">'+S.best+' '+unitWord(S.best,'den')+'</b>.</p><div class="stack">';
  h+='<button class="card row gtap" style="gap:12px;padding:14px 16px;border:1px solid var(--border)" data-a="wrapOpen"><span style="color:var(--accent)">'+svg('<path d="M12 3l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 15.4 7 18.2l1.2-5.6L4 8.8l5.6-.6z"/>',22,2)+'</span><span class="grow"><span class="gname">Tvoja doterajšia cesta</span><span class="gsub">Rekapitulácia tvojej výzvy</span></span><span aria-hidden="true" style="color:var(--muted);font-size:22px">›</span></button>';
  h+=renderBadgesSection();
