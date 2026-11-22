@@ -68,7 +68,7 @@ button.dot{font-family:inherit;padding:0;background:transparent;cursor:pointer}.
 .check:active,.pill:active{transform:scale(.92)}
 .pill{height:46px;padding:0 15px;border-radius:23px;border:none;background:var(--accent);color:var(--onAccent);font-size:14px;font-weight:600;flex-shrink:0;transition:transform .15s}
 .pill.ghost{background:transparent;border:1.5px solid var(--accent);color:var(--accent);padding:0;width:46px}
-.cups{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.cups{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.cupb{background:none;border:none;padding:8px 3px;margin:-8px -3px;line-height:0;cursor:pointer;-webkit-tap-highlight-color:transparent}.cupb:active{transform:scale(.88)}
 .cup{width:17px;height:22px;border-radius:3px 3px 7px 7px;background:transparent;border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--card))}
 .cup.on{border-color:var(--accent)}
 .glasses{gap:6px;margin-top:10px}
@@ -1008,7 +1008,7 @@ function renderGoal(g,k,t){
  var full=num&&g.min&&(+v||0)>=g.target,cupsRow='';
  var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(emoPre(e))+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+disp+' / '+g.target+(g.unit&&g.kind!=='water'?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
  if(num){
-  if(g.target<=12&&stepOf(g)===1&&!g.sumWeek){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" aria-hidden="true">';for(var i=0;i<g.target;i++)cupsRow+=isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24">'+vesselOf(g).shape+(i<v?vesselOf(g).lvl:'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>';cupsRow+='</div>';if(isW){var vs=vesselOf(g);cupsRow+='<div class="small" style="margin-top:6px">'+fmtL((+v||0)*vs.ml)+' z '+fmtL(g.target*vs.ml)+' · 1 '+vs.w[0]+' = '+vs.ml+' ml'+'</div>'}}
+  if(g.target<=12&&stepOf(g)===1&&!g.sumWeek){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" role="group" aria-label="'+esc(g.name)+'">';for(var i=0;i<g.target;i++)cupsRow+='<button class="cupb" data-a="cupSet" data-id="'+g.id+'" data-v="'+(i+1)+'" aria-label="'+(i+1)+' z '+g.target+'" aria-pressed="'+(i<v?'true':'false')+'">'+(isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24" aria-hidden="true">'+vesselOf(g).shape+(i<v?vesselOf(g).lvl:'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>')+'</button>';cupsRow+='</div>';if(isW){var vs=vesselOf(g);cupsRow+='<div class="small" style="margin-top:6px">'+fmtL((+v||0)*vs.ml)+' z '+fmtL(g.target*vs.ml)+' · 1 '+vs.w[0]+' = '+vs.ml+' ml'+'</div>'}}
   else h+='<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round(disp/g.target*100))+'%"></i></span>';
  }
  h+='</button>';
@@ -1312,6 +1312,7 @@ document.addEventListener('click',function(ev){
   case 'listAdd':var la=goal(id),lt=document.getElementById('la-t-'+id);if(!lt||!lt.value.trim()){if(lt)lt.focus();break}la.items=la.items||[];la.items.push({t:lt.value.trim(),n:'',done:null});view.open[id]=true;commit();var nf=document.getElementById('la-t-'+id);if(nf)nf.focus();break;
   case 'bookNext':var bgn=goal(id),bt=(document.getElementById('bn-t-'+id)||{}).value||'',bp=parseInt((document.getElementById('bn-p-'+id)||{}).value,10)||0;if(!bt.trim()){var bi=document.getElementById('bn-t-'+id);if(bi)bi.focus();break}bgn.book=bt.trim();bgn.pages=bp;bgn.bookId='b'+Date.now().toString(36);bgn.bookSince=todayKey();delete bgn.finished;commit();break;
   case 'check':var g=goal(id);setVal(S,k,g,!gval(S,k,g));commit();break;
+  case 'cupSet':g=goal(id);var cn=+v,cc=+gval(S,k,g)||0;setVal(S,k,g,cc===cn?cn-1:cn);commit();break;
   case 'inc':g=goal(id);setVal(S,k,g,Math.min(g.target*3,(+gval(S,k,g)||0)+1));commit();break;
   case 'dec':g=goal(id);setVal(S,k,g,Math.max(0,(+gval(S,k,g)||0)-1));commit();break;
   case 'choose':g=goal(id);S.log[k]=S.log[k]||{g:{}};var ce=S.log[k].g[id]||{v:false,note:'',e:''};ce.c=v;ce.v=true;S.log[k].g[id]=ce;commit();break;
