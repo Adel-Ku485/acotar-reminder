@@ -46,6 +46,7 @@ h2{margin:0;font-size:15px;font-weight:600}
 .dots{display:flex;gap:8px;margin-top:10px}
 .dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid color-mix(in srgb,var(--muted) 70%,var(--card));color:var(--muted)}
 .stars{display:flex;gap:4px;justify-content:center}.stars button{background:none;border:none;padding:4px;color:var(--muted);line-height:0}.stars button.on{color:var(--streak)}.starsm{color:var(--streak);font-size:13px;letter-spacing:1px;white-space:nowrap}
+.bgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text);font:inherit;text-align:center}.bcard .bn{font-size:12.5px;font-weight:700;line-height:1.2;margin-top:6px}.bcard .bs{font-size:11px;color:var(--muted);line-height:1.2}.bcard.lk .bn{color:var(--muted)}.bdg{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px dashed var(--border);color:var(--muted);flex:none}.bdg.on{border:1.5px solid var(--accent);color:var(--stat1);background:color-mix(in srgb,var(--accent) 18%,transparent)}
 .dot.pre{border-style:dotted;opacity:.35}
 .dot.done{background:var(--streak);border-color:var(--streak);color:var(--onStreak)}
 .dot.partial{border-color:var(--streak);color:var(--text);background:linear-gradient(to top,color-mix(in srgb,var(--streak) 45%,transparent) 50%,transparent 50%)}
@@ -502,6 +503,14 @@ var LS_KEY='personal-reminder-acotar-v1';
 var S=load();
 var view={tab:'today',dayKey:todayKey(),open:{},calMonth:null,calSel:null,sheet:false,editGoal:null,confirmDel:null,toast:null,sync:'local',importText:'',importMsg:''};
 var EMOJIS=['💪','🧘‍♀️','🏃‍♀️','🚴‍♀️','🏋️‍♀️','💧','🥗','🍫','🔥','😴','😅','🥹','✨','🌙'];
+var MOODS=['😫','😕','😐','🙂','🤩'];
+var ACT_EMO={move:['🏃‍♀️','🧘‍♀️','🏋️‍♀️','🚴‍♀️','🏊‍♀️','💃','🥾','⛷️'],food:['🥗','🍎','🍳','🍫','💧','🍵'],sleep:['😴','🌙','🛁','🧘‍♀️','📵'],mind:['😴','🌙','🛁','🧘‍♀️','📵'],phone:['😴','🌙','🛁','🧘‍♀️','📵'],learn:['📖','✍️','🎧','💡'],love:['❤️','☕','📞','🎁'],money:['💰','🐷','🧾'],care:['🛁','💆‍♀️','💅','🧴','✨'],other:['✨','🔥','🎉','⭐']};
+function emoPre(e){return e?((e.m||'')+(e.e||'')+((e.m||e.e)?' ':'')):''}
+function emojiRows(g,e){var acts=ACT_EMO[lineCat(g)]||ACT_EMO.other,h='<div class="small" style="margin-top:4px">Ako to išlo?</div><div class="emojis" style="-webkit-mask-image:none;mask-image:none;padding-right:0;flex-wrap:wrap" role="group" aria-label="Ako to išlo">';
+ MOODS.forEach(function(em){h+='<button class="emo'+(e.m===em?' on':'')+'" data-a="mood" data-id="'+g.id+'" data-v="'+em+'" aria-pressed="'+(e.m===em?'true':'false')+'">'+em+'</button>'});
+ h+='</div><div class="small">Čo si robila?</div><div class="emojis" style="-webkit-mask-image:none;mask-image:none;padding-right:0;flex-wrap:wrap" role="group" aria-label="Čo si robila">';
+ acts.forEach(function(em){h+='<button class="emo'+(e.e===em?' on':'')+'" data-a="emoji" data-id="'+g.id+'" data-v="'+em+'" aria-pressed="'+(e.e===em?'true':'false')+'">'+em+'</button>'});
+ return h+'</div>'}
 
 function load(){try{var r=localStorage.getItem(LS_KEY);if(r)return normalize(JSON.parse(r))}catch(e){}return defaultState()}
 function saveLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify(S))}catch(e){}}
@@ -547,6 +556,7 @@ function commit(){
  if(celebrate)S.celebrated=T;
  lastTodayStatus=nowSt;
  var fresh=refreshProgress(S);
+ var nb=view.toast?0:checkBadges(!!fresh.length);
  saveLocal();
  if(fresh.length)view.toast={type:'unlock',id:fresh[fresh.length-1]};
  queueWrite();
@@ -674,7 +684,7 @@ function renderCal(){
   var k2=view.calSel,gs=goalsFor(S,k2),e2=entry(S,k2);
   h+='<div class="card stack" style="margin-top:12px"><div class="row" style="justify-content:space-between"><h2>'+WD[wdOf(k2)]+' '+fmtDay(k2)+'</h2>'+(k2<=todayKey()&&k2>=S.start?'<button class="btn" data-a="editDay" data-v="'+k2+'">Upraviť deň</button>':'')+'</div>';
   if(!gs.length)h+='<span class="small">Žiadne ciele v tento deň.</span>';
-  gs.forEach(function(g){var ge=e2.g[g.id]||{};h+='<div class="row"><span style="width:22px;color:var(--accent)">'+(gdone(S,k2,g)?svg(CHECK,18,2.5):'·')+'</span><div class="grow"><span class="gname" style="font-size:14px">'+(ge.e?ge.e+' ':'')+esc(g.name)+(g.type==='count'?' <span class="small">'+(+gval(S,k2,g)||0)+' / '+g.target+'</span>':'')+'</span>'+(ge.c||ge.note?'<span class="gsub">'+(ge.c?'Dnes: '+esc(ge.c)+(ge.note?' · ':''):'')+esc(ge.note||'')+'</span>':'')+'</div></div>'});
+  gs.forEach(function(g){var ge=e2.g[g.id]||{};h+='<div class="row"><span style="width:22px;color:var(--accent)">'+(gdone(S,k2,g)?svg(CHECK,18,2.5):'·')+'</span><div class="grow"><span class="gname" style="font-size:14px">'+(emoPre(ge))+esc(g.name)+(g.type==='count'?' <span class="small">'+(+gval(S,k2,g)||0)+' / '+g.target+'</span>':'')+'</span>'+(ge.c||ge.note?'<span class="gsub">'+(ge.c?'Dnes: '+esc(ge.c)+(ge.note?' · ':''):'')+esc(ge.note||'')+'</span>':'')+'</div></div>'});
   if(e2.forgiven)h+='<span class="small">Tento deň bol odpustený.</span>';
   else if(k2<todayKey()&&k2>=S.start&&gs.length){var mt=missingText(k2);if(mt)h+='<p class="quip" style="font-size:16px;margin:4px 0 0;text-align:left">'+esc(mt)+'</p>'}
   h+='</div>';
@@ -750,10 +760,74 @@ function renderWrap(){var w=view.wrap,x=w.slides[w.i],c=themeById(x.th).c,dk=c.b
  var h='<div class="wrp" role="dialog" aria-modal="true" aria-label="Rekapitulácia" style="--wb:'+bg+';--wt:'+fg+'"><div class="wbar" aria-hidden="true">'+w.slides.map(function(_,i){return '<i class="'+(i<=w.i?'f':'')+'"></i>'}).join('')+'</div>';
  if(!x.end)h+='<div class="wtap"><button data-a="wrapPrev" aria-label="Späť"></button><button data-a="wrapNext" aria-label="Ďalej"></button></div>';
  h+='<button class="wx" data-a="wrapClose" aria-label="Zavrieť">'+svg('<path d="M6 6l12 12M18 6L6 18"/>',24)+'</button><div class="wc" key="'+w.i+'">'+x.h+'</div></div>';return h}
+/* ===== Odznaky ===== */
+var BI={feather:'<path d="M20 4C10 4 5 10 5 19M5 19l4-4M20 4c0 7-4 11-11 11"/>',wings:'<path d="M12 8c-2-4-7-5-10-3 1 5 4 8 10 9M12 8c2-4 7-5 10-3-1 5-4 8-10 9M12 8v12"/>',shadow:'<path d="M6 18a6 6 0 1 1 12 0M3 21h18M9 14l-1-2M15 14l1-2"/>',stars:'<path d="M12 3l1.8 3.9 4.2.5-3.1 2.9.8 4.2L12 12.4 8.3 14.5l.8-4.2L6 7.4l4.2-.5zM5 18l.7 1.5 1.6.2-1.2 1.1.3 1.6L5 21.6l-1.4.8.3-1.6-1.2-1.1 1.6-.2zM19 17l.7 1.5 1.6.2-1.2 1.1.3 1.6-1.4-.8-1.4.8.3-1.6-1.2-1.1 1.6-.2z"/>',mountain:'<path d="M3 20l6-10 4 6 3-4 5 8zM9 10l2 3"/>',legend:'<path d="M5 20h14M7 20V9l5-5 5 5v11M10 20v-5h4v5"/>',steps:'<path d="M8 4c2 0 3 2 3 5s-1 4-3 4-3-1-3-4 1-5 3-5zM16 10c2 0 3 2 3 5s-1 4-3 4-3-1-3-4 1-5 3-5zM6 15h4M14 21h4"/>',city:'<path d="M3 21h18M5 21V10l4-3v14M9 21V5l6-2v18M15 21V9l4 2v10"/>',crown:'<path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"/>',drop:'<path d="M12 3s7 7 7 12a7 7 0 0 1-14 0c0-5 7-12 7-12z"/>',dumbbell:'<path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/>',book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h7"/>',books:'<path d="M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 2.5 15.5-3.5 1z"/>',list:'<path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',heartcheck:'<path d="M12 20s-8-4.5-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.5-8 10-8 10z"/><path d="M9 11l2 2 4-4"/>',flame:'<path d="M12 3c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-5 1-8z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',redo:'<path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/>'};
+var BADGES=[
+ {id:'s3',g:'Séria',n:'Prvé pierko',d:'3 dni v rade',i:'feather',k:'streak',t:3,l:'Malé pierko, veľký začiatok. Každé krídlo začína takto.'},
+ {id:'s7',g:'Séria',n:'Cassianove krídla',d:'7 dní v rade',i:'wings',k:'streak',t:7,l:'Celý týždeň. Cassian by ťa vzal na výlet do hôr. Asi aj povinne.'},
+ {id:'s14',g:'Séria',n:'Azrielov tieň',d:'14 dní v rade',i:'shadow',k:'streak',t:14,l:'Dva týždne ticho a vytrvalo. Azriel by to urobil rovnako.'},
+ {id:'s30',g:'Séria',n:'Hviezdy počúvajú',d:'30 dní v rade',i:'stars',k:'streak',t:30,l:'Mesiac bez prerušenia. Hviezdy si to zapamätali.'},
+ {id:'s60',g:'Séria',n:'Ilyrská vytrvalosť',d:'60 dní v rade',i:'mountain',k:'streak',t:60,l:'Dva mesiace. Ilýrski bojovníci by ti uvoľnili miesto pri ohni.'},
+ {id:'s100',g:'Séria',n:'Legenda Prythianu',d:'100 dní v rade',i:'legend',k:'streak',t:100,l:'Sto dní. O tomto sa budú spievať piesne.'},
+ {id:'d10',g:'Splnené dni',n:'Pár krokov za múrom',d:'10 splnených dní',i:'steps',k:'done',t:10,l:'Prekročila si múr. Odteraz je všetko trochu čarovnejšie.'},
+ {id:'d50',g:'Splnené dni',n:'Cesta do Velarisu',d:'50 splnených dní',i:'city',k:'done',t:50,l:'Mesto svetla ťa víta. Daj si niečo dobré pri rieke Sidra.'},
+ {id:'d100',g:'Splnené dni',n:'Najvyššia lady',d:'100 splnených dní',i:'crown',k:'done',t:100,l:'Sto splnených dní. Korunka ti pristane.'},
+ {id:'w100',g:'Ciele',n:'Adriata',d:'100 pohárov vody',i:'drop',k:'water',t:100,l:'Sto pohárov. Tarquin ti ponúka čestné občianstvo Letného dvora.'},
+ {id:'t50',g:'Ciele',n:'Ilyrský výcvik',d:'50 tréningov',i:'dumbbell',k:'train',t:50,l:'Päťdesiat tréningov. Cassian je dojatý. Nepovie to, ale je.'},
+ {id:'b1',g:'Ciele',n:'Knihomoľ z Velarisu',d:'Prvá dočítaná kniha',i:'book',k:'books',t:1,l:'Prvá kniha za tebou. Feyre by ti požičala ďalšiu.'},
+ {id:'p1000',g:'Ciele',n:'Amrenina knižnica',d:'1 000 prečítaných strán',i:'books',k:'pages',t:1000,l:'Tisíc strán. Amren prikývne, čo je u nej skoro objatie.'},
+ {id:'pr1',g:'Ciele',n:'Upratané',d:'Prvý hotový projekt',i:'list',k:'proj',t:1,l:'Všetko odškrtnuté. Alis by bola spokojná.'},
+ {id:'h1',g:'Ciele',n:'Návyk je môj',d:'Prvý hotový návyk',i:'heartcheck',k:'habit',t:1,l:'Z cieľa sa stal návyk. Presne o tom to celé je.'},
+ {id:'fx',g:'Špeciálne',n:'Fénix',d:'Návrat po prerušenej sérii',i:'flame',k:'fenix',t:1,l:'Spadla si a vstala si. To je to najdôležitejšie.'},
+ {id:'wk',g:'Špeciálne',n:'Víkendová hrdinka',d:'Celý splnený víkend',i:'sun',k:'weekend',t:1,l:'Sobota aj nedeľa. Kto povedal, že víkend je na oddych?'},
+ {id:'fg',g:'Špeciálne',n:'Druhá šanca',d:'Prvé využité odpustenie',i:'redo',k:'forgive',t:1,l:'Odpustenie je na to, aby sa používalo. Rhys súhlasí.'}
+];
+function badgeData(){
+ var t=todayKey(),st=wrapStats(S,t),water=0,train=0,fen=0,wk=0,fg=0,hadBreak=false,run=0;
+ var wg=S.goals.filter(function(g){return g.kind==='water'||/pohár/.test(g.unit||'')}),mg=S.goals.filter(function(g){return lineCat(g)==='move'});
+ for(var k=S.start;k<=t;k=addDays(k,1)){
+  wg.forEach(function(g){if(activeOn(g,k))water+=(+gval(S,k,g)||0)});
+  mg.forEach(function(g){if(activeOn(g,k)&&goalOk(S,k,g))train++});
+  if(!goalsFor(S,k).length)continue;var ss=status(S,k);
+  if(ss==='forgiven')fg++;
+  if(ss==='done'||ss==='forgiven'){run++;if(hadBreak&&run>=3)fen=1}else if(k<t){if(run>0||k>S.start)hadBreak=true;run=0}
+  if(wdOf(k)===6&&ss==='done'&&k>S.start&&status(S,addDays(k,-1))==='done'&&wdOf(addDays(k,-1))===5)wk=1;
+ }
+ return {streak:st.streak,done:st.done,water:water,train:train,books:(S.read||[]).length,pages:st.pages,proj:st.proj.length,habit:S.goals.filter(function(g){return g.ended&&g.ended.how==='done'}).length,fenix:fen,weekend:wk,forgive:fg?1:0,hasWater:wg.length>0,hasMove:mg.length>0,hasBook:S.goals.some(function(g){return modeOf(g)==='book'})||(S.read||[]).length>0,hasProj:S.goals.some(function(g){return g.mode==='list'})};
+}
+function badgeVisible(b,d){if(b.k==='water')return d.hasWater;if(b.k==='train')return d.hasMove;if(b.k==='books'||b.k==='pages')return d.hasBook;if(b.k==='proj')return d.hasProj;return true}
+function checkBadges(silent){
+ var d=badgeData(),first=!S.badges,got=[];S.badges=S.badges||{};
+ BADGES.forEach(function(b){if(!S.badges[b.id]&&(d[b.k]||0)>=b.t){S.badges[b.id]=todayKey();got.push(b)}});
+ if(got.length&&!silent){if(first)showBanner('Odznaky sú tu!','Za doterajšie dni ich máš '+got.length+'. Nájdeš ich v Dvoroch.');else{view.toast={type:'badge',id:got[got.length-1].id};launchConfetti('happy')}}
+ return got.length;
+}
+function badgeIcon(b,on,size){return '<span class="bdg'+(on?' on':'')+'" style="width:'+size+'px;height:'+size+'px">'+svg(BI[b.i],Math.round(size*.5),1.7)+'</span>'}
+function renderBadgeToast(t){var b=BADGES.filter(function(x){return x.id===t.id})[0];if(!b)return '';
+ return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bt"><div class="in pop">'+badgeIcon(b,true,88)+'<div class="label">Nový odznak</div><h1 id="bt" style="font-size:26px;margin:0">'+esc(b.n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p><p class="quip" style="margin:0">'+esc(b.l)+'</p><button class="btn solid" data-a="closeToast">Juchú</button></div></div>'}
+function renderBadgeInfo(){var b=BADGES.filter(function(x){return x.id===view.badge})[0];if(!b)return '';var d=badgeData(),on=S.badges&&S.badges[b.id],cur=Math.min(d[b.k]||0,b.t);
+ return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bi" data-a="badgeClose"><div class="in pop">'+badgeIcon(b,!!on,80)+'<div class="label">'+esc(b.g)+'</div><h1 id="bi" style="font-size:24px;margin:0">'+esc(b.n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p>'+(on?'<p class="small" style="margin:0">Získané '+fmtDay(on)+'</p><p class="quip" style="margin:0">'+esc(b.l)+'</p>':'<div style="width:100%"><div class="progress"><i style="width:'+Math.round(cur/b.t*100)+'%"></i></div><p class="small" style="margin:6px 0 0">'+cur+' z '+b.t+'</p></div>')+'<button class="btn" data-a="badgeClose">Zavrieť</button></div></div>'}
+function renderBadgesSection(){
+ var d=badgeData(),bs=S.badges||{},vis=BADGES.filter(function(b){return badgeVisible(b,d)}),earned=vis.filter(function(b){return bs[b.id]}).length;
+ var stats=[[d.done,plural(d.done,'splnený deň','splnené dni','splnených dní')],[d.streak,'najdlhšia séria']];
+ if(d.hasWater)stats.push([d.water,plural(d.water,'pohár vody','poháre vody','pohárov vody')]);
+ if(d.hasBook&&d.pages)stats.push([d.pages,plural(d.pages,'prečítaná strana','prečítané strany','prečítaných strán')]);
+ if(d.hasMove&&stats.length<4)stats.push([d.train,plural(d.train,'tréning','tréningy','tréningov')]);
+ if(stats.length<4)stats.push([d.forgive?'áno':'nie','využité odpustenie']);
+ var h='<h2 style="margin-top:8px">Tvoje štatistiky</h2><div class="grid2">'+stats.slice(0,4).map(function(x){return '<div class="card" style="padding:12px 14px"><b style="font-family:var(--fd,Lora),serif;font-size:26px;font-weight:500;color:var(--stat1);display:block;line-height:1.1">'+x[0]+'</b><span class="gsub">'+x[1]+'</span></div>'}).join('')+'</div>';
+ var list=vis.slice().sort(function(a,b){var ea=bs[a.id]?1:0,eb=bs[b.id]?1:0;if(ea!==eb)return eb-ea;if(!ea)return Math.min(1,(d[b.k]||0)/b.t)-Math.min(1,(d[a.k]||0)/a.t);return 0});
+ if(!view.allBadges)list=list.slice(0,9);
+ h+='<h2 style="margin-top:8px">Odznaky <span class="small" style="font-family:inherit">'+earned+' z '+vis.length+'</span></h2><div class="bgrid">';
+ list.forEach(function(b){var on=bs[b.id],pr=Math.min(1,(d[b.k]||0)/b.t);h+='<button class="bcard'+(on?'':' lk')+'" data-a="badgeOpen" data-id="'+b.id+'">'+badgeIcon(b,!!on,48)+'<span class="bn">'+esc(b.n)+'</span><span class="bs">'+esc(b.d)+'</span>'+(on?'':'<span class="progress" style="display:block;width:70%;margin:6px auto 0"><i style="width:'+Math.round(pr*100)+'%"></i></span>')+'</button>'});
+ h+='</div>';if(vis.length>9)h+='<button class="obtn-link" style="color:var(--accent);align-self:center" data-a="badgesAll">'+(view.allBadges?'Zobraziť menej':'Zobraziť všetky')+'</button>';
+ return h;
+}
 function renderCourts(){
  var h=header('Dvory');
  h+='<p class="small" style="margin:-6px 0 14px">Feyrina cesta: za každú sériu sa odomkne ďalší dvor. Najlepšia séria: <b style="color:var(--text)">'+S.best+' '+unitWord(S.best,'den')+'</b>.</p><div class="stack">';
  h+='<button class="card row gtap" style="gap:12px;padding:14px 16px;border:1px solid var(--border)" data-a="wrapOpen"><span style="color:var(--accent)">'+svg('<path d="M12 3l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 15.4 7 18.2l1.2-5.6L4 8.8l5.6-.6z"/>',22,2)+'</span><span class="grow"><span class="gname">Tvoja doterajšia cesta</span><span class="gsub">Rekapitulácia tvojej výzvy</span></span><span aria-hidden="true" style="color:var(--muted);font-size:22px">›</span></button>';
+ h+=renderBadgesSection();
+ h+='<h2 style="margin-top:8px">Dvory</h2>';
  ACOTAR.forEach(function(t){h+=courtCard(t)});
  h+='<h2 style="margin-top:10px">Ďalšie témy</h2>'+courtCard(themeById('base'));
  return h+'</div>';
@@ -812,6 +886,8 @@ function renderOverlay(){
  if(view.wrap)h+=renderWrap();
  if(view.endAsk)h+=renderEndAsk();
  if(view.toast&&view.toast.type==='end')h+=renderEndToast(view.toast);
+ if(view.toast&&view.toast.type==='badge')h+=renderBadgeToast(view.toast);
+ if(view.badge)h+=renderBadgeInfo();
  if(view.toast&&view.toast.type==='unlock'){
   var t=themeById(view.toast.id);
   var cc=t.c,el0=view.toast.t0?(performance.now()-view.toast.t0)/1000:0,st='';['bg','card','border','text','muted','accent','onAccent','streak'].forEach(function(k){st+='--u'+k+':'+cc[k]+';'});var dl=function(x){return el0>0?'':'transition-delay:'+x+'s'};
@@ -880,13 +956,13 @@ function catColor(c){return c?(isDarkTheme()?c.dark:c.light):'var(--accent)'}
 function catIcon(g){if(g.mode==='list'&&!g.cat)return '<span class="cicon" style="color:var(--accent)">'+svg('<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 9l2 2 4-4M8 15h8"/>',17,2)+'</span>';var c=catById(g.cat);if(!c)return '';return '<span class="cicon" style="color:'+catColor(c)+'">'+svg(c.icon,17,2)+'</span>'}
 function catBadge(g,size){var c=catById(g.cat);if(!c)return '';var col=catColor(c);return '<span class="cbadge" style="width:'+(size||36)+'px;height:'+(size||36)+'px;color:'+col+';background:color-mix(in srgb,'+col+' 16%,transparent)">'+svg(c.icon,(size||36)*0.55,1.8)+'</span>'}
 function fmtDay(k){var p=k.split('-');return (+p[2])+'. '+(+p[1])+'.'}
-function noteBlock(g,e){var h='<div class="extra"><label class="f">Poznámka<textarea data-a="note" data-id="'+g.id+'" placeholder="napr. ako to dnes išlo…">'+esc(e.note||'')+'</textarea></label><div class="emojis" role="group" aria-label="Emoji">';EMOJIS.forEach(function(em){h+='<button class="emo'+(e.e===em?' on':'')+'" data-a="emoji" data-id="'+g.id+'" data-v="'+em+'" aria-pressed="'+(e.e===em?'true':'false')+'">'+em+'</button>'});return h+'</div></div>'}
+function noteBlock(g,e){var h='<div class="extra"><label class="f">Poznámka<textarea data-a="note" data-id="'+g.id+'" placeholder="napr. ako to dnes išlo…">'+esc(e.note||'')+'</textarea></label>'+emojiRows(g,e);return h+'</div>'}
 function renderBook(g,k){
  var e=entry(S,k).g[g.id]||{},v=e.b===g.bookId?Math.max(0,(+e.v||0)-(+e.v0||0)):0,pg=bookPage(S,g),P=g.pages||0,fin=P&&pg>=P,open=view.open[g.id];
  var sub='Strana '+pg+(P?' z '+P:'');
  if(fin)sub+=' · dočítané!';else if(P){var rem=P-pg,rd=bookRead(S,g),days=Math.max(1,Math.round((new Date(todayKey())-new Date(g.bookSince||g.since||todayKey()))/864e5)+1),pace=rd>0?rd/days:g.target;sub+=' · dočítaš asi '+fmtDay(addDays(todayKey(),Math.ceil(rem/Math.max(1,pace)))).replace(/ /g,'\u00a0')}
  if(e.note)sub+=' · '+esc(e.note);
- var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.book||g.name)+'</span><span class="gsub">'+sub+'</span>'+(P?'<span class="progress" style="display:block;margin:8px 0 6px"><i style="width:'+Math.min(100,Math.round(pg/P*100))+'%"></i></span>':'')+(!fin&&!pg?'<span class="gsub">Napíš stranu, na ktorej si skončila.</span>':!fin&&v<g.target&&!e.note?'<span class="gsub">'+pickLine(g,k)+'</span>':'')+'</button>';
+ var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(emoPre(e))+esc(g.book||g.name)+'</span><span class="gsub">'+sub+'</span>'+(P?'<span class="progress" style="display:block;margin:8px 0 6px"><i style="width:'+Math.min(100,Math.round(pg/P*100))+'%"></i></span>':'')+(!fin&&!pg?'<span class="gsub">Napíš stranu, na ktorej si skončila.</span>':!fin&&v<g.target&&!e.note?'<span class="gsub">'+pickLine(g,k)+'</span>':'')+'</button>';
  h+='<label class="numwrap" style="display:flex;flex-direction:column"><span class="sr">Na ktorej strane si skončila: '+esc(g.book||'')+'</span><input class="numin" type="number" inputmode="numeric" min="0" data-a="bookSet" data-id="'+g.id+'" value="'+(e.b===g.bookId&&e.p?e.p:'')+'" placeholder="strana"><span class="gsub" style="text-align:center;margin-top:4px;color:var(--accent)">dnes '+v+'/'+g.target+'</span></label></div>';
  
  if(fin){var ri=-1;(S.read||[]).forEach(function(r,i){if(r.t===g.book&&r.d===g.finished)ri=i});if(ri>=0){var rr=S.read[ri];h+='<div class="extra"><span class="small" style="font-weight:600;text-align:center">Aká bola?</span>'+starRow('book',ri,rr.r||0)+'<textarea data-a="rateNote" data-k="book" data-id="'+ri+'" rows="2" placeholder="Čo ti v nej utkvelo? (nepovinné)">'+esc(rr.n||'')+'</textarea></div>'}}
@@ -921,7 +997,7 @@ function renderGoal(g,k,t){
  var wk='';
  if(isWeekly(g)){var wc=weekCount(S,g,k),wt=weekTarget(g,k);wk='<span class="cups" aria-hidden="true">';for(var wi=0;wi<wt;wi++)wk+='<i class="cup wk'+(wi<wc?' on':'')+'"></i>';wk+='</span>';var wline=(wc>=wt?'Týždeň splnený! ':'')+wc+' / '+wt+' tento týždeň';if(m==='choice'&&v&&e.c)sub=wline+' · Dnes: '+esc(e.c);else if(!v&&wc<wt&&!e.note)sub=wline+'</span><span class="gsub">'+pickLine(g,k);else sub=wline+(e.note?' · '+esc(e.note):'')}
  var full=num&&g.min&&(+v||0)>=g.target,cupsRow='';
- var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(e.e?e.e+' ':'')+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+disp+' / '+g.target+(g.unit&&g.kind!=='water'?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
+ var h='<div class="card"><div class="row"><button class="gtap grow" data-a="toggleOpen" data-id="'+g.id+'" aria-expanded="'+(open?'true':'false')+'"><span class="gname">'+catIcon(g)+(emoPre(e))+esc(g.name)+(num?' <span style="font-size:12px;font-weight:500;color:var(--accent)">'+disp+' / '+g.target+(g.unit&&g.kind!=='water'?' '+esc(g.unit):'')+'</span>':'')+(full?' <span aria-label="plný cieľ" style="color:var(--streak)">★</span>':'')+'</span><span class="gsub">'+sub+'</span>'+wk;
  if(num){
   if(g.target<=12&&stepOf(g)===1&&!g.sumWeek){var isW=g.kind==='water';cupsRow='<div class="cups'+(isW?' glasses':'')+'" aria-hidden="true">';for(var i=0;i<g.target;i++)cupsRow+=isW?'<svg class="glass'+(i<v?' on':'')+'" width="20" height="24" viewBox="0 0 20 24">'+vesselOf(g).shape+(i<v?vesselOf(g).lvl:'')+'</svg>':'<i class="cup'+(i<v?' on':'')+'"></i>';cupsRow+='</div>';if(isW){var vs=vesselOf(g);cupsRow+='<div class="small" style="margin-top:6px">'+fmtL((+v||0)*vs.ml)+' z '+fmtL(g.target*vs.ml)+' · 1 '+vs.w[0]+' = '+vs.ml+' ml'+'</div>'}}
   else h+='<span class="progress" style="display:block"><i style="width:'+Math.min(100,Math.round(disp/g.target*100))+'%"></i></span>';
@@ -944,9 +1020,8 @@ function renderGoal(g,k,t){
   h+='</div></div>';
  }
  if(open){
-  h+='<div class="extra"><label class="f">Poznámka<textarea data-a="note" data-id="'+g.id+'" placeholder="napr. ako to dnes išlo…">'+esc(e.note||'')+'</textarea></label><div class="emojis" role="group" aria-label="Emoji">';
-  EMOJIS.forEach(function(em){h+='<button class="emo'+(e.e===em?' on':'')+'" data-a="emoji" data-id="'+g.id+'" data-v="'+em+'" aria-pressed="'+(e.e===em?'true':'false')+'">'+em+'</button>'});
-  h+='</div></div>';
+  h+='<div class="extra"><label class="f">Poznámka<textarea data-a="note" data-id="'+g.id+'" placeholder="napr. ako to dnes išlo…">'+esc(e.note||'')+'</textarea></label>'+emojiRows(g,e);
+  h+='</div>';
  }
  return h+'</div>';
 }
@@ -1233,6 +1308,7 @@ document.addEventListener('click',function(ev){
   case 'choose':g=goal(id);S.log[k]=S.log[k]||{g:{}};var ce=S.log[k].g[id]||{v:false,note:'',e:''};ce.c=v;ce.v=true;S.log[k].g[id]=ce;commit();break;
   case 'onbStart':startOnboarding(+(v||1));break;
   case 'toggleOpen':view.open[id]=!view.open[id];render();break;
+  case 'mood':g=goal(id);S.log[k]=S.log[k]||{g:{}};var em2=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};em2.m=em2.m===v?'':v;S.log[k].g[id]=em2;commit();break;
   case 'emoji':g=goal(id);S.log[k]=S.log[k]||{g:{}};var e=S.log[k].g[id]||{v:g.type==='count'?0:false,note:'',e:''};e.e=e.e===v?'':v;S.log[k].g[id]=e;commit();break;
   case 'forgive':if(forgiveYesterday(S))commit();break;
   case 'backToday':view.dayKey=todayKey();render();break;
@@ -1241,6 +1317,9 @@ document.addEventListener('click',function(ev){
   case 'editDay':view.dayKey=v;view.tab='today';render();window.scrollTo(0,0);break;
   case 'setTheme':var fromU=view.toast&&view.toast.type==='unlock';S.theme=v;view.toast=null;commit();if(fromU)setTimeout(function(){launchConfetti('happy')},60);break;
   case 'closeToast':view.toast=null;render();break;
+  case 'badgeOpen':view.badge=id;render();break;
+  case 'badgeClose':if(el.tagName==='DIV'&&ev.target!==el)break;view.badge=null;render();break;
+  case 'badgesAll':view.allBadges=!view.allBadges;render();break;
   case 'settings':view.sheet=true;view.importMsg='';render();break;
   case 'closeSheet':view.sheet=false;view.editGoal=null;view.reorder=false;view.sub=null;render();break;
   case 'sub':view.sub=v;view.pushMsg='';render();break;
@@ -1306,7 +1385,9 @@ if(window.matchMedia)try{matchMedia('(prefers-color-scheme: dark)').addEventList
 refreshProgress(S);
 lastTodayStatus=status(S,todayKey());
 if(!S.onboarded)view.onb={first:true,step:1,name:S.name||'',cats:[],picks:{},vals:{},custom:{},msg:''};
+try{if(S.onboarded)checkBadges(false)&&saveLocal()}catch(e){}
 render();
+(function(){if(S.onboarded&&!view.onb){checkBadges(false);saveLocal()}})();
 (function(){var wp=wrapPending();if(wp&&!view.onb)setTimeout(function(){if(!view.wrap&&!view.onb&&!view.sheet)openWrap(wp)},600)})();
 setTimeout(function(){try{pushSync()}catch(e){}},2000);document.addEventListener('visibilitychange',function(){if(!document.hidden){try{pushSync()}catch(e){}}});
 initSync();
