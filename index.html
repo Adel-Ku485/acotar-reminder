@@ -277,6 +277,8 @@ body{background-color:transparent}
 .trth.lv0{opacity:.7}.trth.lv2{box-shadow:0 0 0 2px var(--accent)}.trth.lv3{box-shadow:0 0 0 2px var(--streak),0 0 14px var(--streak)}
 .ook{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:9px 16px;font:700 14px/1 inherit;font-family:inherit;background:var(--c,var(--o-accent));color:#fff;cursor:pointer}
 .ogroup.done .oopt{flex-wrap:wrap}.osum{display:block;font-size:12.5px;opacity:.75;font-weight:500}.oedit{font-size:12px;font-weight:700;color:var(--c,var(--o-accent));margin-left:8px}
+.okrow{justify-content:flex-end;gap:10px;align-items:flex-end}.okrow .okst{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}.okrow .okst b{min-width:64px;text-align:center;font-size:14px;color:var(--o-text)}
+.ostepb.sm{width:34px;height:34px;font-size:16px}
 </style>
 </head>
 <body>
@@ -1230,15 +1232,16 @@ function renderOnb(){
     h+='<div class="ogroup'+(on?' on':'')+'"><button class="oopt'+(on?' on':'')+'" data-a="onbSug" data-v="'+key+'" aria-pressed="'+(on?'true':'false')+'"><span class="obox">'+(on?svg(CHECK,11,3.2):'')+'</span><span class="ogrow">'+esc(s.name)+'</span>'+(on?'':'<span class="otag">'+esc(sugTag(s,val))+'</span>')+'</button>';
     if(on&&s0.alt){var ai=(o.alt||{})[key]||0;h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start"><span style="width:100%">'+esc(s0.altQ||'Ako to chceš zapisovať?')+'</span>'+s0.alt.map(function(a,j){return '<button class="ochipb'+(ai===j?' on':'')+'" data-a="onbAlt" data-v="'+key+'" data-n="'+j+'" aria-pressed="'+(ai===j?'true':'false')+'">'+esc(a.l)+'</button>'}).join('')+'</div>'}
     if(on&&s.mode==='book')h+='<div class="ostep" style="flex-direction:column;align-items:stretch;gap:8px"><label class="ofield" style="margin:0">Názov knihy<input data-a="onbBook" data-f="title" data-v="'+key+'" value="'+esc(s.book)+'" placeholder="napr. Dvor ruží a tŕnia"></label><label class="ofield" style="margin:0">Počet strán<input type="number" inputmode="numeric" min="1" data-a="onbBook" data-f="pages" data-v="'+key+'" value="'+(s.pages||'')+'" placeholder="napr. 419"></label><details class="gmore"'+(s.cur?' open':'')+'><summary>Viac možností</summary><label class="ofield" style="margin:10px 0 0">Kde si teraz? <span style="font-weight:400;opacity:.75">(strana, ak už máš rozčítané)</span><input type="number" inputmode="numeric" min="0" data-a="onbBook" data-f="cur" data-v="'+key+'" value="'+(s.cur||'')+'" placeholder="napr. 120"></label></details></div>';
+    var stp='';
     if(on&&(s.freq==='week'||((isNum(s.mode)||s.mode==='book')&&!s.fixed))){
-     h+='<div class="ostep q"><span>'+esc(sugQuestion(s))+'</span><span class="row ctr" style="gap:8px"><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="-1" aria-label="Menej">−</button><b>'+esc(sugTag(s,val).replace(' denne','').replace(' týždenne',''))+'</b><button class="ostepb" data-a="onbVal" data-v="'+key+'" data-d="1" aria-label="Viac">+</button></span></div>';
+     stp='<div class="okst"><span>'+esc(sugQuestion(s))+'</span><span class="row" style="gap:6px;align-items:center"><button class="ostepb sm" data-a="onbVal" data-v="'+key+'" data-d="-1" aria-label="Menej">−</button><b>'+esc(sugTag(s,val).replace(' denne','').replace(' týždenne',''))+'</b><button class="ostepb sm" data-a="onbVal" data-v="'+key+'" data-d="1" aria-label="Viac">+</button></span></div>';
     }
     if(on&&s.limit)h+='<div class="ostep q"><span>'+esc(s.limit.q)+'</span><span class="row ctr" style="gap:8px"><button class="ostepb" data-a="onbLim" data-v="'+key+'" data-d="-1" aria-label="Menej">−</button><b>'+fmtH(s.limVal)+' h</b><button class="ostepb" data-a="onbLim" data-v="'+key+'" data-d="1" aria-label="Viac">+</button></span><span>V iPhone to uvidíš v Čase pred obrazovkou.</span></div>';
     if(on&&s.mode==='time')h+='<div class="ostep" style="flex-direction:column;align-items:stretch"><label class="ofield" style="margin:0">Do koľkej?<input type="time" data-a="onbTime" data-v="'+key+'" value="'+esc(s.time||'')+'"></label></div>';
     if(on&&s0.allowPick)h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start"><span style="width:100%">Povolená výnimka (nepokazí sériu)</span>'+[[0,'Žiadna'],[1,'1× týždenne'],[2,'2× týždenne']].map(function(x){return '<button class="ochipb'+((s.allow||0)===x[0]?' on':'')+'" data-a="onbAllow" data-v="'+key+'" data-n="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
     if(on&&s.kind==='water'){var cv=o.vessel&&o.vessel[key]||'glass250';h+='<div class="ostep" style="flex-wrap:wrap;gap:6px;justify-content:flex-start"><span style="width:100%">Z čoho najčastejšie piješ?</span>'+Object.keys(VESSELS).map(function(vk){return '<button class="ochipb'+(cv===vk?' on':'')+'" data-a="onbVessel" data-v="'+key+'" data-ves="'+vk+'" aria-pressed="'+(cv===vk?'true':'false')+'">'+VESSELS[vk].name+'</button>'}).join('')+'<span style="width:100%">Odporúča sa asi 1,6 l z pitia denne, pri cvičení a v teple viac.</span></div>'}
     if(on&&s.minNote)h+='<div class="ostep"><span>'+esc(s.minNote)+'</span></div>';
-    if(on)h+='<div class="ostep" style="justify-content:flex-end"><button class="ook" data-a="onbOk" data-v="'+key+'">'+svg(CHECK,14,3)+'Hotovo</button></div>';
+    if(on)h+='<div class="ostep okrow">'+stp+'<button class="ook" data-a="onbOk" data-v="'+key+'">'+svg(CHECK,14,3)+'Hotovo</button></div>';
     h+='</div>';
    });
    (o.custom[cid]||[]).forEach(function(cu,ci){h+=customCard(cid,ci,cu)});
