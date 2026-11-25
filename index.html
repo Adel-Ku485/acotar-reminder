@@ -266,6 +266,15 @@ body{background-color:transparent}
 .gmore summary::-webkit-details-marker{display:none}
 .gmore summary:after{content:'›';font-size:20px;transition:transform .2s}.gmore[open] summary:after{transform:rotate(90deg)}
 .tokbtn{background:none;border:none;padding:0;font:inherit;text-align:left;display:inline-flex;align-items:center;gap:4px;color:var(--muted);cursor:pointer}
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:4px;margin:0 0 12px}
+.seg button{flex:1;border:0;background:transparent;color:var(--muted);font:600 14px/1.2 inherit;font-family:inherit;padding:10px 6px;border-radius:12px;cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--onAccent)}
+.phic{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.phic.big{width:96px;height:96px}
+.phc.locked .phic{color:var(--muted);background:color-mix(in srgb,var(--muted) 12%,transparent)}
+.phc.cur{border:1.5px solid var(--accent)}
+.trth{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:4px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.trth.lv0{opacity:.7}.trth.lv2{box-shadow:0 0 0 2px var(--accent)}.trth.lv3{box-shadow:0 0 0 2px var(--streak),0 0 14px var(--streak)}
 </style>
 </head>
 <body>
@@ -450,6 +459,7 @@ function normalize(s){
  if(!Array.isArray(s.unlocked))s.unlocked=d.unlocked;
  if(s.unlocked.indexOf('spring')<0)s.unlocked.push('spring');
  if(s.unlocked.indexOf('base')<0)s.unlocked.push('base');
+ if(!Array.isArray(s.phases)){s.phases=[0];var bb=s.best||0;for(var pi=1;pi<7;pi++)if(bb>=phaseAt(s,pi))s.phases.push(pi)}
  if(!s.log||typeof s.log!=='object')s.log={};
  if(s.onboarded===false&&(s.goals.length||Object.keys(s.log).length))s.onboarded=true;
  s.goals.forEach(function(g){if(g.options&&g.options.indexOf('posilňovňa')>=0){var nw=EX_OPTS.slice(0,-1);g.options.forEach(function(x){if(EX_OLD.indexOf(x)<0&&nw.indexOf(x)<0&&x!=='iné')nw.push(x)});nw.push('iné');g.options=nw}});
@@ -520,10 +530,16 @@ function refreshProgress(S){
  var cur=streak(S);if(cur>S.best)S.best=cur;
  var fresh=[];
  ACOTAR.forEach(function(t){if(S.best>=courtAt(S,t)&&S.unlocked.indexOf(t.id)<0){S.unlocked.push(t.id);fresh.push(t.id)}});
+ if(!Array.isArray(S.phases))S.phases=[0];lastFreshPh=[];
+ PHASES.forEach(function(_,i){if(S.best>=phaseAt(S,i)&&S.phases.indexOf(i)<0){S.phases.push(i);lastFreshPh.push(i)}});
  return fresh;
 }
 function courtLen(S){if(S&&S.target&&/^\d{4}-\d{2}-\d{2}$/.test(S.target.date||'')&&S.start&&S.target.date>S.start){var L=daysDiff(S.start,S.target.date)+1;return Math.max(21,Math.min(120,L-3))}return 0}
 function courtAt(S,t){if(!t||t.pack!=='acotar')return 0;var i=ACOTAR.indexOf(t);if(i<=0)return 0;if(i===1)return 7;var N=courtLen(S),fr=[1/3,1/2,2/3,5/6,1],def=[14,21,30,45,60],v=7;for(var j=2;j<=i;j++){var x=N?Math.round(7+(N-7)*(j-1)/5):def[j-2];v=Math.max(v+1,x)}return v}
+var PHASES=[{t:'Mala by som…',m:'zvažovanie',l:''},{t:'Skúsim to.',m:'prvé kroky',l:'Prvý týždeň za tebou. Väčšina ľudí sa sem ani nedostane.'},{t:'Začínam.',m:'prvá kríza',l:'Nadšenie opadá a ty si stále tu. Toto je ten moment.'},{t:'Stáva sa z toho zvyk.',m:'opakovanie',l:'Už nerozhoduješ, či áno. Len kedy.'},{t:'Vydržím.',m:'disciplína',l:'Motivácia odišla, ty si ostala.'},{t:'Patrí to ku mne.',m:'automatickosť',l:'Keby si to vynechala, chýbalo by ti to.'},{t:'To som ja.',m:'identita',l:'Toto už nie je cieľ. Toto si ty.'}];
+function phaseAt(S,i){if(i<=0)return 0;if(i===1)return 7;var N=courtLen(S),def=[14,21,30,45,66],v=7;for(var j=2;j<=i;j++){var x=N?Math.round(7+(N-7)*(j-1)/5):def[j-2];v=Math.max(v+1,x)}return v}
+function curPhase(S){var c=0;for(var i=0;i<PHASES.length;i++)if((S.phases||[]).indexOf(i)>=0)c=i;return c}
+var lastFreshPh=[];
 function nextCourt(S){for(var i=0;i<ACOTAR.length;i++){if(S.unlocked.indexOf(ACOTAR[i].id)<0)return ACOTAR[i]}return null}
 function plural(n,one,few,many){return n===1?one:(n>=2&&n<=4?few:many)}
 function unitWord(n,u){return u==='noc'?plural(n,'noc','noci','nocí'):plural(n,'deň','dni','dní')}
@@ -543,6 +559,18 @@ function pwOpen(){return S.unlocked.indexOf('night')>=0}
 function pwCount(id){var n=0,L=S.pwLog||{};for(var k in L)if(L[k]===id)n++;return n}
 function pwLevel(id){var c=pwCount(id),l=0;PW_LV.forEach(function(x){if(c>=x)l++});return l}
 function pwSync(){if(!pwOpen()||!S.train)return;if(!S.pwLog)S.pwLog={};var T=todayKey(),ks=[T,addDays(T,-1),view.dayKey];ks.forEach(function(k){if(!k||k<(S.trainStart||T))return;var d=status(S,k)==='done';if(d&&!S.pwLog[k])S.pwLog[k]=S.train;else if(!d&&S.pwLog[k])delete S.pwLog[k]})}
+var PH_IC=["<path d=\"M18 52V14a2 2 0 0 1 2-2h22a2 2 0 0 1 2 2v38\"/><path d=\"M14 52h36\"/><path d=\"M18 12l14 5v39l-14-4\"/><circle cx=\"28\" cy=\"34\" r=\"1.6\" fill=\"currentColor\" stroke=\"none\"/><path d=\"M48 22l5-3M49 30h6M48 38l5 3\" opacity=\".7\"/>", "<path d=\"M22 14c4 0 6 5 6 11s-2 9-6 9-6-4-6-9 2-11 6-11z\"/><path d=\"M17 40h10v4a5 5 0 0 1-10 0z\"/><path d=\"M42 22c4 0 6 5 6 11s-2 9-6 9-6-4-6-9 2-11 6-11z\" opacity=\".55\"/><path d=\"M37 48h10v2a5 5 0 0 1-10 0z\" opacity=\".55\"/>", "<path d=\"M32 54c-9 0-14-6-14-13 0-8 7-12 9-20 4 4 5 8 5 11 2-2 3-5 3-8 6 5 11 11 11 18 0 7-5 12-14 12z\"/><path d=\"M32 54c-4 0-6-3-6-6 0-4 4-6 5-10 3 3 7 6 7 10 0 3-2 6-6 6z\"/><path d=\"M8 22c6-1 9 1 12 3M6 30c5 0 8 1 10 3M10 14c5 0 8 2 10 5\" opacity=\".6\"/>", "<path d=\"M48 26A17 17 0 0 0 17 22\"/><path d=\"M16 14v9h9\"/><path d=\"M16 38a17 17 0 0 0 31 4\"/><path d=\"M48 50v-9h-9\"/><circle cx=\"32\" cy=\"32\" r=\"3\"/>", "<circle cx=\"32\" cy=\"13\" r=\"4\"/><path d=\"M32 17v37\"/><path d=\"M22 26h20\"/><path d=\"M12 38c2 9 10 16 20 16s18-7 20-16\"/><path d=\"M8 42l4-4 4 4M48 42l4-4 4 4\"/>", "<circle cx=\"32\" cy=\"32\" r=\"21\"/><path d=\"M32 8v4M32 52v4M8 32h4M52 32h4\"/><path d=\"M40 24l-5 11-11 5 5-11z\"/><circle cx=\"32\" cy=\"32\" r=\"1.6\" fill=\"currentColor\" stroke=\"none\"/>", "<path d=\"M20 18a16 16 0 0 1 26 6\"/><path d=\"M16 28a17 17 0 0 0 0 10\"/><path d=\"M48 30c1 6 0 12-3 17\"/><path d=\"M24 26a10 10 0 0 1 17 4c1 5 1 11-2 18\"/><path d=\"M22 34c0 6-1 10-3 14\"/><path d=\"M28 31a4 4 0 0 1 8 1c0 7-1 13-4 19\"/><path d=\"M28 40c0 5-1 9-3 13\"/>"];
+function phIcon(i,sz){return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+PH_IC[i]+'</svg>'}
+function isMoja(){return S.theme==='base'}
+var TR_IDS=['vytr','disc','pokoj','sila','odvaha','rovn','seba'];
+var TR={vytr:{n:'Vytrvalosť',t:'Majsterka vytrvalosti',i:'<path d="M3 20l6-10 4 6 3-4 5 8z"/><path d="M9 10l1.5-2.5L12 10"/>'},disc:{n:'Disciplína',t:'Majsterka disciplíny',i:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>'},pokoj:{n:'Pokoj',t:'Majsterka pokoja',i:'<path d="M3 15c3-3 6 3 9 0s6 3 9 0"/><path d="M3 10c3-3 6 3 9 0s6 3 9 0"/>'},sila:{n:'Sila',t:'Majsterka sily',i:'<path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/>'},odvaha:{n:'Odvaha',t:'Majsterka odvahy',i:'<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'},rovn:{n:'Rovnováha',t:'Majsterka rovnováhy',i:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="M5 8l-2.5 6h5zM19 8l-2.5 6h5z"/>'},seba:{n:'Sebadôvera',t:'Majsterka sebadôvery',i:'<path d="M12 3l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 15.4 7 18.2l1.2-5.6L4 8.8l5.6-.6z"/>'}};
+var TR_LVN=['Začína','Rastie','Silná','Majstrovská'];
+function trOpen(){return (S.phases||[]).indexOf(6)>=0}
+function trCount(id){var n=0,L=S.trLog||{};for(var k in L)if(L[k]===id)n++;return n}
+function trLevel(id){var c=trCount(id),l=0;PW_LV.forEach(function(x){if(c>=x)l++});return l}
+function trSync(){if(!trOpen()||!S.trait)return;if(!S.trLog)S.trLog={};var T=todayKey(),ks=[T,addDays(T,-1),view.dayKey];ks.forEach(function(k){if(!k||k<(S.traitStart||T))return;var d=status(S,k)==='done';if(d&&!S.trLog[k])S.trLog[k]=S.trait;else if(!d&&S.trLog[k])delete S.trLog[k]})}
+var BN_BASE={s3:['Prvá iskra','Tri dni. Iskra, z ktorej môže byť oheň.'],s7:['Týždeň v rade','Celý týždeň. Väčšina ľudí to zabalí v stredu. Ty nie.'],s14:['Dva týždne','Dva týždne ticho a vytrvalo. Takto sa stavajú návyky.'],s30:['Mesiac bez prestávky','Mesiac bez prerušenia. Toto si zapamätaj.'],s60:['Neúnavná','Dva mesiace. To už nie je náhoda, to je charakter.'],s100:['Legenda','Sto dní. O tomto sa raz bude rozprávať.'],d10:['Prvých desať','Desať splnených dní. Rozbeh je za tebou.'],d50:['Polstovka','Päťdesiat dní. Daj si niečo dobré, zaslúžiš si to.'],d100:['Stovka','Sto splnených dní. Korunka ti pristane.'],w100:['Oceán v pohári','Sto pohárov. Tvoje telo ďakuje. Potichu, ale ďakuje.'],t50:['Železná vôľa','Päťdesiat tréningov. Gauč si na teba už ani nespomína.'],b1:['Knihomoľka','Prvá kniha za tebou. Ďalšia už čaká.'],p1000:['Tisíc strán','Tisíc strán. To je slušná knižnica v hlave.'],pr1:['Upratané','Všetko odškrtnuté. Pocit, ktorý sa nedá kúpiť.'],fg:['Druhá šanca','Odpustenie je na to, aby sa používalo. Aj to patrí k ceste.']};
+function bnm(b){var x=isMoja()&&BN_BASE[b.id];return x?{n:x[0],l:x[1]}:{n:b.n,l:b.l}}
 function powerSvg(id,mode){var vb=mode==='strip'?'-120 40 700 200':mode==='thumb'?(id==='night'?'60 30 340 260':'110 20 240 240'):'0 0 460 300';return '<svg class="pw'+(mode==='thumb'?' still':'')+'" viewBox="'+vb+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+POWERS[id]+'</svg>'}
 var LS_KEY='personal-reminder-acotar-v1';
 var S=load();
@@ -605,12 +633,14 @@ function commit(){
  var T=todayKey(),nowSt=status(S,T),celebrate=lastTodayStatus!==null&&lastTodayStatus!=='done'&&nowSt==='done'&&S.celebrated!==T;
  if(celebrate)S.celebrated=T;
  lastTodayStatus=nowSt;
+ var trB=S.trait?trLevel(S.trait):0;trSync();var trA=S.trait?trLevel(S.trait):0;if(S.trait&&trA>trB){var tid=S.trait;setTimeout(function(){showBanner(trA===3?TR[tid].t+'!':TR[tid].n+': '+TR_LVN[trA].toLowerCase()+'!',trCount(tid)+' dní tréningu.'+(trA<3?' Ďalšia úroveň pri '+PW_LV[trA]+'.':''));try{launchConfetti('happy')}catch(e){}},500)}
  var pwB=S.train?pwLevel(S.train):0;pwSync();var pwA=S.train?pwLevel(S.train):0;
  if(S.train&&pwA>pwB){var pid=S.train;setTimeout(function(){showBanner(pwA===3?PW_TITLE[pid]+'!':POWER_NAME[pid]+' je '+PW_LVN[pwA].toLowerCase()+'!',pwA===3?'150 dní tréningu. Feyre by bola hrdá.':pwCount(pid)+' dní tréningu. Ďalšia úroveň pri '+PW_LV[pwA]+'.');try{launchConfetti('happy')}catch(e){}},500)}
  var fresh=refreshProgress(S);
- var nb=view.toast?0:checkBadges(!!fresh.length);
+ var nb=view.toast?0:checkBadges(!!(S.theme==='base'?lastFreshPh.length:fresh.length));
  saveLocal();
- if(fresh.length)view.toast={type:'unlock',id:fresh[fresh.length-1]};
+ if(S.theme==='base'){if(lastFreshPh.length)view.toast={type:'phase',i:lastFreshPh[lastFreshPh.length-1]}}
+ else if(fresh.length)view.toast={type:'unlock',id:fresh[fresh.length-1]};
  queueWrite();
  render();
  if(view.fill&&view.dayKey!==T&&status(S,view.dayKey)==='done'){view.fill=false;view.dayKey=T;setTimeout(function(){render();window.scrollTo(0,0);launchConfetti('happy');showBanner('Včerajšok doplnený!','Séria je zachránená a odpustenie ti ostalo.')},500)}
@@ -675,7 +705,7 @@ function renderTabs(){
 function greet(){var h=NOW().getHours();return (h<10?'Dobré ránko':h<18?'Ahojky':'Krásny večer')+(S.name?', '+esc(S.name):'')}
 function header(sub){
  var t=themeById(S.theme);
- return '<div class="top"><div><div class="label" style="display:flex;align-items:center;gap:6px">'+(EMBLEMS[t.id]?emblem(t.id,16,'var(--muted)',false):'')+'Personal reminder · '+esc(t.name)+'</div><h1>'+sub+'</h1></div><button class="iconbtn" data-a="settings" aria-label="Nastavenia">'+svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',20)+'</button></div>';
+ return '<div class="top"><div><div class="label" style="display:flex;align-items:center;gap:6px">'+(EMBLEMS[t.id]?emblem(t.id,16,'var(--muted)',false):'')+'Personal reminder · '+(t.id==='base'?'Moja cesta':esc(t.name))+'</div><h1>'+sub+'</h1></div><button class="iconbtn" data-a="settings" aria-label="Nastavenia">'+svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',20)+'</button></div>';
 }
 function fmtDay(k){var d=dateOf(k);return d.getDate()+'. '+(d.getMonth()+1)+'.'}
 
@@ -697,7 +727,9 @@ function renderToday(){
  h+='<div class="card scard"><div class="row" style="gap:14px;align-items:center"><div class="big pop">'+st+'</div><div class="grow"><span class="gname">'+unitWord(st,t.unit)+' v rade</span><button class="gsub tokbtn" data-a="tokInfo" aria-label="Čo je odpustenie">'+tk+' '+plural(tk,'odpustenie','odpustenia','odpustení')+' v zálohe '+svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',13,2.2)+'</button></div>'+(doneToday?'<span class="donechip">'+svg(CHECK,14,3)+'Dnes splnené</span>':'')+'</div><div class="dots">';
  for(var i=6;i>=0;i--){var dk=addDays(todayKey(),-i),ds=status(S,dk);var cls='dot '+(ds==='done'?'done':ds==='forgiven'?'forgiven':ds==='partial'?'partial':dk<S.start?'pre':'')+(i===0?' today':'')+(dk===view.dayKey?' sel':'');h+=(dk>=S.start?'<button class="'+cls+'" data-a="editDay" data-v="'+dk+'" aria-label="'+(i===0?'Dnes':'Upraviť '+fmtDay(dk))+'">':'<div class="'+cls+'" title="'+fmtDay(dk)+'">')+WDS[wdOf(dk)]+(dk>=S.start?'</button>':'</div>')}
  h+='</div>';
- if(nc){var need=courtAt(S,nc)-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalší: <b style="color:var(--text)">'+esc(nc.name)+'</b></span><span>ešte '+need+' '+unitWord(need,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/courtAt(S,nc)*100))+'%"></i></div></div>'}
+ var np=isMoja()?(function(){for(var i=0;i<7;i++)if((S.phases||[]).indexOf(i)<0)return i;return -1})():-1;
+ if(isMoja()){if(np>=0){var nd=phaseAt(S,np)-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalšia fáza: <b style="color:var(--text);font-family:var(--fd,Lora),serif;font-style:italic">'+esc(PHASES[np].t)+'</b></span><span>ešte '+nd+' '+unitWord(nd,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/phaseAt(S,np)*100))+'%"></i></div></div>'}else if(S.trait){var tl=trLevel(S.trait),tc=trCount(S.trait);h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Posilňuješ: <b style="color:var(--text)">'+TR[S.trait].n+'</b> · '+TR_LVN[tl]+'</span><span>'+(tl<3?'ešte '+(PW_LV[tl]-tc)+' '+unitWord(PW_LV[tl]-tc,'den'):'Majstrovská')+'</span></div></div>'}else h+='<button class="small gtap" data-a="tab" data-v="courts" style="text-align:left;color:var(--accent);font-weight:600;padding:0">To si ty. Vyber si vlastnosť, ktorú budeš posilňovať ›</button>'}
+ else if(nc){var need=courtAt(S,nc)-S.best;h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Ďalší: <b style="color:var(--text)">'+esc(nc.name)+'</b></span><span>ešte '+need+' '+unitWord(need,'den')+'</span></div><div class="progress"><i style="width:'+Math.min(100,Math.round(S.best/courtAt(S,nc)*100))+'%"></i></div></div>'}
  else if(S.train){var pl=pwLevel(S.train),pc=pwCount(S.train);h+='<div><div class="small" style="display:flex;justify-content:space-between"><span>Trénuješ: <b style="color:var(--text)">'+esc(POWER_NAME[S.train])+'</b> · '+PW_LVN[pl]+'</span><span>'+(pl<3?'ešte '+(PW_LV[pl]-pc)+' '+unitWord(PW_LV[pl]-pc,'den'):'Majstrovská')+'</span></div><div class="progress"><i style="width:'+(pl<3?Math.round((pc-(pl?PW_LV[pl-1]:0))/(PW_LV[pl]-(pl?PW_LV[pl-1]:0))*100):100)+'%"></i></div></div>'}
  else h+='<button class="small gtap" data-a="tab" data-v="courts" style="text-align:left;color:var(--accent);font-weight:600;padding:0">Všetky dvory odomknuté. Vyber si moc, ktorú prebudíš ›</button>';
  h+='<div class="small" style="margin-top:8px;display:flex;align-items:center;gap:6px;color:var(--muted)">'+svg('<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',15,2)+'<span>'+(ti.mode==='to'?'<b style="color:var(--stat1);font-weight:700">'+ti.n+'</b> '+plural(ti.n,'deň','dni','dní')+' do '+esc(ti.label):ti.mode==='day'?'<b style="color:var(--stat1);font-weight:700">Dnes</b> '+(ti.label==='Vianoc'?'sú Vianoce 🎄':'je ten deň 🎉'):'<b style="color:var(--stat1);font-weight:700">'+ti.n+'</b> '+plural(ti.n,'deň','dni','dní')+' vo výzve')+'</span></div></div>';
@@ -860,11 +892,11 @@ function checkBadges(silent){
 }
 function badgeIcon(b,on,size){return '<span class="bdg'+(on?' on':'')+'" style="width:'+size+'px;height:'+size+'px">'+svg(BI[b.i],Math.round(size*.5),1.7)+'</span>'}
 function renderBadgeToast(t){var b=BADGES.filter(function(x){return x.id===t.id})[0];if(!b)return '';
- return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bt"><div class="in pop">'+badgeIcon(b,true,88)+'<div class="label">Nový odznak</div><h1 id="bt" style="font-size:26px;margin:0">'+esc(b.n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p><p class="quip" style="margin:0">'+esc(b.l)+'</p><button class="btn solid" data-a="closeToast">Juchú</button></div></div>'}
+ return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bt"><div class="in pop">'+badgeIcon(b,true,88)+'<div class="label">Nový odznak</div><h1 id="bt" style="font-size:26px;margin:0">'+esc(bnm(b).n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p><p class="quip" style="margin:0">'+esc(bnm(b).l)+'</p><button class="btn solid" data-a="closeToast">Juchú</button></div></div>'}
 function renderTokInfo(){var tk=tokens(S),td=totalDone(S),nx=7-td%7;
  return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="ti" data-a="tokClose"><div class="in pop"><span style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--soft,rgba(127,127,127,.12));color:var(--accent)">'+svg('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',34,2)+'</span><div class="label">Odpustenie</div><h1 id="ti" style="font-size:24px;margin:0">Máš '+tk+' v zálohe</h1><p style="margin:0;line-height:1.5">Odpustenie zachráni sériu, keď jeden deň nevyjde. Jedno máš hneď na štarte a za každých 7 splnených dní pribudne ďalšie. Naraz môžeš mať najviac 2.</p><p class="small" style="margin:0">'+(tk>=2?'Záloha je plná.':'Ďalšie pribudne o '+nx+' '+plural(nx,'splnený deň','splnené dni','splnených dní')+'.')+'</p><button class="btn" data-a="tokClose">Rozumiem</button></div></div>'}
 function renderBadgeInfo(){var b=BADGES.filter(function(x){return x.id===view.badge})[0];if(!b)return '';var d=badgeData(),on=S.badges&&S.badges[b.id],cur=Math.min(d[b.k]||0,b.t);
- return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bi" data-a="badgeClose"><div class="in pop">'+badgeIcon(b,!!on,80)+'<div class="label">'+esc(b.g)+'</div><h1 id="bi" style="font-size:24px;margin:0">'+esc(b.n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p>'+(on?'<p class="small" style="margin:0">Získané '+fmtDay(on)+'</p><p class="quip" style="margin:0">'+esc(b.l)+'</p>':'<div style="width:100%"><div class="progress"><i style="width:'+Math.round(cur/b.t*100)+'%"></i></div><p class="small" style="margin:6px 0 0">'+cur+' z '+b.t+'</p></div>')+'<button class="btn" data-a="badgeClose">Zavrieť</button></div></div>'}
+ return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="bi" data-a="badgeClose"><div class="in pop">'+badgeIcon(b,!!on,80)+'<div class="label">'+esc(b.g)+'</div><h1 id="bi" style="font-size:24px;margin:0">'+esc(bnm(b).n)+'</h1><p style="margin:0;font-weight:600">'+esc(b.d)+'</p>'+(on?'<p class="small" style="margin:0">Získané '+fmtDay(on)+'</p><p class="quip" style="margin:0">'+esc(bnm(b).l)+'</p>':'<div style="width:100%"><div class="progress"><i style="width:'+Math.round(cur/b.t*100)+'%"></i></div><p class="small" style="margin:6px 0 0">'+cur+' z '+b.t+'</p></div>')+'<button class="btn" data-a="badgeClose">Zavrieť</button></div></div>'}
 function renderBadgesSection(){
  var d=badgeData(),bs=S.badges||{},vis=BADGES.filter(function(b){return badgeVisible(b,d)}),earned=vis.filter(function(b){return bs[b.id]}).length;
  var stats=[[d.done,plural(d.done,'splnený deň','splnené dni','splnených dní')],[d.streak,'najdlhšia séria']];
@@ -876,21 +908,34 @@ function renderBadgesSection(){
  var list=vis.slice().sort(function(a,b){var ea=bs[a.id]?1:0,eb=bs[b.id]?1:0;if(ea!==eb)return eb-ea;if(!ea)return Math.min(1,(d[b.k]||0)/b.t)-Math.min(1,(d[a.k]||0)/a.t);return 0});
  if(!view.allBadges)list=list.slice(0,9);
  h+='<h2 style="margin-top:8px">Odznaky <span class="small" style="font-family:inherit">'+earned+' z '+vis.length+'</span></h2><div class="bgrid">';
- list.forEach(function(b){var on=bs[b.id],pr=Math.min(1,(d[b.k]||0)/b.t);h+='<button class="bcard'+(on?'':' lk')+'" data-a="badgeOpen" data-id="'+b.id+'">'+badgeIcon(b,!!on,48)+'<span class="bn">'+esc(b.n)+'</span><span class="bs">'+esc(b.d)+'</span>'+(on?'':'<span class="progress" style="display:block;width:70%;margin:6px auto 0"><i style="width:'+Math.round(pr*100)+'%"></i></span>')+'</button>'});
+ list.forEach(function(b){var on=bs[b.id],pr=Math.min(1,(d[b.k]||0)/b.t);h+='<button class="bcard'+(on?'':' lk')+'" data-a="badgeOpen" data-id="'+b.id+'">'+badgeIcon(b,!!on,48)+'<span class="bn">'+esc(bnm(b).n)+'</span><span class="bs">'+esc(b.d)+'</span>'+(on?'':'<span class="progress" style="display:block;width:70%;margin:6px auto 0"><i style="width:'+Math.round(pr*100)+'%"></i></span>')+'</button>'});
  h+='</div>';if(vis.length>9)h+='<button class="obtn-link" style="color:var(--accent);align-self:center" data-a="badgesAll">'+(view.allBadges?'Zobraziť menej':'Zobraziť všetky')+'</button>';
  return h;
 }
 function renderCourts(){
  var h=header('Tvoja cesta');
- h+='<p class="small" style="margin:-6px 0 14px">Feyrina cesta: za každú sériu sa odomkne ďalší dvor. Najlepšia séria: <b style="color:var(--text)">'+S.best+' '+unitWord(S.best,'den')+'</b>.</p><div class="stack">';
+ var mj=isMoja();
+ h+='<div class="seg" role="tablist" aria-label="Cesta"><button role="tab" aria-selected="'+(!mj)+'" class="'+(mj?'':'on')+'" data-a="setPath" data-v="feyre">🌹 Feyrina cesta</button><button role="tab" aria-selected="'+mj+'" class="'+(mj?'on':'')+'" data-a="setPath" data-v="moja">✨ Moja cesta</button></div>';
+ h+='<p class="small" style="margin:0 0 14px">'+(mj?'Z „mala by som“ na „to som ja“. Každá fáza je krok k tomu, aby sa z cieľa stal návyk.':'Feyrina cesta: za každú sériu sa odomkne ďalší dvor.')+' Najlepšia séria: <b style="color:var(--text)">'+S.best+' '+unitWord(S.best,'den')+'</b>.</p><div class="stack">';
  h+='<button class="card row gtap" style="gap:12px;padding:14px 16px;border:1px solid var(--border)" data-a="wrapOpen"><span style="color:var(--accent)">'+svg('<path d="M12 3l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L12 15.4 7 18.2l1.2-5.6L4 8.8l5.6-.6z"/>',22,2)+'</span><span class="grow"><span class="gname">Tvoja doterajšia cesta</span><span class="gsub">Rekapitulácia tvojej výzvy</span></span><span aria-hidden="true" style="color:var(--muted);font-size:22px">›</span></button>';
  h+=renderBadgesSection();
- h+=renderPowersSection();
- h+='<h2 style="margin-top:8px">Dvory</h2>';
- ACOTAR.forEach(function(t){h+=courtCard(t)});
- h+='<h2 style="margin-top:10px">Ďalšie témy</h2>'+courtCard(themeById('base'));
+ if(mj){h+=renderTraitsSection();h+='<h2 style="margin-top:8px">Fázy</h2>';PHASES.forEach(function(_,i){h+=phaseCard(i)})}
+ else{h+=renderPowersSection();h+='<h2 style="margin-top:8px">Dvory</h2>';ACOTAR.forEach(function(t){h+=courtCard(t)})}
  return h+'</div>';
 }
+function phaseCard(i){var P=PHASES[i],on=(S.phases||[]).indexOf(i)>=0,cur=curPhase(S)===i,at=phaseAt(S,i);
+ return '<div class="card row phc'+(on?'':' locked')+(cur?' cur':'')+'" style="gap:14px"><span class="phic">'+phIcon(i,34)+'</span><span class="grow"><span class="gname" style="font-family:var(--fd,Lora),serif;font-style:italic">'+esc(P.t)+'</span><span class="gsub">'+(i+1)+'. '+P.m+(at?' · od série '+at:' · štart')+'</span>'+(!on?'<span class="progress" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(S.best/at*100))+'%"></i></span>':'')+'</span>'+(cur?'<span class="small" style="color:var(--accent);font-weight:700">Si tu</span>':on?'<span style="color:var(--accent)">'+svg(CHECK,20,2.6)+'</span>':'<span style="color:var(--muted)">'+svg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',20,2)+'</span>')+'</div>'}
+function renderTraitsSection(){
+ var h='<h2 style="margin-top:8px">Tvoje vlastnosti</h2>';
+ if(!trOpen())return h+'<div class="card"><p class="small" style="margin:0;font-family:var(--fd,Lora),serif;font-style:italic;font-size:16px;color:var(--accent);line-height:1.45">Návyk ťa zmení viac, ako si myslíš. Po fáze „To som ja.“ si vyberieš vlastnosť a každým splneným dňom ju budeš posilňovať. ✨</p></div>';
+ if(!S.trait)h+='<p class="small" style="margin:-4px 0 10px">Ktorú vlastnosť chceš posilňovať? Každý splnený deň ju posilní. Zmeniť ju môžeš kedykoľvek, pokrok sa ti uloží.</p>';
+ h+='<div class="pwgrid">';
+ TR_IDS.forEach(function(id){var l=trLevel(id),c=trCount(id),on=S.trait===id,nx=l<3?PW_LV[l]:PW_LV[2],pv=l<3?Math.round((c-(l?PW_LV[l-1]:0))/(nx-(l?PW_LV[l-1]:0))*100):100;
+  h+='<button class="card pwt-card'+(on?' on':'')+'" data-a="trainTr" data-v="'+id+'" aria-pressed="'+on+'"><span class="trth lv'+l+'">'+svg(TR[id].i,28,2)+'</span><span class="gname" style="font-size:13px">'+TR[id].n+'</span><span class="gsub" style="font-size:11.5px">'+(l===3?TR[id].t:TR_LVN[l]+' · '+c+'/'+nx)+'</span><span class="progress" style="margin-top:4px"><i style="width:'+pv+'%"></i></span>'+(on?'<span class="pwon">Posilňuješ</span>':'')+'</button>'});
+ return h+'</div>';
+}
+function renderPhaseToast(){var i=view.toast.i,P=PHASES[i];
+ return '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="pht"><div class="in pop"><span class="phic big">'+phIcon(i,56)+'</span><div class="label">Moja cesta · fáza '+(i+1)+' z 7</div><h1 id="pht" style="font-size:30px;margin:0;font-family:var(--fd,Lora),serif;font-style:italic">'+esc(P.t)+'</h1><p class="small" style="margin:0;text-transform:uppercase;letter-spacing:.1em">'+P.m+' · séria '+phaseAt(S,i)+' '+unitWord(phaseAt(S,i),'den')+'</p><p class="quip" style="margin:0">'+esc(P.l)+'</p>'+(i===6?'<p class="small" style="margin:0">Teraz môžeš posilňovať vlastnosti na stránke Cesta.</p>':'')+'<button class="btn solid" data-a="phaseClose">Pokračovať</button></div></div>'}
 function renderPowersSection(){
  var h='<h2 style="margin-top:8px">Tvoje moci</h2>',op=pwOpen();
  if(!op)return h+'<div class="card"><p class="small" style="margin:0;font-family:var(--fd,Lora),serif;font-style:italic;font-size:16px;color:var(--accent);line-height:1.45">Feyre dostala kúsok moci od každého dvora. Ty tiež. Po Nočnom dvore si vyberieš jednu a každým splneným dňom ju budeš prebúdzať. ✨</p></div>';
@@ -957,6 +1002,7 @@ function renderOverlay(){
  if(view.toast&&view.toast.type==='badge')h+=renderBadgeToast(view.toast);
  if(view.badge)h+=renderBadgeInfo();
  if(view.tokInfo)h+=renderTokInfo();
+ if(view.toast&&view.toast.type==='phase')h+=renderPhaseToast();
  if(view.toast&&view.toast.type==='unlock'){
   var t=themeById(view.toast.id);
   var cc=t.c,el0=view.toast.t0?(performance.now()-view.toast.t0)/1000:0,st='';['bg','card','border','text','muted','accent','onAccent','streak'].forEach(function(k){st+='--u'+k+':'+cc[k]+';'});var dl=function(x){return el0>0?'':'transition-delay:'+x+'s'};
@@ -1388,6 +1434,9 @@ document.addEventListener('click',function(ev){
   case 'calPrev':case 'calNext':var p=view.calMonth.split('-'),d=new Date(+p[0],+p[1]-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break;
   case 'calSel':view.calSel=view.calSel===v?null:v;render();break;
   case 'editDay':view.fill=false;view.dayKey=v;view.tab='today';render();window.scrollTo(0,0);break;
+  case 'setPath':if(v==='moja'){if(S.theme!=='base'){S.lastCourt=S.theme;S.theme='base'}}else{var lc=S.lastCourt&&S.unlocked.indexOf(S.lastCourt)>=0?S.lastCourt:'spring';if(S.theme==='base')S.theme=lc}commit();break;
+  case 'trainTr':if(S.trait!==v){S.trait=v;if(!S.traitStart)S.traitStart=todayKey();commit();showBanner('Posilňuješ: '+TR[v].n,'Každý splnený deň ju posilní.')}break;
+  case 'phaseClose':view.toast=null;render();try{launchConfetti('happy')}catch(e){}break;
   case 'trainPw':if(S.train!==v){S.train=v;if(!S.trainStart)S.trainStart=todayKey();commit();showBanner('Trénuješ: '+POWER_NAME[v],'Každý splnený deň ju posilní.')}break;
   case 'setTheme':var fromU=view.toast&&view.toast.type==='unlock';S.theme=v;view.toast=null;commit();if(fromU)setTimeout(function(){launchConfetti('happy')},60);break;
   case 'closeToast':view.toast=null;render();break;
@@ -1396,7 +1445,7 @@ document.addEventListener('click',function(ev){
   case 'tokClose':if(el.tagName==='DIV'&&ev.target!==el)break;view.tokInfo=false;render();break;
   case 'badgeClose':if(el.tagName==='DIV'&&ev.target!==el)break;view.badge=null;render();break;
   case 'badgesAll':view.allBadges=!view.allBadges;render();break;
-  case 'settings':view.sheet=true;view.importMsg='';render();break;
+  case 'settings':view.sheet=true;view.sub=null;view.importMsg='';render();break;
   case 'closeSheet':view.sheet=false;view.editGoal=null;view.reorder=false;view.sub=null;render();break;
   case 'sub':view.sub=v;view.pushMsg='';render();break;
   case 'subBack':view.sub=null;render();break;
